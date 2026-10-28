@@ -361,7 +361,7 @@ body.sleeping .tile .w { color: #6A2418; }
 <div class="toast" id="toast" role="status" popover="manual"></div>
 <audio id="player" preload="none"></audio>
 
-<script src="core.js?v=1"></script>
+<script src="core.js?v=2"></script>
 <script>
 (() => {
 'use strict';
@@ -393,6 +393,14 @@ const TILES = [
 ];
 const TILE = Object.fromEntries(TILES.map((t) => [t.k, t]));
 const QUICK = { coming: { e: '🏃', t: 'On my way' }, love: { e: '❤️', t: 'Love you' }, sleepy: { e: '😴', t: 'Back to sleep' } };
+// The running emoji follows the grown-up: a woman for Mummy, a man for Daddy, anyone else the plain runner
+const MUM_RE = /^(mummy|mum|mumma|mom|mommy|mam|mama|mamma|mammy|ma|maa|mother|mumsy)$/;
+const DAD_RE = /^(daddy|dad|dada|papa|pa|pops|father|baba|daddio)$/;
+function runner(id) {
+  const l = String(labelOf(id) || '').toLowerCase().replace(/[^a-z]/g, '');
+  return MUM_RE.test(l) ? '🏃‍♀️' : DAD_RE.test(l) ? '🏃‍♂️' : '🏃';
+}
+const quickEmoji = (q, from) => (q === 'coming' ? runner(from) : QUICK[q].e);
 const LINES = { sleep: { e: '🌙', t: 'Night night' }, wake: { e: '☀️', t: 'Awake' }, early: { e: '☀️', t: 'Awake early' },
   quiet: { e: '⚠️', t: 'Walkie went quiet' }, back: { e: '✓', t: 'Walkie’s back' }, rest: { e: '💤', t: 'Walkie resting until bedtime' } };
 const ICON = {
@@ -693,13 +701,13 @@ function applyCfg(o) {
 }
 
 /* ---------- Incoming messages ---------- */
-async function onNtfy(m) {
+async function onNtfy(m, live) {
   if (!m || m.event !== 'message' || !m.id || SEEN.has(m.id)) return;
   const ts = m.time * 1000;
   if (ts > Date.now() + 15e3) return;     // a scheduled check-in, not delivered yet
   markSeen(m.id);
   if (ts > S.since) { S.since = ts; put('since', S.since); }
-  if (m.topic === TD()) await onData(m);
+  if (m.topic === TD()) await onData(m, live);
   else if (m.topic === TA()) onAlert(m);
 }
 
@@ -718,7 +726,7 @@ function onAlert(m) {
   refresh();
 }
 
-async function onData(m) {
+async function onData(m, live) {
   const o = await unsealText(m.message);
   if (!o || !o.t) return;
   const ts = m.time * 1000;
@@ -735,6 +743,7 @@ async function onData(m) {
       logEvent({ id: item.eid, ts, type: o.t, detail: o.t === 'voice' ? String(item.dur) : o.q, role: 'parent', who: labelOf(from) || 'Grown-up' });
       if (isNew && Date.now() - ts < 30 * MIN) kidIncoming(item);
     }
+    if (!isKid() && live && from === 'child' && o.t === 'voice' && item.att) autoPlay(item);
     refresh();
   } else if (o.t === 'heard') {
     for (const id of (o.ids || []).slice(0, 30)) {
@@ -789,7 +798,7 @@ function connect() {
   es.onopen = alive;
   es.addEventListener('open', alive);
   es.addEventListener('keepalive', alive);
-  es.onmessage = (e) => { alive(); let m; try { m = JSON.parse(e.data); } catch { return; } onNtfy(m).then(saveItems); };
+  es.onmessage = (e) => { alive(); let m; try { m = JSON.parse(e.data); } catch { return; } onNtfy(m, true).then(saveItems); };
   es.onerror = () => {
     LIVE.ok = false; renderConn();
     try { es.close(); } catch {}
@@ -889,7 +898,7 @@ function stopPlayback() { try { player.pause(); } catch {} PLAYING.eid = null; }
 player.addEventListener('ended', () => { const e = PLAYING.eid; PLAYING.eid = null; onPlayEnd(e); });
 player.addEventListener('pause', () => { if (PLAYING.eid && !player.ended) { const e = PLAYING.eid; PLAYING.eid = null; onPlayEnd(e); } });
 player.addEventListener('timeupdate', () => { if (!isKid() && PLAYING.eid) paintProgress(PLAYING.eid); });
-function onPlayEnd(eid) { if (isKid()) kidPlayEnd(eid); else { paintProgress(eid, true); renderPlayButtons(); } }
+function onPlayEnd(eid) { if (isKid()) kidPlayEnd(eid); else { paintProgress(eid, true); renderPlayButtons(); pumpAuto(); } }
 
 let AC = null;
 function chime(soft) {
@@ -944,6 +953,33 @@ async function sendQuickParent(q, btn) {
   logEvent({ id: eid, ts: now, type: 'quick', detail: q });
   saveItems(); refresh();
 }
+// With Walkie open in front of you, her voice messages play out loud as they arrive, one after another
+const AUTOQ = [];
+function autoPlay(it) {
+  if (isKid() || it.from !== 'child' || S.played[it.eid] || AUTOQ.includes(it.eid)) return;
+  if (document.visibilityState !== 'visible' || Date.now() - it.ts > 2 * MIN) return;
+  AUTOQ.push(it.eid);
+  pumpAuto();
+}
+async function pumpAuto() {
+  if (isKid() || PLAYING.eid || REC.on || PR.on || PR.starting || pumpAuto.busy) return;
+  const eid = AUTOQ.shift();
+  if (!eid) return;
+  const it = itemById(eid);
+  if (!it || S.played[eid] || document.visibilityState !== 'visible' || Date.now() - it.ts > 3 * MIN) { pumpAuto(); return; }
+  pumpAuto.busy = true;
+  try {
+    chime(true);
+    await sleepMs(700);
+    if (PLAYING.eid || REC.on || PR.on) { AUTOQ.unshift(eid); return; }   // you started something yourself: wait
+    await playItem(it);
+    S.played[eid] = 1; put('played', S.played);
+    queueHeard(eid);
+    renderView();
+  } catch { renderView(); }   // left unplayed, with its play button lit
+  finally { pumpAuto.busy = false; if (!PLAYING.eid) pumpAuto(); }
+}
+
 // Tell her phone which of her clips you've listened to; several at once go as one message
 const HEARD_Q = new Set();
 let heardTimer = 0;
@@ -994,7 +1030,7 @@ function renderKid() {
   const inEl = $('#kIn');
   if (K.overlay) {
     const o = K.overlay;
-    const badge = o.q ? `<span class="badge" aria-hidden="true">${QUICK[o.q].e}</span>` : '';
+    const badge = o.q ? `<span class="badge" aria-hidden="true">${quickEmoji(o.q, o.from)}</span>` : '';
     const face = o.from && o.from !== 'grown-up' ? avatarHtml(o.from) : `<span class="avatar" aria-hidden="true" style="font-size:96px">❤️</span>`;
     inEl.innerHTML = face + badge;
     inEl.classList.toggle('playing', !!o.playing);
@@ -1353,7 +1389,7 @@ function msgHtml(it) {
   }
   const info = kid ? TILE[it.q] : QUICK[it.q];
   if (!info) return '';
-  return `<div class="msg${side}" data-eid="${esc(it.eid)}">${who}<span class="tap"><span class="e" aria-hidden="true">${info.e}</span>${esc(info.t)}</span>
+  return `<div class="msg${side}" data-eid="${esc(it.eid)}">${who}<span class="tap"><span class="e" aria-hidden="true">${kid ? info.e : quickEmoji(it.q, it.from)}</span>${esc(info.t)}</span>
     <span class="meta num${it.st === 'failed' ? ' warn' : ''}">${t}${st}</span></div>`;
 }
 function threadHtml() {
@@ -1524,14 +1560,15 @@ async function parentRecEnd(send) {
   mic.classList.remove('rec'); mic.innerHTML = ICON.mic; mic.setAttribute('aria-label', 'Hold to talk to her. Slide left to cancel, up to keep recording');
   $('#holdHint').hidden = false; $('#recRow').hidden = true; $('#lockHint').hidden = true;
   $('#slideHint').style.transform = ''; $('#slideHint').style.opacity = '';
-  if (!send) { recCancel(); toast('Cancelled'); renderView(); return; }
-  if (held < MIN_HOLD) { recCancel(); toast('Hold the button while you talk'); renderView(); return; }
+  if (!send) { recCancel(); toast('Cancelled'); renderView(); pumpAuto(); return; }
+  if (held < MIN_HOLD) { recCancel(); toast('Hold the button while you talk'); renderView(); pumpAuto(); return; }
   const rec = await recStop();
   if (rec && rec.blob.size) sendVoice(rec);
+  pumpAuto();
 }
 $('#recCancel').addEventListener('click', () => parentRecEnd(false));
 function renderQuickRow() {
-  $('#quickRow').innerHTML = Object.entries(QUICK).map(([k, q]) => `<button class="chip" type="button" data-quick="${k}"><span aria-hidden="true">${q.e}</span>${esc(q.t)}</button>`).join('');
+  $('#quickRow').innerHTML = Object.entries(QUICK).map(([k, q]) => `<button class="chip" type="button" data-quick="${k}"><span aria-hidden="true">${quickEmoji(k, S.me.id)}</span>${esc(q.t)}</button>`).join('');
 }
 
 /* ---------- Themes ---------- */
@@ -1877,6 +1914,7 @@ document.addEventListener('click', async (e) => {
       S.me.label = l; put('me', S.me);
       mergeRoster([{ i: S.me.id, l, fresh: true }]); saveFam();
       try { await ntfy(TD(), {}, await sealText({ t: 'hello', id: S.me.id, l })); } catch {}
+      renderQuickRow();
       toast('Name saved');
       break;
     }
