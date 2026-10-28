@@ -1,0 +1,2055 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Walkie</title>
+<meta name="description" content="A child's bedside walkie-talkie and sleep log, linked to her parents' phones.">
+<meta name="theme-color" content="#0F1528">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Walkie">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
+<style>
+:root{--bg:#0F1528;--raise:#161E37;--raise-2:#1D2645;--line:rgba(205,214,245,.09);--line-2:rgba(205,214,245,.17);
+--ink:#ECE8DF;--ink-2:#A3ABC2;--ink-3:#6E7794;--sun:#F2C063;--sun-soft:rgba(242,192,99,.17);--on-sun:#1D1505;
+--dome-in:#0A0F21;--dome-out:#1A2448;--sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:dark}
+:root[data-theme="red"]{--bg:#0C0404;--raise:#160707;--raise-2:#1F0A0A;--line:rgba(255,90,70,.12);--line-2:rgba(255,90,70,.22);--ink:#E2573F;--ink-2:#A9412F;--ink-3:#74291F;--sun:#FF5B3D;--sun-soft:rgba(255,91,61,.18);--on-sun:#1A0503;--dome-in:#070202;--dome-out:#1E0808}
+:root[data-theme="amber"]{--bg:#0D0904;--raise:#171008;--raise-2:#20170C;--line:rgba(255,190,110,.10);--line-2:rgba(255,190,110,.20);--ink:#EBC48A;--ink-2:#A98A5C;--ink-3:#6F5A3B;--sun:#FFB04A;--sun-soft:rgba(255,176,74,.18);--on-sun:#1A0F02;--dome-in:#080502;--dome-out:#241809}
+:root[data-theme="sea"]{--bg:#06121A;--raise:#0B1C26;--raise-2:#102632;--line:rgba(150,220,230,.09);--line-2:rgba(150,220,230,.18);--ink:#D6E9EC;--ink-2:#8EAEB4;--ink-3:#5A7880;--sun:#6FD9D0;--sun-soft:rgba(111,217,208,.16);--on-sun:#031513;--dome-in:#030B10;--dome-out:#0F2A38}
+:root[data-theme="aurora"]{--bg:#07110D;--raise:#0C1A14;--raise-2:#11241B;--line:rgba(150,235,190,.09);--line-2:rgba(150,235,190,.18);--ink:#D7EBDF;--ink-2:#8DAA9A;--ink-3:#5A7566;--sun:#86E3A8;--sun-soft:rgba(134,227,168,.16);--on-sun:#04140B;--dome-in:#040A07;--dome-out:#12291E}
+:root[data-theme="dusk"]{--bg:#110D1A;--raise:#1A1426;--raise-2:#221A31;--line:rgba(210,190,255,.09);--line-2:rgba(210,190,255,.18);--ink:#E8E1F4;--ink-2:#A79CBD;--ink-3:#6E6485;--sun:#F2A7C8;--sun-soft:rgba(242,167,200,.16);--on-sun:#1E0812;--dome-in:#0A0712;--dome-out:#261C3A}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.45 var(--sans); -webkit-font-smoothing: antialiased; min-height: 100vh; min-height: 100dvh; }
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; border-radius: 8px; }
+.num { font-variant-numeric: tabular-nums; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[hidden] { display: none !important; }
+.wrap { max-width: 34rem; margin: 0 auto; padding: env(safe-area-inset-top) calc(20px + env(safe-area-inset-right)) 0 calc(20px + env(safe-area-inset-left)); position: relative; }
+
+/* Header */
+.top { display: grid; grid-template-columns: 1fr auto; align-items: start; padding: 18px 0 8px; }
+.mark { font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
+.sub { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-3); margin-top: 1px; min-height: 19px; }
+.sub .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); flex: none; }
+.sub .dot.ok { background: var(--sun); }
+.tools { display: flex; gap: 4px; margin: -10px -8px 0 0; }
+.icon-btn { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); position: relative; }
+.icon-btn:active { background: var(--raise); }
+.icon-btn svg { width: 22px; height: 22px; }
+
+/* Notices */
+.notice { display: flex; gap: 12px; align-items: center; margin: 8px 0 0; padding: 10px 12px 10px 14px; border-radius: 14px; background: var(--raise); font-size: 14px; color: var(--ink-2); }
+.notice p { margin: 0; flex: 1; }
+.notice .link-btn { color: var(--sun); font-weight: 600; white-space: nowrap; text-decoration: none; }
+.notice .x { color: var(--ink-3); width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; flex: none; }
+.notice .x svg { width: 16px; height: 16px; }
+
+/* Buttons and bits */
+.btn { height: 44px; padding: 0 18px; border-radius: 22px; background: var(--raise-2); font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; position: relative; }
+.btn.primary { background: var(--sun); color: var(--on-sun); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.busy { color: transparent !important; }
+.btn.busy::after { content: ""; position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; color: var(--ink); }
+.btn.primary.busy::after { color: var(--on-sun); }
+.spinner, .btn.busy::after { border-radius: 50%; background: conic-gradient(from 90deg, transparent 10%, currentColor 95%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.2px), #000 calc(100% - 2px)); animation: spin .8s linear infinite; }
+.spinner { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.link-btn { color: var(--ink-2); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; }
+.small { font-size: 13.5px; color: var(--ink-3); }
+.switcher { display: inline-flex; padding: 3px; border-radius: 22px; background: var(--raise); margin: 10px 0 4px; }
+.switcher button { height: 34px; padding: 0 18px; border-radius: 18px; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.switcher button[aria-pressed="true"] { background: var(--raise-2); color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { height: 38px; padding: 0 14px; border-radius: 19px; background: var(--raise-2); font-size: 14.5px; font-weight: 500; color: var(--ink-2); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.chip[aria-pressed="true"] { background: var(--sun); color: var(--on-sun); }
+.field { width: 100%; min-width: 0; height: 44px; border-radius: 12px; border: 1px solid var(--line-2); background: var(--bg); padding: 0 12px; font-size: 16px; }
+.field::placeholder { color: var(--ink-3); }
+.field-row { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+.times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.times label { font-size: 13px; color: var(--ink-3); display: grid; gap: 4px; }
+.list { margin: 0; padding: 0; list-style: none; }
+.list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 52px; border-bottom: 1px solid var(--line); }
+.list li span small { display: block; color: var(--ink-3); font-size: 12.5px; }
+.list .mini { color: var(--ink-2); font-size: 14px; font-weight: 600; padding: 8px 2px; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 600; font-size: 16px; background: var(--raise-2) center / cover no-repeat; color: var(--ink); overflow: hidden; }
+
+/* Setup */
+.setup { padding: 12vh 0 40px; }
+.setup .logo { width: 88px; height: 88px; display: block; margin-bottom: 22px; }
+.setup h1 { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
+.story { margin: 12px 0 0; font-size: 18px; font-weight: 300; line-height: 1.55; letter-spacing: .005em; color: var(--ink); max-width: 30em; }
+.facts { margin: 10px 0 0; font-size: 14px; color: var(--ink-2); }
+.setup .small { margin-top: 22px; max-width: 26em; }
+
+/* Talk thread */
+.thread { padding: 6px 0 calc(170px + env(safe-area-inset-bottom)); }
+.day { margin: 20px 0 8px; font-size: 13px; font-weight: 500; color: var(--ink-3); text-align: center; }
+.msg { display: flex; flex-direction: column; align-items: flex-start; margin: 10px 0; scroll-margin: 90px 0 180px; }
+.msg.mine, .msg.parent { align-items: flex-end; }
+.msg .who { font-size: 12.5px; color: var(--ink-3); margin: 0 12px 3px; }
+.msg .meta { font-size: 12.5px; color: var(--ink-3); margin: 4px 12px 0; }
+.msg .meta.warn { color: var(--sun); }
+.voice { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 22px; background: var(--raise-2); max-width: 300px; }
+.msg.mine .voice, .msg.parent .voice { background: var(--sun-soft); }
+.play { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--raise); color: var(--ink); flex: none; }
+.voice.new .play { background: var(--sun); color: var(--on-sun); }
+.play svg { width: 18px; height: 18px; }
+.play:disabled { opacity: .45; }
+.wave { display: flex; align-items: center; gap: 2px; height: 30px; flex: 1; min-width: 120px; }
+.wave i { display: block; width: 3px; border-radius: 2px; background: var(--ink-3); }
+.wave i.on { background: var(--ink); }
+.voice.new .wave i { background: var(--ink-2); }
+.vdur { font-size: 13px; color: var(--ink-2); min-width: 2.2em; text-align: right; }
+.tap { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px 9px 12px; border-radius: 22px; background: var(--raise-2); font-weight: 500; }
+.msg.mine .tap, .msg.parent .tap { background: var(--sun-soft); }
+.tap .e { font-size: 22px; line-height: 1; }
+.line { text-align: center; font-size: 13.5px; color: var(--ink-2); margin: 14px 0; }
+.line.warn { color: var(--sun); }
+.empty { padding: 40px 4px; color: var(--ink-2); }
+.empty h2 { margin: 0 0 6px; font-size: 20px; color: var(--ink); font-weight: 600; }
+
+/* Composer */
+.composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; padding: 12px calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: linear-gradient(transparent, var(--bg) 22%); }
+.composer-in { max-width: 34rem; margin: 0 auto; display: grid; gap: 8px; }
+.quick-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0; }
+.quick-row .chip { padding: 0 11px; font-size: 13.5px; gap: 5px; height: 36px; }
+.talk-row { display: flex; align-items: center; gap: 10px; position: relative; }
+.hold-hint { flex: 1; height: 50px; border-radius: 25px; background: var(--raise); display: flex; align-items: center; padding: 0 18px; color: var(--ink-3); font-size: 15px; }
+.quick-row::-webkit-scrollbar { display: none; }
+.rec-row { flex: 1; height: 50px; display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: 28px; background: var(--raise); overflow: hidden; }
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sun); flex: none; animation: blink 1s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.rec-time { font-size: 15px; min-width: 2.6em; }
+.slide { flex: 1; text-align: center; color: var(--ink-2); font-size: 14px; white-space: nowrap; }
+.rec-cancel { color: var(--ink-2); font-weight: 600; font-size: 14px; padding: 8px 4px; flex: 1; text-align: center; }
+.mic { width: 56px; height: 56px; border-radius: 50%; background: var(--sun); color: var(--on-sun); display: grid; place-items: center; flex: none; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform .15s; }
+.mic svg { width: 26px; height: 26px; pointer-events: none; }
+.mic.rec { transform: scale(1.18); }
+.lock { position: absolute; right: 6px; bottom: 68px; width: 44px; padding: 10px 0; border-radius: 22px; background: var(--raise); color: var(--ink-2); display: grid; justify-items: center; gap: 4px; }
+.lock svg { width: 20px; height: 20px; }
+
+/* Sleep page */
+.hero { padding: 10px 0 8px; }
+.section-title { margin: 30px 0 10px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.axis { display: grid; grid-template-columns: 4.4rem 1fr 4.6rem; font-size: 11.5px; color: var(--ink-3); }
+.axis .ticks { position: relative; height: 16px; }
+.axis .ticks span { position: absolute; transform: translateX(-50%); }
+.nrow { display: grid; grid-template-columns: 4.4rem 1fr 4.6rem; align-items: center; width: 100%; min-height: 34px; text-align: left; border-radius: 8px; }
+.nrow:active { background: var(--raise); }
+.nday { font-size: 13px; color: var(--ink-2); }
+.nlen { font-size: 12.5px; color: var(--ink-2); text-align: right; }
+.nbar { display: block; width: 100%; height: 14px; }
+.nbar .track { fill: var(--raise); }
+.nbar .asleep { fill: var(--sun); }
+.nbar .gap { fill: var(--raise-2); }
+.nbar .mark { fill: var(--ink); }
+.nbar .grid { fill: var(--line-2); }
+.avg { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.avg th { text-align: left; font-weight: 500; color: var(--ink-3); font-size: 13px; padding: 0 0 6px; }
+.avg td { padding: 10px 0; border-top: 1px solid var(--line); }
+.avg td:not(:first-child), .avg th:not(:first-child) { text-align: right; }
+.foot { margin: 28px 0 calc(40px + env(safe-area-inset-bottom)); font-size: 12.5px; color: var(--ink-3); }
+
+/* Sheets */
+dialog.sheet { position: fixed; inset: auto 0 0 0; margin: 0 auto; width: 100%; max-width: 34rem; max-height: 90vh; border: 0; border-radius: 22px 22px 0 0; padding: 0; background: var(--raise); color: var(--ink); overflow: auto; overscroll-behavior: contain; }
+dialog.sheet[open] { animation: rise .28s cubic-bezier(.2, .8, .2, 1); }
+dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
+@keyframes rise { from { transform: translateY(40px); opacity: 0; } }
+.sheet-in { padding: 10px 22px calc(28px + env(safe-area-inset-bottom)); }
+.grab-zone { touch-action: none; margin: 0 -22px; padding: 0 22px; }
+.grabber { width: 36px; height: 4px; border-radius: 2px; background: var(--line-2); margin: 0 auto 10px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; }
+.sheet-head h2 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.sheet h3 { margin: 26px 0 8px; font-size: 15px; font-weight: 600; }
+.sheet p { margin: 6px 0; color: var(--ink-2); font-size: 15px; }
+.sheet .result { margin-top: 10px; font-size: 14px; color: var(--ink-2); }
+.sheet .result.err { color: var(--sun); }
+.steps { list-style: none; counter-reset: s; padding: 0; margin: 18px 0 0; }
+.steps li { counter-increment: s; position: relative; padding: 0 0 18px 40px; color: var(--ink-2); font-size: 15px; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: -1px; width: 26px; height: 26px; border-radius: 50%; background: var(--raise-2); color: var(--ink); font-size: 13px; font-weight: 600; display: grid; place-items: center; }
+.steps li.done::before { content: "✓"; background: var(--sun); color: var(--on-sun); }
+.steps li strong { display: block; color: var(--ink); font-weight: 600; margin-bottom: 6px; }
+.steps .btn { height: 38px; font-size: 14px; padding: 0 14px; margin-top: 4px; }
+.qr { display: block; width: min(100%, 280px); margin: 16px auto 8px; border-radius: 16px; overflow: hidden; background: #fff; padding: 6px; }
+.qr svg { display: block; width: 100%; height: auto; }
+.roles { display: grid; gap: 10px; margin-top: 16px; }
+.role { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: var(--raise-2); text-align: left; }
+.role .e { font-size: 28px; }
+.role strong { display: block; font-weight: 600; }
+.role span span { font-size: 13.5px; color: var(--ink-2); }
+.role[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--sun); }
+
+/* Popover */
+.pop { position: absolute; top: 64px; right: 12px; z-index: 5; width: min(300px, calc(100% - 24px)); padding: 16px 12px 12px; border-radius: 18px; background: var(--raise); border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); }
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 6px; }
+.theme-opt { display: grid; justify-items: center; gap: 6px; padding: 4px 0; font-size: 12.5px; color: var(--ink-2); }
+.theme-opt[aria-pressed="true"] { color: var(--ink); }
+.sw { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line-2); background: radial-gradient(circle, var(--b) 0 6px, transparent 7px), radial-gradient(circle at 50% 35%, var(--c), var(--a)); }
+.theme-opt[aria-pressed="true"] .sw { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sun); }
+.theme-note { margin: 12px 4px 0; font-size: 12.5px; color: var(--ink-3); }
+
+/* Toast */
+.toast { position: fixed; inset: auto auto calc(96px + env(safe-area-inset-bottom)) 50%; margin: 0; border: 0; width: max-content; max-width: calc(100% - 40px); transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 22px; font-size: 14px; font-weight: 500; transition: opacity .2s, transform .2s; text-align: center; z-index: 30; display: flex; align-items: center; gap: 8px; overflow: visible; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast[popover]:not(:popover-open) { display: none; }
+
+/* ---------- Her phone ---------- */
+body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.kid-app { position: fixed; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.k-top { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; height: 60px; padding: 0 8px; }
+.k-clock { grid-column: 2; text-align: center; font-size: 15px; color: var(--ink-3); }
+.k-replay, .k-gear { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; position: relative; }
+.k-replay .avatar { width: 40px; height: 40px; font-size: 15px; }
+.k-replay::after { content: ""; position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--sun) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 4.5v7l5.5-3.5z' fill='%23000'/%3E%3C/svg%3E") center / 14px no-repeat; }
+.k-gear { grid-column: 3; justify-self: end; color: var(--ink-3); }
+.k-gear svg { width: 22px; height: 22px; }
+.k-gear .hold { position: absolute; inset: 2px; border-radius: 50%; background: conic-gradient(var(--ink-2) var(--g, 0%), transparent 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); opacity: 0; }
+.k-gear.holding .hold { opacity: 1; animation: fillring 1.5s linear forwards; }
+@property --g { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@keyframes fillring { to { --g: 100%; } }
+.k-conn { position: absolute; top: 10px; right: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+.k-conn.ok { background: var(--sun); opacity: .7; }
+.k-main { display: grid; place-items: center; align-content: center; gap: 14px; min-height: 0; padding: 0 16px; }
+.talk-wrap { position: relative; width: min(64vw, 40vh, 270px); aspect-ratio: 1; }
+.talk-ring { position: absolute; inset: -8%; width: 116%; height: 116%; overflow: visible; pointer-events: none; }
+.talk-ring .lvl { fill: var(--sun); transform-origin: 50% 50%; transform: scale(calc(.97 + var(--lvl, 0) * .28)); transition: transform .09s linear; opacity: 0; }
+.talk-ring .prog { fill: none; stroke: var(--sun); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transform: rotate(-90deg); transform-origin: 50% 50%; opacity: 0; }
+.rec .talk-ring .lvl { opacity: .28; }
+.rec .talk-ring .prog { opacity: 1; }
+.talk { position: absolute; inset: 0; border-radius: 50%; background: var(--sun); background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--sun) 88%, #fff), var(--sun) 70%); color: var(--on-sun); display: grid; place-items: center;
+  box-shadow: 0 0 0 10px var(--sun-soft), 0 18px 50px rgba(0, 0, 0, .45); touch-action: none; transition: transform .15s, opacity .2s; }
+.talk svg { width: 34%; height: 34%; pointer-events: none; }
+.rec .talk { transform: scale(.95); }
+.talk.wiggle { animation: wiggle .5s ease; }
+@keyframes wiggle { 20% { transform: rotate(-7deg); } 40% { transform: rotate(6deg); } 60% { transform: rotate(-4deg); } 80% { transform: rotate(2deg); } }
+.talk .rest { display: none; font-size: clamp(40px, 13vw, 64px); line-height: 1; }
+.resting .talk { opacity: .45; }
+.resting .talk .rest { display: block; }
+.resting .talk svg { display: none; }
+.talk .hint { position: absolute; inset: -6%; border-radius: 50%; border: 3px solid var(--sun); opacity: 0; pointer-events: none; }
+.talk.wiggle .hint { animation: hint 1.2s ease-out; }
+@keyframes hint { 0% { opacity: .9; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.25); } }
+.k-in { pointer-events: none; position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; background: var(--raise); box-shadow: 0 0 0 10px var(--sun-soft); }
+.k-in .avatar { width: 100%; height: 100%; font-size: 64px; border-radius: 50%; }
+.k-in .badge { position: absolute; right: -2%; bottom: -2%; width: 36%; aspect-ratio: 1; border-radius: 50%; background: var(--raise-2); display: grid; place-items: center; font-size: clamp(30px, 9vw, 52px); box-shadow: 0 0 0 4px var(--bg); animation: pop .5s cubic-bezier(.2, 1.6, .4, 1); }
+.k-in.playing { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 22px var(--sun-soft); } }
+@keyframes pop { from { transform: scale(.3); } }
+.k-status { height: 34px; display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 20px; }
+.k-status .avatar { width: 30px; height: 30px; font-size: 12px; box-shadow: 0 0 0 2px var(--bg); }
+.k-status .tick { font-size: 18px; color: var(--sun); }
+.k-status .warn { width: 12px; height: 12px; border-radius: 50%; background: var(--sun); opacity: .8; }
+.k-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 8px 16px 18px; max-width: 520px; width: 100%; margin: 0 auto; }
+.tile { height: min(13vh, 104px); border-radius: 22px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 2px; position: relative; transition: transform .12s; }
+.tile .e { font-size: clamp(32px, 9.5vw, 46px); line-height: 1.1; }
+.tile .w { font-size: 12px; color: var(--ink-3); }
+.tile:active { transform: scale(.94); }
+.tile.sent::after, .tile.failed::after { content: "✓"; position: absolute; top: 8px; right: 10px; font-size: 15px; color: var(--sun); animation: pop .4s ease; }
+.tile.failed::after { content: "!"; font-weight: 700; }
+.tile.sending .e { animation: lift .6s ease; }
+@keyframes lift { 40% { transform: translateY(-10px) scale(1.12); } }
+.resting .tile { opacity: .45; }
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .kid-app { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
+  .k-top { grid-column: 1 / -1; height: 52px; }
+  .talk-wrap { width: min(36vw, 62vh, 250px); }
+  .k-tiles { align-self: center; padding: 0 24px 12px 8px; }
+  .tile { height: min(28vh, 104px); }
+}
+
+/* The night clock and the daytime rest screen */
+.clockface { position: fixed; inset: 0; z-index: 10; background: #000; display: grid; place-items: center; overflow: hidden; }
+.clock-in { display: flex; align-items: center; justify-content: center; gap: .18em; flex-wrap: wrap; font-size: min(25vw, 40vh); line-height: 1; transition: transform 4s ease; color: var(--ink); opacity: .82; }
+.clock-in .t { font-weight: 300; letter-spacing: -.03em; }
+.clock-in svg { width: .5em; height: .5em; flex: none; }
+.clockface.moon .clock-in { color: #8E2A1D; }
+.clockface.sun .clock-in { color: #C9822E; }
+.clockface.day .clock-in { color: var(--ink-3); opacity: .9; }
+@media (orientation: portrait) { .clock-in { flex-direction: column; gap: .12em; } .clock-in svg { width: .42em; height: .42em; } }
+.glow { position: absolute; left: 50%; bottom: calc(10vh + env(safe-area-inset-bottom)); transform: translateX(-50%); border-radius: 50%; animation: glow 2.4s ease-in-out infinite; }
+.glow .avatar { width: 64px; height: 64px; font-size: 24px; opacity: .8; }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 4px rgba(255, 91, 61, .15); } 50% { box-shadow: 0 0 0 16px rgba(255, 91, 61, .3); } }
+body.sleeping { background: #000; }
+body.sleeping .kid-app { background: #000; }
+body.sleeping .kid-app .k-main, body.sleeping .kid-app .k-tiles, body.sleeping .k-top { opacity: .85; }
+body.sleeping .talk { background: #1C0604; color: #B8402C; box-shadow: 0 0 0 10px rgba(255, 91, 61, .07); }
+body.sleeping .tile { background: #120404; }
+body.sleeping .tile .e, body.sleeping .k-status, body.sleeping .k-in .avatar, body.sleeping .k-replay, body.sleeping .glow .avatar { filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-38deg) brightness(.62); }
+body.sleeping .tile .w { color: #6A2418; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .spinner, .btn.busy::after { animation: spin 1.6s linear infinite !important; }
+  .k-gear.holding .hold { --g: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="setupApp" class="wrap" hidden></div>
+
+<div id="parentApp" hidden>
+  <div class="wrap">
+    <header class="top">
+      <div><div class="mark">Walkie</div><div class="sub num" id="sub"></div></div>
+      <div class="tools">
+        <button class="icon-btn" id="themeBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="themes" aria-label="Colour theme" title="Colour theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="pop" id="themes" hidden role="group" aria-label="Colour theme"></div>
+    <div id="notices"></div>
+    <div class="switcher" role="group" aria-label="Page">
+      <button type="button" data-view="talk" aria-pressed="true">Talk</button>
+      <button type="button" data-view="sleep" aria-pressed="false">Sleep</button>
+    </div>
+    <main id="view" aria-live="polite"></main>
+  </div>
+  <div class="composer" id="composer">
+    <div class="composer-in">
+      <div class="quick-row" id="quickRow" role="group" aria-label="Quick replies"></div>
+      <div class="talk-row">
+      <div class="hold-hint" id="holdHint">Hold the mic to talk</div>
+      <div class="rec-row" id="recRow" hidden><span class="rec-dot"></span><span class="rec-time num" id="recTime">0:00</span><span class="slide" id="slideHint">‹ Slide to cancel</span><button class="rec-cancel" id="recCancel" type="button" hidden>Cancel</button></div>
+      <div class="lock" id="lockHint" hidden aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m7 14 5-5 5 5"/></svg></div>
+      <button class="mic" id="mic" type="button" aria-label="Hold to talk to her. Slide left to cancel, up to keep recording" title="Hold to talk"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="kidApp" class="kid-app" hidden>
+  <div class="k-top">
+    <button class="k-replay" id="replay" type="button" hidden aria-label="Play the last message again"></button>
+    <span class="k-clock num" id="kClock"></span>
+    <button class="k-gear" id="gear" type="button" aria-label="Grown-up settings. Press and hold." title="Press and hold for settings"><span class="hold"></span><span class="k-conn" id="kConn"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+  </div>
+  <div class="k-main">
+    <div class="talk-wrap" id="talkWrap">
+      <svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" id="prog" cx="50" cy="50" r="48" pathLength="100"/></svg>
+      <button class="talk" id="talk" type="button" aria-label="Hold to talk"><span class="hint"></span><span class="rest" aria-hidden="true">💤</span></button>
+      <div class="k-in" id="kIn" hidden></div>
+    </div>
+    <div class="k-status" id="kStatus" aria-live="polite"></div>
+  </div>
+  <div class="k-tiles" id="tiles"></div>
+</div>
+<div class="clockface" id="clockface" hidden aria-live="off"><div class="clock-in" id="clockIn"></div><div class="glow" id="glow" hidden></div></div>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheetTitle"><div class="sheet-in" id="sheetBody"></div></dialog>
+<div class="toast" id="toast" role="status" popover="manual"></div>
+<audio id="player" preload="none"></audio>
+
+<script src="core.js?v=1"></script>
+<script>
+(() => {
+'use strict';
+const C = window.Core;
+
+/* ---------- Constants ---------- */
+const NTFY = 'https://ntfy.sh';
+const APP = location.origin + location.pathname;
+const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
+const EXPECT_BUILD = 1;      // the Apps Script release this app needs
+const MIN = 60e3, HOUR = 3600e3;
+const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
+const BEAT_EVERY = 30 * MIN;
+const KID_MAX = 30e3, PARENT_MAX = 60e3, MIN_HOLD = 600;
+const THEMES = [
+  { id: 'twilight', name: 'Twilight', bg: '#0F1528', dome: '#1A2448', accent: '#F2C063' },
+  { id: 'red', name: 'Night red', bg: '#0C0404', dome: '#1E0808', accent: '#FF5B3D' },
+  { id: 'amber', name: 'Amber', bg: '#0D0904', dome: '#241809', accent: '#FFB04A' },
+  { id: 'sea', name: 'Deep sea', bg: '#06121A', dome: '#0F2A38', accent: '#6FD9D0' },
+  { id: 'aurora', name: 'Aurora', bg: '#07110D', dome: '#12291E', accent: '#86E3A8' },
+  { id: 'dusk', name: 'Dusk', bg: '#110D1A', dome: '#261C3A', accent: '#F2A7C8' },
+];
+const TILES = [
+  { k: 'water', e: '💧', t: 'Water', tag: 'droplet', p: 4 },
+  { k: 'toilet', e: '🚽', t: 'Toilet', tag: 'toilet', p: 4 },
+  { k: 'dream', e: '😟', t: 'Bad dream', tag: 'worried', p: 5 },
+  { k: 'cuddle', e: '🤗', t: 'Cuddle', tag: 'hugs', p: 5 },
+  { k: 'love', e: '❤️', t: 'Love you', tag: 'heart', p: 3 },
+];
+const TILE = Object.fromEntries(TILES.map((t) => [t.k, t]));
+const QUICK = { coming: { e: '🏃', t: 'On my way' }, love: { e: '❤️', t: 'Love you' }, sleepy: { e: '😴', t: 'Back to sleep' } };
+const LINES = { sleep: { e: '🌙', t: 'Night night' }, wake: { e: '☀️', t: 'Awake' }, early: { e: '☀️', t: 'Awake early' },
+  quiet: { e: '⚠️', t: 'Walkie went quiet' }, back: { e: '✓', t: 'Walkie’s back' }, rest: { e: '💤', t: 'Walkie resting until bedtime' } };
+const ICON = {
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5.5" width="3.6" height="13" rx="1"/><rect x="13.4" y="5.5" width="3.6" height="13" rx="1"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.6" fill="currentColor"/><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"/></svg>',
+};
+
+const UA = navigator.userAgent;
+const isAndroid = /Android/.test(UA);
+const isIOS = /iP(hone|ad|od)/.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+/* ---------- Storage ---------- */
+const P = 'wlk.';
+const get = (k, d) => { try { const v = localStorage.getItem(P + k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const put = (k, v) => { try { localStorage.setItem(P + k, JSON.stringify(v)); } catch {} };
+const drop = (k) => { try { localStorage.removeItem(P + k); } catch {} };
+
+const S = {
+  fam: get('fam', null),         // { x, k, s, n, r: [{ i, l }], cfg: { bed, wd, we }, cfgAt }
+  me: get('me', null),           // { id, role: 'child' | 'parent', label }
+  set: Object.assign({ theme: 'twilight', kidTheme: 'dusk' }, get('settings', {})),
+  connected: get('connected', false),
+  items: get('items', []),
+  since: get('since', 0),
+  heard: get('heard', {}),
+  played: get('played', {}),
+  outbox: get('outbox', []),
+  budget: get('budget', null),
+  sleep: Object.assign({ on: false, auto: '', state: 'awake', restDay: '' }, get('sleep', {})),
+  photos: get('photos', {}),
+  log: get('log', null),
+  sheet: get('sheetInfo', null),
+  quiet: get('quiet', null),
+  view: 'talk',
+  installEvt: null,
+  tileSt: {},
+  beat: get('beat', null),
+};
+const SEEN = new Set(get('seen', []));
+const saveSet = () => put('settings', S.set);
+const saveFam = () => put('fam', S.fam);
+const saveSleep = () => put('sleep', S.sleep);
+const isKid = () => !!(S.me && S.me.role === 'child');
+const meId = () => (isKid() ? 'child' : S.me.id);
+const cfg = () => Object.assign({}, C.DEFAULT_TIMES, (S.fam && S.fam.cfg) || {});
+const kidName = () => (S.fam && S.fam.n) || '';
+const kidPhone = () => (kidName() ? `${kidName()}’s phone` : 'Her phone');
+const TA = () => `walkie-${S.fam.x}`;
+const TD = () => `walkie-${S.fam.x}-d`;
+
+/* ---------- Helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const h12 = new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions().hour12;
+const tfmt = new Intl.DateTimeFormat(undefined, { hour: h12 ? 'numeric' : '2-digit', minute: '2-digit' });
+const time = (ms) => tfmt.format(ms);
+const minsTxt = (m) => time(C.at(C.startOfDay(Date.now()), m));
+const dayKey = (ms) => C.startOfDay(ms);
+function dayWord(ms) {
+  const k = dayKey(ms), now = Date.now();
+  if (k === dayKey(now)) return 'Today';
+  if (k === dayKey(now - 864e5)) return 'Yesterday';
+  return new Date(ms).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+}
+function ago(ms) {
+  const m = Math.round((Date.now() - ms) / MIN);
+  if (m < 2) return 'just now';
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  return h < 48 ? `${h} h ago` : `${Math.round(h / 24)} days ago`;
+}
+const durTxt = (s) => `${Math.floor(s / 60)}:${String(Math.round(s) % 60).padStart(2, '0')}`;
+const ABC = 'abcdefghijkmnpqrstuvwxyz23456789';
+const rid = (n) => Array.from(crypto.getRandomValues(new Uint8Array(n)), (x) => ABC[x % ABC.length]).join('');
+const B64 = C.B64;
+function b64(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 3) {
+    const n = (bytes[i] << 16) | ((bytes[i + 1] || 0) << 8) | (bytes[i + 2] || 0);
+    s += B64[(n >> 18) & 63] + B64[(n >> 12) & 63] + (i + 1 < bytes.length ? B64[(n >> 6) & 63] : '') + (i + 2 < bytes.length ? B64[n & 63] : '');
+  }
+  return s;
+}
+function unb64(s) {
+  const out = [];
+  let buf = 0, bits = 0;
+  for (const ch of s) { const v = B64.indexOf(ch); if (v < 0) continue; buf = (buf << 6) | v; bits += 6; if (bits >= 8) { bits -= 8; out.push((buf >> bits) & 255); } }
+  return new Uint8Array(out);
+}
+const labelOf = (id) => { const p = ((S.fam && S.fam.r) || []).find((x) => x.i === id); return p ? p.l : ''; };
+const cleanLabel = (s) => String(s || '').replace(/[,;=\n]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 20);
+const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
+// ntfy's daily count resets at midnight UTC: midnight in winter, 1 am in summer
+const resetAt = () => { const d = new Date(); d.setUTCHours(24, 0, 0, 0); return time(d.getTime()); };
+
+const toastEl = $('#toast');
+let toastTimer;
+function toast(msg, busy) {
+  toastEl.innerHTML = (busy ? '<span class="spinner"></span>' : '') + esc(msg);
+  try { if (toastEl.matches(':popover-open')) toastEl.hidePopover(); toastEl.showPopover(); } catch {}
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  if (!busy) toastTimer = setTimeout(() => { toastEl.classList.remove('show'); setTimeout(() => { try { toastEl.hidePopover(); } catch {} }, 250); }, Math.max(2600, msg.length * 55));
+}
+async function withBusy(btn, fn) {
+  if (btn && btn.disabled) return;
+  if (btn) { btn.disabled = true; btn.classList.add('busy'); btn.setAttribute('aria-busy', 'true'); }
+  try { return await fn(); }
+  finally { if (btn) { btn.disabled = false; btn.classList.remove('busy'); btn.removeAttribute('aria-busy'); } }
+}
+
+/* ---------- Encryption: clips and messages are sealed with the family key, so ntfy only sees noise ---------- */
+let KEY = null, FK = '';
+async function loadKey() {
+  KEY = await crypto.subtle.importKey('raw', unb64(S.fam.k), { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('walkie-fk:' + S.fam.k)));
+  FK = b64(h).slice(0, 22);
+}
+async function seal(bytes) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, KEY, bytes));
+  const out = new Uint8Array(12 + ct.length); out.set(iv); out.set(ct, 12);
+  return out;
+}
+async function unseal(bytes) { return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(0, 12) }, KEY, bytes.slice(12))); }
+async function sealText(obj) { return 'w1.' + b64(await seal(new TextEncoder().encode(JSON.stringify(obj)))); }
+async function unsealText(s) {
+  if (!/^w1\./.test(s || '')) return null;
+  try { return JSON.parse(new TextDecoder().decode(await unseal(unb64(s.slice(3))))); } catch { return null; }
+}
+
+/* ---------- ntfy ---------- */
+async function ntfy(topic, q, body, seq) {
+  const qs = new URLSearchParams(Object.entries(q).filter(([, v]) => v !== '' && v != null));
+  // a send that hangs on bad Wi-Fi gives up, so it can be tried again
+  const ac = window.AbortController ? new AbortController() : null;
+  const timer = ac && setTimeout(() => ac.abort(), body instanceof Uint8Array ? 40e3 : 15e3);
+  let r;
+  try { r = await fetch(`${NTFY}/${topic}${seq ? '/' + seq : ''}?${qs}`, { method: 'POST', body, signal: ac && ac.signal }); }
+  finally { clearTimeout(timer); }
+  if (r.status === 429) { const e = new Error('limit'); e.limit = true; throw e; }
+  if (!r.ok) throw new Error('ntfy ' + r.status);
+  return r.json().catch(() => ({}));
+}
+const nightish = () => S.sleep.on || C.phase(Date.now(), cfg()) === 'moon';
+// Her phone's share of ntfy's daily allowance; the night keeps a reserve
+function spend(cost, essential) {
+  const r = C.budget(S.budget, Date.now(), cost, nightish(), essential);
+  S.budget = r.state; put('budget', S.budget);
+  return r.ok;
+}
+const canSpend = (cost) => C.budget(S.budget, Date.now(), cost, nightish()).ok;
+// A send that didn't get through gives its share back
+function refund(cost) { if (S.budget && S.budget.n) { S.budget.n = Math.max(0, S.budget.n - cost); put('budget', S.budget); } }
+
+// Up to three reply buttons on her notifications, sent straight from the notification without opening Walkie
+async function replyActions(re) {
+  const acts = [];
+  const parents = ((S.fam && S.fam.r) || []).slice(0, 2);
+  if (parents.length) for (const p of parents) acts.push([`${cleanLabel(p.l)} coming`, { t: 'quick', q: 'coming', from: p.i, re, eid: rid(10) }]);
+  else acts.push(['On my way', { t: 'quick', q: 'coming', from: '', re, eid: rid(10) }]);
+  acts.push(['Love you', { t: 'quick', q: 'love', from: '', re, eid: rid(10) }]);
+  const out = [];
+  for (const [label, body] of acts.slice(0, 3)) out.push(`http, ${label}, ${NTFY}/${TD()}, body=${await sealText(body)}, clear=true`);
+  return out.join('; ');
+}
+
+/* ---------- Thread items ---------- */
+function itemById(eid) { return S.items.find((x) => x.eid === eid); }
+function upsert(it) {
+  const old = itemById(it.eid);
+  if (old) { for (const k in it) if (it[k] !== undefined && !(k === 'st' && old.st === 'sent')) old[k] = it[k]; return old; }
+  S.items.push(it);
+  return it;
+}
+function saveItems() {
+  const keep = Date.now() - 14 * HOUR;
+  S.items = S.items.filter((x) => x.ts > keep).sort((a, b) => a.ts - b.ts).slice(-300);
+  put('items', S.items.map((x) => { const y = Object.assign({}, x); if (y.st === 'sending') y.st = 'failed'; return y; }));
+}
+function markSeen(id) {
+  SEEN.add(id);
+  if (SEEN.size > 600) { const a = [...SEEN].slice(-400); SEEN.clear(); a.forEach((x) => SEEN.add(x)); }
+  clearTimeout(markSeen.t);
+  markSeen.t = setTimeout(() => put('seen', [...SEEN]), 500);
+}
+
+/* ---------- Sheet log (Apps Script) ---------- */
+async function api(action, data = {}, url) {
+  const u = url || (S.fam && S.fam.s);
+  if (!u) throw new Error('The sleep log isn’t connected.');
+  let r;
+  try { r = await fetch(u, { method: 'POST', body: JSON.stringify(Object.assign({ action, fk: FK }, data)) }); }
+  catch { throw new Error('Couldn’t reach Google. Check the connection.'); }
+  let j;
+  try { j = await r.json(); } catch { throw new Error('Google answered with something other than Walkie’s log. Check the web app address.'); }
+  if (j.error) throw new Error(j.error);
+  return j;
+}
+function logEvent(e) {
+  e.role = e.role || (isKid() ? 'child' : 'parent');
+  e.who = e.who || (e.role === 'child' ? (kidName() || 'Her') : (S.me && S.me.label) || 'Parent');
+  if (S.outbox.some((x) => x.id === e.id)) return;
+  S.outbox.push(e);
+  if (S.outbox.length > 2000) S.outbox = S.outbox.slice(-2000);
+  put('outbox', S.outbox);
+  flushSoon();
+}
+let flushing = false, flushTimer = 0;
+const flushSoon = () => { clearTimeout(flushTimer); flushTimer = setTimeout(flush, 1500); };
+async function flush() {
+  if (flushing || !S.fam || !S.fam.s || !S.outbox.length || !FK) return;
+  flushing = true;
+  try {
+    while (S.outbox.length) {
+      const batch = S.outbox.slice(0, 50);
+      await api('log', { events: batch });
+      const ids = new Set(batch.map((e) => e.id));
+      S.outbox = S.outbox.filter((e) => !ids.has(e.id));
+      put('outbox', S.outbox);
+      if (S.log) { S.log.events = S.log.events.concat(batch.filter((e) => !S.log.events.some((x) => x.id === e.id))); put('log', S.log); }
+    }
+    S.sheet = Object.assign(S.sheet || {}, { ok: true, at: Date.now(), err: '' });
+  } catch (e) {
+    S.sheet = Object.assign(S.sheet || {}, { ok: false, err: e.message, failAt: Date.now() });
+  }
+  put('sheetInfo', S.sheet);
+  flushing = false;
+}
+async function checkSheet() {
+  if (!S.fam || !S.fam.s || !FK) return;
+  try {
+    const j = await api('ping');
+    S.sheet = Object.assign(S.sheet || {}, { build: j.build, url: j.sheet || (S.sheet && S.sheet.url) || '', mine: !!j.mine, ok: true, err: j.mine ? '' : 'This phone isn’t part of the family the sleep log belongs to.' });
+  } catch (e) { S.sheet = Object.assign(S.sheet || {}, { ok: false, err: e.message }); }
+  put('sheetInfo', S.sheet);
+  if (!isKid()) renderNotices();
+}
+async function loadLog() {
+  if (!S.fam || !S.fam.s) return;
+  S.logBusy = true;
+  if (S.view === 'sleep') renderView();
+  try {
+    const j = await api('events', { since: Date.now() - 31 * 864e5 });
+    S.log = { at: Date.now(), events: j.events };
+    put('log', S.log);
+    S.logErr = '';
+  } catch (e) { S.logErr = e.message; }
+  S.logBusy = false;
+  if (S.view === 'sleep') renderView();
+}
+function allEvents() {
+  const out = ((S.log && S.log.events) || []).slice();
+  const ids = new Set(out.map((e) => e.id));
+  for (const e of S.outbox) if (!ids.has(e.id)) out.push(e);
+  return out;
+}
+
+/* ---------- Family config, shared over ntfy ---------- */
+async function sendCfg() {
+  if (!S.fam) return;
+  const f = S.fam;
+  if (isKid() && !spend(1)) return;
+  try { await ntfy(TD(), {}, await sealText({ t: 'cfg', at: f.cfgAt || 0, by: meId(), bed: f.cfg.bed, wd: f.cfg.wd, we: f.cfg.we, s: f.s || '', n: f.n || '', r: f.r || [] })); }
+  catch { if (isKid()) refund(1); }
+}
+let cfgTimer = 0;
+const sendCfgSoon = () => { clearTimeout(cfgTimer); cfgTimer = setTimeout(sendCfg, 4000); };
+function mergeRoster(list) {
+  let changed = false;
+  S.fam.r = S.fam.r || [];
+  for (const p of list || []) {
+    if (!p || !/^[a-z0-9]{6,12}$/.test(p.i || '')) continue;
+    const l = cleanLabel(p.l) || 'Parent';
+    const old = S.fam.r.find((x) => x.i === p.i);
+    if (!old) { S.fam.r.push({ i: p.i, l }); changed = true; }
+    else if (old.l !== l && p.fresh) { old.l = l; changed = true; }
+  }
+  return changed;
+}
+function applyCfg(o) {
+  let changed = mergeRoster(o.r);
+  if ((o.at || 0) > (S.fam.cfgAt || 0)) {
+    S.fam.cfg = { bed: C.hm(o.bed) != null ? o.bed : cfg().bed, wd: C.hm(o.wd) != null ? o.wd : cfg().wd, we: C.hm(o.we) != null ? o.we : cfg().we };
+    S.fam.cfgAt = o.at;
+    if (typeof o.s === 'string' && (!o.s || /^https:\/\/script\.google\.com\//.test(o.s))) S.fam.s = o.s || S.fam.s;
+    if (typeof o.n === 'string') S.fam.n = o.n.slice(0, 30);
+    changed = true;
+  }
+  if (changed) { saveFam(); if (S.fam.s) { checkSheet(); flushSoon(); } }
+  return changed;
+}
+
+/* ---------- Incoming messages ---------- */
+async function onNtfy(m) {
+  if (!m || m.event !== 'message' || !m.id || SEEN.has(m.id)) return;
+  const ts = m.time * 1000;
+  if (ts > Date.now() + 15e3) return;     // a scheduled check-in, not delivered yet
+  markSeen(m.id);
+  if (ts > S.since) { S.since = ts; put('since', S.since); }
+  if (m.topic === TD()) await onData(m);
+  else if (m.topic === TA()) onAlert(m);
+}
+
+// Her taps arrive on the shared notification topic, which both parents' ntfy apps also show
+function onAlert(m) {
+  if (isKid()) return;
+  const ts = m.time * 1000;
+  if (m.sequence_id === 'quiet') { upsert({ eid: 'q' + m.id, ts, from: 'sys', kind: 'quiet' }); S.quiet = { gone: ts }; put('quiet', S.quiet); refresh(); return; }
+  const c = C.clickInfo(m.click);
+  if (!c) return;
+  const w = c.w;
+  if (TILE[w]) upsert({ eid: c.eid, ts, from: 'child', kind: 'quick', q: w });
+  else if (w === 'voice') upsert({ eid: c.eid, ts, from: 'child', kind: 'voice', dur: c.d });
+  else if (LINES[w]) upsert({ eid: c.eid, ts, from: 'sys', kind: w });
+  if (w === 'back' && S.quiet) { S.quiet.gone = 0; put('quiet', S.quiet); }
+  refresh();
+}
+
+async function onData(m) {
+  const o = await unsealText(m.message);
+  if (!o || !o.t) return;
+  const ts = m.time * 1000;
+  if (o.t === 'voice' || o.t === 'quick') {
+    const from = o.from || (o.t === 'quick' ? 'grown-up' : 'child');
+    if (!/^[a-z0-9-]{1,12}$/.test(from)) return;
+    const it = { eid: String(o.eid || m.id).slice(0, 20), ts, from, kind: o.t };
+    if (o.t === 'voice') Object.assign(it, { dur: +o.dur || 0, pk: String(o.pk || '').slice(0, 40), mime: String(o.mime || 'audio/webm').slice(0, 40), att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null });
+    else { if (!QUICK[o.q]) return; Object.assign(it, { q: o.q, re: o.re }); }
+    const isNew = !itemById(it.eid);
+    const item = upsert(it);
+    saveItems();
+    if (isKid() && from !== 'child') {
+      logEvent({ id: item.eid, ts, type: o.t, detail: o.t === 'voice' ? String(item.dur) : o.q, role: 'parent', who: labelOf(from) || 'Grown-up' });
+      if (isNew && Date.now() - ts < 30 * MIN) kidIncoming(item);
+    }
+    refresh();
+  } else if (o.t === 'heard') {
+    for (const id of (o.ids || []).slice(0, 30)) {
+      const list = S.heard[id] = S.heard[id] || [];
+      if (o.from && !list.includes(o.from)) list.push(o.from);
+    }
+    put('heard', S.heard);
+    refresh();
+  } else if (o.t === 'hello') {
+    if (mergeRoster([{ i: o.id, l: o.l, fresh: true }])) { saveFam(); if (isKid()) sendCfgSoon(); refresh(); }
+  } else if (o.t === 'cfg') {
+    if (applyCfg(o)) refresh();
+  }
+}
+
+/* ---------- Live connection ---------- */
+const LIVE = { es: null, at: 0, tries: 0, timer: 0, ok: false };
+async function catchUp() {
+  if (!S.fam) return;
+  const topics = isKid() ? TD() : `${TA()},${TD()}`;
+  const since = S.since ? Math.floor(S.since / 1000) - 1 : '12h';
+  try {
+    const r = await fetch(`${NTFY}/${topics}/json?poll=1&sched=1&since=${since}`, { cache: 'no-store' });
+    if (!r.ok) throw 0;
+    const text = await r.text();
+    let next = null, at = null;
+    for (const line of text.split('\n')) {
+      if (!line.trim()) continue;
+      let m; try { m = JSON.parse(line); } catch { continue; }
+      if (m.event === 'message' && m.time * 1000 > Date.now() + 15e3) {
+        if (m.sequence_id === 'quiet' && m.topic === TA()) { next = m.time * 1000; at = +new URLSearchParams(String(m.click || '').split('#')[1] || '').get('c') || null; }
+        continue;
+      }
+      await onNtfy(m);
+    }
+    if (!isKid()) { S.quiet = Object.assign(S.quiet || {}, { next, at, checked: Date.now() }); if (next) S.quiet.gone = 0; put('quiet', S.quiet); }
+  } catch {}
+  saveItems();
+  refresh();
+}
+function connect() {
+  if (!S.fam) return;
+  try { if (LIVE.es) LIVE.es.close(); } catch {}
+  clearTimeout(LIVE.timer);
+  const topics = isKid() ? TD() : `${TA()},${TD()}`;
+  const since = S.since ? Math.floor(S.since / 1000) - 1 : '12h';
+  let es;
+  try { es = new EventSource(`${NTFY}/${topics}/sse?since=${since}`); } catch { return; }
+  LIVE.es = es;
+  LIVE.at = Date.now();
+  const alive = () => { LIVE.at = Date.now(); if (!LIVE.ok) { LIVE.ok = true; LIVE.tries = 0; renderConn(); } };
+  es.onopen = alive;
+  es.addEventListener('open', alive);
+  es.addEventListener('keepalive', alive);
+  es.onmessage = (e) => { alive(); let m; try { m = JSON.parse(e.data); } catch { return; } onNtfy(m).then(saveItems); };
+  es.onerror = () => {
+    LIVE.ok = false; renderConn();
+    try { es.close(); } catch {}
+    if (LIVE.es !== es) return;
+    LIVE.timer = setTimeout(connect, Math.min(60e3, 2000 * 2 ** Math.min(5, LIVE.tries++)));
+  };
+}
+function renderConn() {
+  const k = $('#kConn'); if (k) k.classList.toggle('ok', LIVE.ok);
+  if (!isKid() && S.me) renderSub();
+}
+
+/* ---------- Recording ---------- */
+const REC = { stream: null, ctx: null, an: null, mr: null, chunks: [], levels: [], t0: 0, on: false, lvl: 0, timer: 0, idle: 0, mime: '' };
+async function micReady() {
+  clearTimeout(REC.idle);
+  REC.idle = setTimeout(micRelease, 90e3);
+  if (REC.stream && REC.stream.active) return true;
+  try {
+    REC.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+  } catch { REC.stream = null; return false; }
+  try {
+    REC.ctx = REC.ctx || new AudioContext();
+    if (REC.ctx.state === 'suspended') REC.ctx.resume().catch(() => {});
+    const src = REC.ctx.createMediaStreamSource(REC.stream);
+    REC.an = REC.ctx.createAnalyser(); REC.an.fftSize = 1024;
+    src.connect(REC.an);
+  } catch { REC.an = null; }
+  return true;
+}
+function micRelease() {
+  if (REC.on) { REC.idle = setTimeout(micRelease, 30e3); return; }
+  if (REC.stream) REC.stream.getTracks().forEach((t) => t.stop());
+  REC.stream = null;
+}
+function recStart() {
+  if (!REC.stream || !window.MediaRecorder) return false;
+  const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+  REC.mime = types.find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+  try { REC.mr = new MediaRecorder(REC.stream, REC.mime ? { mimeType: REC.mime, audioBitsPerSecond: 32000 } : {}); }
+  catch { return false; }
+  REC.mime = (REC.mr.mimeType || REC.mime || 'audio/webm').split(';')[0];
+  REC.chunks = []; REC.levels = [];
+  REC.mr.ondataavailable = (e) => { if (e.data && e.data.size) REC.chunks.push(e.data); };
+  REC.mr.start(250);
+  REC.t0 = Date.now(); REC.on = true;
+  const buf = new Float32Array(1024);
+  REC.timer = setInterval(() => {
+    let rms = 0;
+    if (REC.an) { REC.an.getFloatTimeDomainData(buf); for (const v of buf) rms += v * v; rms = Math.sqrt(rms / buf.length); }
+    REC.lvl = Math.min(1, rms * 4);
+    REC.levels.push(REC.lvl);
+  }, 100);
+  return true;
+}
+function recStop() {
+  return new Promise((res) => {
+    clearInterval(REC.timer);
+    const mr = REC.mr; REC.on = false; REC.mr = null;
+    if (!mr || mr.state === 'inactive') { res(null); return; }
+    const dur = (Date.now() - REC.t0) / 1000, pk = C.peaks(REC.levels, 28);
+    mr.onstop = () => res({ blob: new Blob(REC.chunks, { type: REC.mime }), dur, pk, mime: REC.mime });
+    try { mr.stop(); } catch { res(null); }
+  });
+}
+function recCancel() {
+  clearInterval(REC.timer);
+  const mr = REC.mr; REC.on = false; REC.mr = null;
+  if (mr) { mr.onstop = null; try { mr.stop(); } catch {} }
+}
+
+/* ---------- Playback ---------- */
+const CLIPS = new Map();
+const player = $('#player');
+const PLAYING = { eid: null };
+async function clipUrl(it) {
+  if (CLIPS.has(it.eid)) return CLIPS.get(it.eid);
+  if (!it.att || !it.att.url) throw new Error('missing');
+  if (it.att.expires && it.att.expires * 1000 < Date.now()) throw new Error('expired');
+  let r;
+  try { r = await fetch(it.att.url); } catch { throw new Error('offline'); }
+  if (r.status === 404) throw new Error('expired');
+  if (!r.ok) throw new Error('fetch');
+  const plain = await unseal(new Uint8Array(await r.arrayBuffer()));
+  const url = URL.createObjectURL(new Blob([plain], { type: it.mime || 'audio/webm' }));
+  CLIPS.set(it.eid, url);
+  return url;
+}
+async function playItem(it) {
+  const url = await clipUrl(it);
+  player.src = url;
+  PLAYING.eid = it.eid;
+  try { await player.play(); }
+  catch (e) { PLAYING.eid = null; throw e; }
+}
+function stopPlayback() { try { player.pause(); } catch {} PLAYING.eid = null; }
+player.addEventListener('ended', () => { const e = PLAYING.eid; PLAYING.eid = null; onPlayEnd(e); });
+player.addEventListener('pause', () => { if (PLAYING.eid && !player.ended) { const e = PLAYING.eid; PLAYING.eid = null; onPlayEnd(e); } });
+player.addEventListener('timeupdate', () => { if (!isKid() && PLAYING.eid) paintProgress(PLAYING.eid); });
+function onPlayEnd(eid) { if (isKid()) kidPlayEnd(eid); else { paintProgress(eid, true); renderPlayButtons(); } }
+
+let AC = null;
+function chime(soft) {
+  try {
+    AC = AC || new AudioContext();
+    if (AC.state === 'suspended') AC.resume();
+    const t = AC.currentTime, g = AC.createGain();
+    g.connect(AC.destination);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(soft ? 0.12 : 0.22, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+    [659.25, 880].forEach((f, i) => { const o = AC.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.connect(g); o.start(t + i * 0.16); o.stop(t + 0.9); });
+  } catch {}
+}
+
+/* ---------- Sending ---------- */
+async function sendVoice(rec) {
+  const eid = rid(10), now = Date.now(), dur = Math.max(1, Math.round(rec.dur));
+  let owe = 0;
+  const it = upsert({ eid, ts: now, from: meId(), kind: 'voice', dur, pk: rec.pk, mime: rec.mime, st: 'sending' });
+  CLIPS.set(eid, URL.createObjectURL(rec.blob));
+  if (isKid()) { K.lastSent = eid; K.lastAct = now; } else { S.played[eid] = 1; }
+  refresh();
+  try {
+    if (isKid()) { if (!spend(2)) throw Object.assign(new Error('limit'), { limit: true, local: true }); owe = 2; }
+    const sealed = await seal(new Uint8Array(await rec.blob.arrayBuffer()));
+    const meta = await sealText({ t: 'voice', eid, from: meId(), dur, pk: rec.pk, mime: rec.mime });
+    const res = await (isKid() ? tryHard : (f) => f())(() => ntfy(TD(), { filename: 'v.bin', message: meta }, sealed));
+    if (res && res.attachment) it.att = { url: res.attachment.url, expires: res.attachment.expires };
+    if (res && res.id) markSeen(res.id);
+    if (owe) owe = 1;
+    if (isKid()) { const actions = await replyActions(eid); await tryHard(() => ntfy(TA(), { title: 'Voice message', tags: 'microphone', p: 4, click: `${APP}#e=${eid}&w=voice&d=${dur}`, actions }, `${durTxt(dur)} long. Tap to listen.`)); }
+    it.st = 'sent'; owe = 0;
+  } catch (e) { refund(owe); it.st = 'failed'; it.err = e.limit ? 'limit' : 'net'; if (!isKid()) toast(e.limit ? `ntfy’s daily limit is used up. It resets at ${resetAt()}.` : 'Couldn’t send. Check your connection and try again.'); }
+  logEvent({ id: eid, ts: now, type: 'voice', detail: String(dur) });
+  saveItems();
+  refresh();
+}
+async function sendQuickParent(q, btn) {
+  const eid = rid(10), now = Date.now();
+  const last = [...S.items].reverse().find((x) => x.from === 'child');
+  const it = upsert({ eid, ts: now, from: S.me.id, kind: 'quick', q, re: last && last.eid, st: 'sending' });
+  refresh();
+  await withBusy(btn, async () => {
+    try {
+      const res = await ntfy(TD(), {}, await sealText({ t: 'quick', q, from: S.me.id, eid, re: it.re }));
+      if (res && res.id) markSeen(res.id);
+      it.st = 'sent';
+      toast(`Sent: ${QUICK[q].t}`);
+    } catch (e) { it.st = 'failed'; toast(e.limit ? `ntfy’s daily limit is used up. It resets at ${resetAt()}.` : 'Couldn’t send. Check your connection and try again.'); }
+  });
+  logEvent({ id: eid, ts: now, type: 'quick', detail: q });
+  saveItems(); refresh();
+}
+// Tell her phone which of her clips you've listened to; several at once go as one message
+const HEARD_Q = new Set();
+let heardTimer = 0;
+function queueHeard(eid) {
+  HEARD_Q.add(eid);
+  clearTimeout(heardTimer);
+  heardTimer = setTimeout(async () => {
+    const ids = [...HEARD_Q]; HEARD_Q.clear();
+    if (!ids.length) return;
+    try { const r = await ntfy(TD(), {}, await sealText({ t: 'heard', ids, from: S.me.id })); if (r && r.id) markSeen(r.id); } catch {}
+    ids.forEach((id) => { const l = S.heard[id] = S.heard[id] || []; if (!l.includes(S.me.id)) l.push(S.me.id); });
+    put('heard', S.heard); refresh();
+  }, 2000);
+}
+
+/* ---------- Her phone ---------- */
+const K = { idle: false, lastTouch: Date.now(), lastAct: 0, swallowUntil: 0, pending: null, overlay: null, rec: false, press: null, recTimer: 0, lastSent: null, gearT: 0, restUntil: 0, fail: 0 };
+let WAKE = null;
+async function keepAwake() {
+  if (!isKid() || document.visibilityState !== 'visible') return;
+  try { if (!WAKE && navigator.wakeLock) { WAKE = await navigator.wakeLock.request('screen'); WAKE.addEventListener('release', () => { WAKE = null; }); } } catch {}
+}
+function avatarHtml(id, cls = '') {
+  const ph = S.photos[id], l = labelOf(id);
+  const style = ph ? ` style="background-image:url('${esc(ph)}')"` : '';
+  return `<span class="avatar ${cls}"${style} aria-label="${esc(l || 'Grown-up')}">${ph ? '' : esc((l || '♥').slice(0, 1))}</span>`;
+}
+function kidTouch() { K.lastTouch = Date.now(); keepAwake(); }
+
+function setKidTheme() {
+  const t = S.sleep.on ? 'red' : (S.set.kidTheme || 'dusk');
+  applyTheme(t);
+  document.body.classList.toggle('sleeping', !!S.sleep.on);
+  document.querySelector('meta[name=theme-color]').setAttribute('content', S.sleep.on || K.idle ? '#000000' : (THEMES.find((x) => x.id === t) || THEMES[0]).bg);
+}
+function renderTiles() {
+  K.tileKind = sleepTileKind();
+  const sleepTile = K.tileKind === 'wake' ? { k: 'wake', e: '☀️', t: 'I’m awake' } : { k: 'sleep', e: '🌙', t: 'Night night' };
+  $('#tiles').innerHTML = TILES.concat([sleepTile]).map((t) => `<button class="tile" type="button" data-tile="${t.k}" aria-label="${esc(t.t)}"><span class="e" aria-hidden="true">${t.e}</span><span class="w" aria-hidden="true">${esc(t.t)}</span></button>`).join('');
+}
+function renderKid() {
+  if (!isKid()) return;
+  setKidTheme();
+  const now = Date.now();
+  $('#kClock').textContent = time(now);
+  $('#kidApp').classList.toggle('resting', K.restUntil > now);
+  // the talk button, or who's talking to her
+  const inEl = $('#kIn');
+  if (K.overlay) {
+    const o = K.overlay;
+    const badge = o.q ? `<span class="badge" aria-hidden="true">${QUICK[o.q].e}</span>` : '';
+    const face = o.from && o.from !== 'grown-up' ? avatarHtml(o.from) : `<span class="avatar" aria-hidden="true" style="font-size:96px">❤️</span>`;
+    inEl.innerHTML = face + badge;
+    inEl.classList.toggle('playing', !!o.playing);
+    inEl.hidden = false;
+  } else inEl.hidden = true;
+  // what happened to the last thing she sent
+  const st = $('#kStatus');
+  const last = K.lastSent && itemById(K.lastSent);
+  if (last && now - last.ts < 10 * MIN) {
+    const icon = last.kind === 'voice' ? '🎙' : (TILE[last.q] || {}).e || '';
+    const heard = (S.heard[last.eid] || []).map((p) => avatarHtml(p)).join('');
+    const mark = last.st === 'failed' ? '<span class="warn" aria-label="Not sent"></span>' : last.st === 'sending' ? '<span class="spinner"></span>' : `<span class="tick" aria-label="Sent">✓</span>${heard ? '<span class="tick">✓</span>' + heard : ''}`;
+    st.innerHTML = `<span aria-hidden="true">${icon}</span>${mark}`;
+  } else st.innerHTML = '';
+  // replay the last message from a grown-up
+  const lastIn = [...S.items].reverse().find((x) => x.from !== 'child' && x.kind === 'voice' && x.from !== 'sys');
+  const rp = $('#replay');
+  if (lastIn && now - lastIn.ts < 3 * HOUR && (CLIPS.has(lastIn.eid) || (lastIn.att && (!lastIn.att.expires || lastIn.att.expires * 1000 > now)))) {
+    rp.innerHTML = avatarHtml(lastIn.from);
+    rp.dataset.eid = lastIn.eid;
+    rp.hidden = false;
+  } else rp.hidden = true;
+  // the clock that shows at night, and when nobody has touched the screen for a while
+  const cf = $('#clockface');
+  if (K.idle) {
+    const ph = C.phase(now, cfg());
+    cf.className = 'clockface ' + (S.sleep.on ? ph : 'day');
+    const icon = S.sleep.on ? (ph === 'moon' ? ICON.moon : ICON.sun) : ICON.sun;
+    const txt = time(now);
+    const ci = $('#clockIn');
+    if (ci.dataset.k !== txt + cf.className) { ci.innerHTML = `${icon}<span class="t num">${esc(txt)}</span>`; ci.dataset.k = txt + cf.className; }
+    const d = C.drift(now, 7);
+    ci.style.transform = `translate(${d.x}vw, ${d.y}vh)`;
+    const g = $('#glow');
+    if (K.pending) { g.innerHTML = avatarHtml(K.pending.from); g.hidden = false; } else g.hidden = true;
+    cf.setAttribute('aria-label', `${txt}. ${ph === 'moon' ? 'Still night time' : 'Time to get up'}`);
+    cf.hidden = false;
+  } else cf.hidden = true;
+}
+
+// A message from a grown-up: play it now, or wait with a soft glow if she's asleep
+function kidIncoming(it) {
+  const now = Date.now();
+  if (S.sleep.on && now - Math.max(K.lastAct, K.lastTouch) > 5 * MIN) { K.pending = it; K.idle = true; renderKid(); return; }
+  showIncoming(it);
+}
+async function showIncoming(it) {
+  K.pending = null;
+  K.idle = false; K.lastTouch = Date.now();
+  stopPlayback();
+  K.overlay = { from: it.from, q: it.kind === 'quick' ? it.q : null, eid: it.eid, playing: it.kind === 'voice' };
+  chime(S.sleep.on);
+  renderKid();
+  clearTimeout(K.overlayT);
+  if (it.kind === 'voice') {
+    await sleepMs(900);
+    try { await playItem(it); return; }
+    catch { K.overlay.playing = false; renderKid(); }
+  }
+  K.overlayT = setTimeout(() => { K.overlay = null; renderKid(); }, it.kind === 'voice' ? 4000 : 12000);
+}
+function kidPlayEnd() {
+  if (!K.overlay) return;
+  K.overlay.playing = false;
+  renderKid();
+  clearTimeout(K.overlayT);
+  K.overlayT = setTimeout(() => { K.overlay = null; renderKid(); }, 3500);
+}
+function rest() {
+  K.restUntil = Date.now() + 4000;
+  renderKid();
+  setTimeout(renderKid, 4100);
+  // once a day, let the grown-ups know why her buttons are resting
+  const day = new Date().toISOString().slice(0, 10);
+  if (S.sleep.restDay !== day) {
+    S.sleep.restDay = day; saveSleep();
+    if (spend(1, true)) ntfy(TA(), { title: 'Walkie is resting until bedtime', tags: 'zzz', p: 2, click: `${APP}#e=${rid(10)}&w=rest` },
+      'She has used today’s daytime messages. Her buttons work again from bedtime, and Bad dream and Cuddle always work.').catch(() => { refund(1); S.sleep.restDay = ''; saveSleep(); });
+  }
+}
+function flash(btn, cls) {
+  if (!btn) return;
+  btn.classList.remove('sent', 'failed', 'sending');
+  void btn.offsetWidth;
+  btn.classList.add(cls);
+  if (cls !== 'sending') setTimeout(() => btn.classList.remove(cls), 2600);
+}
+// Her sends try again a couple of times before giving up, so a Wi-Fi blip doesn't lose a bad dream
+async function tryHard(fn) {
+  let last;
+  for (const wait of [0, 2500, 7000]) {
+    if (wait) await sleepMs(wait);
+    try { return await fn(); } catch (e) { last = e; if (e.limit) break; }
+  }
+  throw last;
+}
+
+async function sendTile(k, btn) {
+  const tile = TILE[k], now = Date.now();
+  K.lastAct = now;
+  const st = S.tileSt[k];
+  if (st && st.st === 'sending') { flash(btn, 'sending'); return; }                        // still on its way
+  if (st && st.st === 'sent' && now - st.at < 60e3) { flash(btn, 'sent'); return; }       // ten taps in a minute arrive as one
+  if (!spend(1, tile.p === 5)) { rest(); return; }   // Bad dream and Cuddle always go
+  S.tileSt[k] = { st: 'sending', at: now };
+  const eid = rid(10);
+  const it = upsert({ eid, ts: now, from: 'child', kind: 'quick', q: k, st: 'sending' });
+  K.lastSent = eid;
+  flash(btn, 'sending'); renderKid();
+  try {
+    const actions = await replyActions(eid);
+    await tryHard(() => ntfy(TA(), { title: tile.t, tags: tile.tag, p: tile.p, click: `${APP}#e=${eid}&w=${k}`, actions }, 'Tap to reply in Walkie.'));
+    it.st = 'sent'; S.tileSt[k] = { st: 'sent', at: Date.now() }; flash(btn, 'sent');
+  } catch { refund(1); it.st = 'failed'; delete S.tileSt[k]; flash(btn, 'failed'); }
+  logEvent({ id: eid, ts: now, type: 'quick', detail: k });
+  saveItems(); renderKid();
+}
+
+// The moon or sun button: what she can say now
+function sleepTileKind() {
+  if (S.sleep.on && (S.sleep.state === 'asleep' || C.phase(Date.now(), cfg()) === 'sun')) return 'wake';
+  return 'sleep';
+}
+async function kidSleepTile(k, btn) {
+  const now = Date.now(), eid = rid(10);
+  if (now - (K.flipAt || 0) < 3000) return;   // a double tap doesn't say night night and I'm awake together
+  K.flipAt = now;
+  K.lastAct = now;
+  if (k === 'sleep') {
+    S.sleep.state = 'asleep';
+    if (!S.sleep.on) S.sleep.since = now;
+    S.sleep.on = true;
+    if (C.minsOf(now) >= C.bedMins(cfg())) S.sleep.auto = C.startOfDay(now) + '';   // no second switch-on at bedtime tonight
+    saveSleep();
+    logEvent({ id: eid, ts: now, type: 'sleep' });
+    flash(btn, 'sending');
+    renderTiles(); renderKid();
+    if (spend(1)) tryHard(() => ntfy(TA(), { title: 'Night night', tags: 'crescent_moon', p: 2, click: `${APP}#e=${eid}&w=sleep` }, 'She’s going to sleep.')).catch(() => refund(1));
+    beat(true);
+    setTimeout(() => { K.idle = true; renderKid(); }, 2500);
+    return;
+  }
+  // I'm awake
+  const ph = C.phase(now, cfg());
+  S.sleep.state = 'awake';
+  logEvent({ id: eid, ts: now, type: 'wake' });
+  const early = ph === 'moon' && S.sleep.on;
+  if (!early) { S.sleep.on = false; sendCfgSoon(); }
+  saveSleep();
+  renderTiles(); renderKid();
+  if (spend(1, true)) {
+    const actions = await replyActions(eid);
+    tryHard(() => ntfy(TA(), early
+      ? { title: 'Awake early', tags: 'sunny', p: 3, click: `${APP}#e=${eid}&w=early`, actions }
+      : { title: 'I’m awake', tags: 'sunny', p: 3, click: `${APP}#e=${eid}&w=wake`, actions },
+    early ? 'The moon’s still up on her clock.' : 'Good morning!')).catch(() => refund(1));
+  }
+}
+
+// The gone-quiet alert is always armed: one message waits on ntfy, scheduled for the future, and her phone keeps
+// pushing it back. If her phone stops (off, flat, crashed, off the Wi-Fi, Walkie closed), it isn't pushed back, so it arrives.
+// At night it arrives 50 minutes after the last check-in; by day, at bedtime, so you know before she goes to bed.
+let beatChain = Promise.resolve();
+function beat(force) { beatChain = beatChain.then(() => doBeat(force)).catch(() => {}); return beatChain; }
+function nextBedtime(now) {
+  const b = C.at(C.startOfDay(now), C.bedMins(cfg()));
+  return now < b ? b : C.at(C.addDays(C.startOfDay(now), 1), C.bedMins(cfg()));
+}
+async function doBeat(force) {
+  if (!isKid() || !S.fam) return;
+  const now = Date.now(), night = C.phase(now, cfg()) === 'moon';
+  const b = S.beat || {};
+  const every = night ? BEAT_EVERY : 2 * HOUR;
+  if (!force && b.at && b.night === night && now - b.at < every - 30e3 && b.fire > now) return;
+  const fire = night ? now + QUIET_DELAY * MIN : Math.max(now + QUIET_DELAY * MIN, nextBedtime(now) + 20 * MIN);
+  const missed = b.fire && b.fire <= now;     // the last one went off: tell them she's back
+  if (!spend(1, true)) return;
+  const when = dayKey(fire) === dayKey(now) ? time(now) : `${time(now)} yesterday`;
+  try {
+    await ntfy(TA(), { title: 'Walkie has gone quiet', tags: 'warning', p: 3, delay: String(Math.floor(fire / 1000)), click: `${APP}#e=quiet&c=${now}` },
+      `${kidPhone()} last checked in at ${when}. Check it’s on, charging and on Wi-Fi, with Walkie open.`, 'quiet');
+    S.beat = { at: now, fire, night }; put('beat', S.beat);
+    if (missed) tryHard(() => ntfy(TA(), { title: 'Walkie’s back', tags: 'white_check_mark', p: 2, click: `${APP}#e=${rid(10)}&w=back` }, `${kidPhone()} is checking in again.`)).catch(() => {});
+  } catch { refund(1); }
+}
+function stopBeat() {
+  if (!S.fam) return;
+  S.beat = null; drop('beat');
+  return fetch(`${NTFY}/${TA()}/quiet/delete`).catch(() => {});
+}
+
+// Bedtime and morning happen by themselves too
+function kidTick() {
+  if (!isKid()) return;
+  const now = Date.now(), m = C.minsOf(now), c = cfg(), bed = C.bedMins(c);
+  const evening = C.startOfDay(now) + '', noon = C.at(C.startOfDay(now), 720);
+  // bedtime: the night clock comes on by itself, once each evening
+  if (!S.sleep.on && bed >= 720 && m >= bed && S.sleep.auto !== evening) {
+    S.sleep.on = true; S.sleep.auto = evening; S.sleep.since = now; saveSleep();
+    K.idle = true; sendCfgSoon();
+  }
+  // midday: a night that nobody ended with "I'm awake" ends by itself
+  if (S.sleep.on && now >= noon && (S.sleep.since || 0) < noon && m < bed) {
+    S.sleep.on = false; S.sleep.state = 'awake'; saveSleep();
+  }
+  beat(false);
+  if (K.tileKind !== sleepTileKind()) renderTiles();
+  const quietFor = S.sleep.on ? 60e3 : 180e3;
+  if (!K.idle && !REC.on && !K.press && !PLAYING.eid && !K.overlay && now - K.lastTouch > quietFor && !$('#sheet').open) K.idle = true;
+  if (LIVE.es && now - LIVE.at > 120e3) connect();
+  renderKid();
+}
+
+// Hold to talk
+const talk = $('#talk');
+talk.insertAdjacentHTML('beforeend', ICON.mic);
+talk.addEventListener('pointerdown', async (e) => {
+  e.preventDefault();
+  kidTouch();
+  if (K.press || K.rec) return;
+  if (K.restUntil > Date.now() || !canSpend(2)) { rest(); return; }
+  try { talk.setPointerCapture(e.pointerId); } catch {}
+  K.press = { up: false, pid: e.pointerId };
+  stopPlayback();
+  K.overlay = null; renderKid();
+  const ok = await micReady();
+  if (!K.press) return;
+  if (K.press.up || !ok || !recStart()) { K.press = null; wiggle(); return; }
+  K.rec = true;
+  $('#kidApp').classList.add('rec');
+  K.recTimer = setInterval(() => {
+    const el = Date.now() - REC.t0;
+    $('#kidApp').style.setProperty('--lvl', REC.lvl.toFixed(2));
+    $('#prog').style.strokeDashoffset = String(100 - Math.min(100, el / KID_MAX * 100));
+    if (el >= KID_MAX) talkEnd(null);
+  }, 90);
+});
+async function talkEnd(e) {
+  if (!K.press) return;
+  if (e && e.pointerId != null && K.press.pid != null && e.pointerId !== K.press.pid) return;   // another finger: ignore
+  K.press.up = true;
+  if (!K.rec) return;
+  clearInterval(K.recTimer);
+  K.rec = false;
+  $('#kidApp').classList.remove('rec');
+  $('#prog').style.strokeDashoffset = '100';
+  const held = Date.now() - REC.t0;
+  K.press = null;
+  if (held < MIN_HOLD) { recCancel(); wiggle(); return; }
+  const rec = await recStop();
+  if (rec && rec.blob.size) sendVoice(rec);
+}
+talk.addEventListener('pointerup', talkEnd);
+talk.addEventListener('pointercancel', talkEnd);
+talk.addEventListener('contextmenu', (e) => e.preventDefault());
+function wiggle() { talk.classList.remove('wiggle'); void talk.offsetWidth; talk.classList.add('wiggle'); setTimeout(() => talk.classList.remove('wiggle'), 1300); }
+
+// While the clock is showing, the first touch only wakes the buttons: that whole touch, however long, presses nothing
+const SW = { pid: null, clickUntil: 0 };
+const swallow = (e) => { e.preventDefault(); e.stopPropagation(); };
+document.addEventListener('pointerdown', (e) => {
+  if (!isKid()) return;
+  kidTouch();
+  if (!K.idle) return;
+  K.idle = false;
+  SW.pid = e.pointerId;
+  micReady();
+  if (AC && AC.state === 'suspended') AC.resume();
+  const pend = K.pending;
+  renderKid();
+  if (pend) showIncoming(pend);
+  swallow(e);
+}, true);
+['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => {
+  if (SW.pid == null || e.pointerId !== SW.pid) return;
+  SW.pid = null; SW.clickUntil = Date.now() + 400;
+  swallow(e);
+}, true));
+document.addEventListener('click', (e) => { if (Date.now() < SW.clickUntil) { SW.clickUntil = 0; swallow(e); } }, true);
+document.addEventListener('pointermove', (e) => { if (SW.pid != null && e.pointerId === SW.pid) swallow(e); }, true);
+
+// Grown-up settings on her phone: press and hold the slider icon
+const gear = $('#gear');
+gear.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  gear.classList.add('holding');
+  clearTimeout(K.gearT);
+  K.gearT = setTimeout(() => { gear.classList.remove('holding'); openKidSettings(); }, 1500);
+});
+['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => gear.addEventListener(t, () => { clearTimeout(K.gearT); gear.classList.remove('holding'); }));
+gear.addEventListener('contextmenu', (e) => e.preventDefault());
+
+/* ---------- Parents' phones ---------- */
+function renderSub() {
+  const el = $('#sub');
+  if (!el || !S.fam) return;
+  const q = S.quiet || {}, now = Date.now();
+  let txt;
+  if (q.gone && now - q.gone < 12 * HOUR) txt = `went quiet at ${time(q.gone)}`;
+  else if (q.next && q.next > now && q.at) txt = `checked in ${ago(q.at)}`;
+  else {
+    const last = [...S.items].reverse().find((x) => x.from === 'child' || (x.from === 'sys' && x.kind !== 'quiet'));
+    txt = last ? `last heard from ${dayKey(last.ts) === dayKey(now) ? time(last.ts) : ago(last.ts)}` : 'nothing yet today';
+  }
+  const hint = `Hold the mic to talk to ${kidName() || 'her'}`;
+  if ($('#holdHint').textContent !== hint) $('#holdHint').textContent = hint;
+  el.innerHTML = `<span class="dot${LIVE.ok ? ' ok' : ''}" aria-hidden="true"></span><span>${esc(kidPhone())} · ${esc(txt)}</span><span class="vh">${LIVE.ok ? 'Connected' : 'Reconnecting'}</span>`;
+}
+
+function renderNotices() {
+  if (isKid() || !S.me) return;
+  const out = [], dismissed = get('dismissed', {});
+  if (!S.connected) out.push(`<div class="notice"><p>Get her messages as notifications on this phone.</p><button class="link-btn" type="button" data-act="setup-ntfy">Set up</button></div>`);
+  if (S.sheet && S.sheet.build != null && S.sheet.build < EXPECT_BUILD) out.push(`<div class="notice"><p>Your Apps Script is out of date (release ${S.sheet.build}, this app needs ${EXPECT_BUILD}). Deploy a new version under Manage deployments.</p></div>`);
+  if (!standalone && !dismissed.install) {
+    if (S.installEvt) out.push(`<div class="notice"><p>Add Walkie to your home screen for one-tap access.</p><button class="link-btn" type="button" data-act="install">Install</button><button class="x" type="button" data-dismiss="install" aria-label="Dismiss">${ICON.x}</button></div>`);
+    else if (isIOS) out.push(`<div class="notice"><p>Add Walkie to your Home Screen: tap Share, then Add to Home Screen.</p><button class="x" type="button" data-dismiss="install" aria-label="Dismiss">${ICON.x}</button></div>`);
+  }
+  $('#notices').innerHTML = out.join('');
+}
+
+const VOICE_BARS = 28;
+function waveHtml(pk, prog) {
+  const s = String(pk || '').padEnd(VOICE_BARS, '1').slice(0, VOICE_BARS);
+  const on = Math.round((prog || 0) * VOICE_BARS);
+  return [...s].map((d, i) => `<i${i < on ? ' class="on"' : ''} style="height:${4 + (+d || 0) * 2.6}px"></i>`).join('');
+}
+function whoTxt(id) { return id === 'grown-up' ? 'A grown-up' : (labelOf(id) || 'A grown-up'); }
+function heardTxt(eid) {
+  const list = (S.heard[eid] || []).map((p) => (p === S.me.id ? 'you' : labelOf(p) || 'a grown-up'));
+  if (!list.length) return '';
+  return ' · Heard by ' + (list.length > 1 ? list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1] : list[0]);
+}
+function expired(it) { return !CLIPS.has(it.eid) && it.att && it.att.expires && it.att.expires * 1000 < Date.now(); }
+function msgHtml(it) {
+  const t = time(it.ts);
+  if (it.from === 'sys' || ['sleep', 'wake', 'early', 'quiet', 'back', 'rest'].includes(it.kind)) {
+    const L = LINES[it.kind] || { e: '', t: it.kind };
+    return `<p class="line num${it.kind === 'quiet' ? ' warn' : ''}" data-eid="${esc(it.eid)}">${L.e} ${esc(L.t)} · ${t}</p>`;
+  }
+  const kid = it.from === 'child', mine = it.from === S.me.id;
+  const side = kid ? '' : mine ? ' mine' : ' parent';
+  const who = !kid && !mine ? `<span class="who">${esc(whoTxt(it.from))}</span>` : '';
+  let st = '';
+  if (it.st === 'sending') st = ' · Sending…';
+  else if (it.st === 'failed') st = it.err === 'limit' ? ' · Not sent: daily limit reached' : ' · Not sent';
+  if (it.kind === 'voice') {
+    const isNew = kid && !S.played[it.eid];
+    const exp = expired(it);
+    const playing = PLAYING.eid === it.eid;
+    const label = exp ? 'Voice message expired' : `${playing ? 'Pause' : 'Play'} voice message, ${it.dur} seconds`;
+    return `<div class="msg${side}" data-eid="${esc(it.eid)}">${who}
+      <div class="voice${isNew ? ' new' : ''}"><button class="play" type="button" data-play="${esc(it.eid)}" aria-label="${esc(label)}" ${exp || (!it.att && !CLIPS.has(it.eid)) ? 'disabled' : ''}>${playing ? ICON.pause : ICON.play}</button>
+      <span class="wave" aria-hidden="true">${waveHtml(it.pk)}</span><span class="vdur num">${durTxt(it.dur || 0)}</span></div>
+      <span class="meta num${it.st === 'failed' ? ' warn' : ''}">${t}${exp ? ' · Expired after 3 hours' : ''}${kid ? esc(heardTxt(it.eid)) : ''}${st}</span></div>`;
+  }
+  const info = kid ? TILE[it.q] : QUICK[it.q];
+  if (!info) return '';
+  return `<div class="msg${side}" data-eid="${esc(it.eid)}">${who}<span class="tap"><span class="e" aria-hidden="true">${info.e}</span>${esc(info.t)}</span>
+    <span class="meta num${it.st === 'failed' ? ' warn' : ''}">${t}${st}</span></div>`;
+}
+function threadHtml() {
+  const since = Date.now() - 12 * HOUR;
+  const list = S.items.filter((x) => x.ts > since).sort((a, b) => a.ts - b.ts);
+  if (!list.length) {
+    return `<div class="empty"><h2>All quiet</h2><p>When she talks or taps a picture, it appears here and on your ntfy notifications. Messages stay for 12 hours, voice for 3.</p></div>`;
+  }
+  let html = '', lastDay = null;
+  for (const it of list) {
+    const d = dayKey(it.ts);
+    if (d !== lastDay) { html += `<h2 class="day">${esc(dayWord(it.ts))}</h2>`; lastDay = d; }
+    html += msgHtml(it);
+  }
+  return html;
+}
+function paintProgress(eid, done) {
+  const box = document.querySelector(`.msg[data-eid="${CSS.escape(eid)}"] .wave`);
+  const it = itemById(eid);
+  if (!box || !it) return;
+  const p = done ? 0 : (player.duration && isFinite(player.duration) ? player.currentTime / player.duration : player.currentTime / Math.max(1, it.dur));
+  box.innerHTML = waveHtml(it.pk, p);
+}
+function renderPlayButtons() {
+  document.querySelectorAll('[data-play]').forEach((b) => {
+    const it = itemById(b.dataset.play);
+    if (!it) return;
+    b.innerHTML = PLAYING.eid === it.eid ? ICON.pause : ICON.play;
+  });
+}
+
+function nightLabel(n) {
+  return new Date(n.day).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' });
+}
+function barSvg(n) {
+  const X = (ms) => (C.axisPos(n, ms) * 100).toFixed(2);
+  let s = '<rect class="track" x="0" y="3" width="100" height="8" rx="2"/>';
+  for (const h of [4, 8, 12]) s += `<rect class="grid" x="${(h / 16 * 100).toFixed(2)}" y="0" width=".25" height="14"/>`;
+  if (n.start != null) {
+    const end = n.end != null ? n.end : Math.min(Date.now(), n.to);
+    s += `<rect class="asleep" x="${X(n.start)}" y="3" width="${Math.max(0.6, X(end) - X(n.start)).toFixed(2)}" height="8" rx="2"/>`;
+    for (const g of n.gaps) s += `<rect class="gap" x="${X(g[0])}" y="3" width="${Math.max(0.6, X(g[1]) - X(g[0])).toFixed(2)}" height="8"/>`;
+    for (const w of n.wakings) s += `<rect class="mark" x="${(X(w.main.ts) - 0.4).toFixed(2)}" y="0" width=".8" height="14" rx=".4"/>`;
+  }
+  return `<svg class="nbar" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`;
+}
+function sleepHtml() {
+  if (!S.fam.s) {
+    return `<section class="hero"><p class="story">Connect the sleep log to see her nights here: when she went to sleep, when she woke, and what woke her.</p>
+      <p class="facts">It keeps everything in a Google Sheet of your own, through a small Apps Script.</p>
+      <div class="actions"><button class="btn primary" type="button" data-act="settings-sheet">Set up the sleep log</button></div></section>`;
+  }
+  const now = Date.now();
+  const list = C.nights(allEvents(), now, 30);
+  const head = C.headline(list, now);
+  const a7 = C.averages(list, 7), a30 = C.averages(list, 30);
+  const rows = list.slice(0, 14).map((n) => {
+    const len = n.asleep != null && n.status !== 'none' ? C.dur(n.asleep) : '–';
+    const label = n.status === 'none' ? 'not logged' : C.sentence(n, time);
+    return `<button class="nrow" type="button" data-night="${n.day}" aria-label="${esc(nightLabel(n) + ': ' + label)}"><span class="nday">${esc(nightLabel(n))}</span>${barSvg(n)}<span class="nlen num">${esc(len)}</span></button>`;
+  }).join('');
+  const ticks = [['18:00', 0], ['22:00', 25], ['02:00', 50], ['06:00', 75], ['10:00', 100]]
+    .map(([l, p]) => `<span style="left:${p}%">${esc(minsTxt(C.hm(l)))}</span>`).join('');
+  const cell = (a, f) => (a ? f(a) : '–');
+  const status = S.logBusy ? '<span class="spinner"></span> Updating from the Sheet…'
+    : S.logErr ? `Couldn’t reach the sleep log: ${esc(S.logErr)}${S.log ? ` Showing what was saved ${ago(S.log.at)}.` : ''}`
+    : S.log ? `Updated ${ago(S.log.at)}.` : '';
+  const sheetLink = S.sheet && S.sheet.url ? ` <a class="link-btn" href="${esc(outLink(S.sheet.url))}" target="_blank" rel="noopener">Open the Sheet</a>` : '';
+  return `<section class="hero">
+      <p class="story">${esc(C.sentence(head, time))}</p>
+      ${a7 ? `<p class="facts">${esc(C.avgSentence(a7, minsTxt))}</p>` : ''}
+      <div class="actions"><button class="btn primary" type="button" data-act="fix">Add or fix a time</button></div>
+    </section>
+    <h2 class="section-title">Last 14 nights</h2>
+    <div class="axis" aria-hidden="true"><span></span><span class="ticks num">${ticks}</span><span></span></div>
+    <div class="nights">${rows}</div>
+    <p class="small" style="margin:8px 0 0">Bars run from 18:00 to 10:00. Lines mark when she woke. Tap a night to see or fix it.</p>
+    <h2 class="section-title">Averages</h2>
+    <table class="avg num"><thead><tr><th></th><th>7 nights</th><th>30 nights</th></tr></thead><tbody>
+      <tr><td>Bedtime</td><td>${cell(a7, (a) => minsTxt(a.bed))}</td><td>${cell(a30, (a) => minsTxt(a.bed))}</td></tr>
+      <tr><td>Awake</td><td>${cell(a7, (a) => minsTxt(a.wake))}</td><td>${cell(a30, (a) => minsTxt(a.wake))}</td></tr>
+      <tr><td>Asleep</td><td>${cell(a7, (a) => C.dur(a.asleep))}</td><td>${cell(a30, (a) => C.dur(a.asleep))}</td></tr>
+      <tr><td>Wakings a night</td><td>${cell(a7, (a) => a.wakings.toFixed(1))}</td><td>${cell(a30, (a) => a.wakings.toFixed(1))}</td></tr>
+    </tbody></table>
+    <p class="foot">${status}${sheetLink}</p>`;
+}
+// Links out of the installed app open in Chrome rather than inside Walkie
+function outLink(url) {
+  if (!(isAndroid && standalone)) return url;
+  const u = new URL(url);
+  return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+}
+
+function renderView() {
+  if (isKid() || !S.me) return;
+  document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === S.view)));
+  const v = $('#view');
+  if (S.view === 'talk') {
+    const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 160;
+    v.className = 'thread';
+    v.innerHTML = threadHtml();
+    $('#composer').hidden = false;
+    if (nearBottom || renderView.first !== false) { renderView.first = false; window.scrollTo(0, document.body.scrollHeight); }
+  } else {
+    v.className = '';
+    v.innerHTML = sleepHtml();
+    $('#composer').hidden = true;
+  }
+}
+function renderParent() {
+  renderSub();
+  renderNotices();
+  renderView();
+}
+let refreshQueued = false;
+function refresh() {
+  if (refreshQueued) return;
+  refreshQueued = true;
+  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); if (S.view === 'talk' && !REC.on) renderView(); } });
+}
+
+// Parent hold-to-talk, Signal style: hold, slide left to cancel, slide up to keep recording hands-free
+const mic = $('#mic');
+mic.innerHTML = ICON.mic;
+const PR = { on: false, locked: false, x0: 0, y0: 0, timer: 0, pid: null, starting: false };
+mic.addEventListener('pointerdown', async (e) => {
+  e.preventDefault();
+  if (PR.locked) { parentRecEnd(true); return; }
+  if (PR.on || PR.starting) return;
+  PR.starting = true; PR.x0 = e.clientX; PR.y0 = e.clientY; PR.pid = e.pointerId; PR.up = false;
+  try { mic.setPointerCapture(e.pointerId); } catch {}
+  stopPlayback();
+  const ok = await micReady();
+  PR.starting = false;
+  if (!ok) { toast('Walkie needs the microphone. Allow it when Chrome asks.'); return; }
+  if (PR.up) { toast('Hold the button while you talk'); return; }
+  if (!recStart()) { toast('This phone can’t record here.'); return; }
+  PR.on = true;
+  mic.classList.add('rec');
+  $('#holdHint').hidden = true; $('#recRow').hidden = false; $('#lockHint').hidden = false;
+  $('#slideHint').hidden = false; $('#recCancel').hidden = true; $('#slideHint').style.transform = '';
+  PR.timer = setInterval(() => {
+    const el = Date.now() - REC.t0;
+    $('#recTime').textContent = durTxt(el / 1000);
+    if (el >= PARENT_MAX) parentRecEnd(true);
+  }, 200);
+});
+mic.addEventListener('pointermove', (e) => {
+  if (!PR.on || PR.locked || e.pointerId !== PR.pid) return;
+  const dx = e.clientX - PR.x0, dy = e.clientY - PR.y0;
+  $('#slideHint').style.transform = `translateX(${Math.min(0, dx)}px)`;
+  $('#slideHint').style.opacity = String(Math.max(0.2, 1 + dx / 160));
+  if (dx < -120) parentRecEnd(false);
+  else if (dy < -80) {
+    PR.locked = true;
+    mic.innerHTML = ICON.send; mic.setAttribute('aria-label', 'Send');
+    $('#lockHint').hidden = true; $('#slideHint').hidden = true; $('#recCancel').hidden = false;
+  }
+});
+mic.addEventListener('pointerup', () => { PR.up = true; if (PR.on && !PR.locked) parentRecEnd(true); });
+mic.addEventListener('pointercancel', () => { PR.up = true; if (PR.on && !PR.locked) parentRecEnd(false); });
+mic.addEventListener('contextmenu', (e) => e.preventDefault());
+async function parentRecEnd(send) {
+  if (!PR.on) return;
+  clearInterval(PR.timer);
+  const held = Date.now() - REC.t0;
+  PR.on = false; PR.locked = false;
+  mic.classList.remove('rec'); mic.innerHTML = ICON.mic; mic.setAttribute('aria-label', 'Hold to talk to her. Slide left to cancel, up to keep recording');
+  $('#holdHint').hidden = false; $('#recRow').hidden = true; $('#lockHint').hidden = true;
+  $('#slideHint').style.transform = ''; $('#slideHint').style.opacity = '';
+  if (!send) { recCancel(); toast('Cancelled'); renderView(); return; }
+  if (held < MIN_HOLD) { recCancel(); toast('Hold the button while you talk'); renderView(); return; }
+  const rec = await recStop();
+  if (rec && rec.blob.size) sendVoice(rec);
+}
+$('#recCancel').addEventListener('click', () => parentRecEnd(false));
+function renderQuickRow() {
+  $('#quickRow').innerHTML = Object.entries(QUICK).map(([k, q]) => `<button class="chip" type="button" data-quick="${k}"><span aria-hidden="true">${q.e}</span>${esc(q.t)}</button>`).join('');
+}
+
+/* ---------- Themes ---------- */
+function applyTheme(id) {
+  const t = THEMES.find((x) => x.id === id) || THEMES[0];
+  if (t.id === 'twilight') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = t.id;
+  document.querySelector('meta[name=theme-color]').setAttribute('content', t.bg);
+}
+function themeGridHtml(key) {
+  const cur = S.set[key];
+  return `<div class="theme-grid">${THEMES.map((t) => `<button class="theme-opt" type="button" data-theme="${t.id}" data-key="${key}" aria-pressed="${cur === t.id}">
+    <span class="sw" style="--a:${t.bg};--c:${t.dome};--b:${t.accent}"></span>${t.name}</button>`).join('')}</div>`;
+}
+const POPS = { themes: '#themeBtn' };
+function togglePop(id, open) {
+  const pop = $('#' + id), show = open == null ? pop.hidden : open;
+  if (show) pop.innerHTML = themeGridHtml('theme') + '<p class="theme-note">Night red and Amber are gentlest on eyes adjusted to the dark.</p>';
+  pop.hidden = !show;
+  $(POPS[id]).setAttribute('aria-expanded', String(show));
+}
+const closePops = () => { for (const id in POPS) if (!$('#' + id).hidden) togglePop(id, false); };
+document.addEventListener('click', (e) => {
+  const open = Object.keys(POPS).some((id) => !$('#' + id).hidden);
+  if (!open || e.target.closest('.pop, ' + Object.values(POPS).join(', '))) return;
+  e.preventDefault(); e.stopPropagation(); closePops();
+}, true);
+
+/* ---------- Sheets ---------- */
+const sheet = $('#sheet');
+function openSheet(html) {
+  $('#sheetBody').innerHTML = html;
+  if (!sheet.open) sheet.showModal();
+  sheet.scrollTop = 0;
+}
+function closeSheet() { if (sheet.open) sheet.close(); }
+sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); });
+sheet.addEventListener('close', () => { if (isKid()) { K.lastTouch = Date.now(); renderKid(); } });
+const head = (title) => `<div class="grab-zone"><div class="grabber"></div><div class="sheet-head"><h2 id="sheetTitle">${title}</h2><button class="icon-btn" type="button" data-act="close" aria-label="Close">${ICON.x}</button></div></div>`;
+// Drag the handle or title down to close
+(function dragToClose() {
+  let y0 = null, t0 = 0, dy = 0;
+  sheet.addEventListener('touchstart', (e) => {
+    if (!e.target.closest('.grab-zone') || e.target.closest('button')) { y0 = null; return; }
+    y0 = e.touches[0].clientY; t0 = Date.now(); dy = 0; sheet.style.transition = 'none';
+  }, { passive: true });
+  sheet.addEventListener('touchmove', (e) => {
+    if (y0 == null) return;
+    dy = Math.max(0, e.touches[0].clientY - y0);
+    if (dy > 4) e.preventDefault();
+    sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: false });
+  sheet.addEventListener('touchend', () => {
+    if (y0 == null) return;
+    const fast = dy / Math.max(1, Date.now() - t0) > 0.5;
+    sheet.style.transition = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'none' : 'transform .2s ease';
+    if (dy > sheet.offsetHeight / 4 || (fast && dy > 30)) {
+      sheet.style.transform = `translateY(100%)`;
+      setTimeout(() => { closeSheet(); sheet.style.transform = ''; sheet.style.transition = ''; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 200);
+    } else { sheet.style.transform = ''; setTimeout(() => { sheet.style.transition = ''; }, 220); }
+    y0 = null;
+  });
+})();
+function setResult(id, msg, err) { const el = document.getElementById(id); if (el) { el.textContent = msg; el.classList.toggle('err', !!err); } }
+
+const LABELS = ['Mummy', 'Daddy', 'Mum', 'Dad'];
+function nameChipsHtml(cur) {
+  return `<div class="chips" role="group" aria-label="What she calls you">${LABELS.map((l) => `<button class="chip" type="button" data-name="${l}" aria-pressed="${cur === l}">${l}</button>`).join('')}</div>
+    <div class="field-row"><input class="field" id="nameIn" maxlength="20" placeholder="Or type a name" value="${LABELS.includes(cur) ? '' : esc(cur || '')}" aria-label="Your name"></div>`;
+}
+function pickedName() { const v = cleanLabel(($('#nameIn') || {}).value); if (v) return v; const b = document.querySelector('[data-name][aria-pressed="true"]'); return b ? b.dataset.name : ''; }
+
+function openStart() {
+  openSheet(head('Set up Walkie') + `<p>This phone becomes the first parent’s phone. You’ll pair her phone and the other parent’s next.</p>
+    <h3>What does she call you?</h3>${nameChipsHtml('')}
+    <h3>Her name <span class="small">(optional, stays on your phones)</span></h3>
+    <div class="field-row"><input class="field" id="kidIn" maxlength="30" placeholder="Shown as “Her phone” if empty" aria-label="Her name"></div>
+    <div class="actions"><button class="btn primary" type="button" data-act="create">Create</button></div>
+    <p class="result" id="startRes"></p>`);
+}
+let JOIN = null;
+function openJoin(f) {
+  JOIN = { f, role: null };
+  openSheet(head('Join the family') + `<p>${f.n ? `This links the phone to ${esc(f.n)}’s Walkie.` : 'This links the phone to your family’s Walkie.'} Whose phone is this?</p>
+    <div class="roles" role="group" aria-label="Whose phone">
+      <button class="role" type="button" data-role="child" aria-pressed="false"><span class="e" aria-hidden="true">🌙</span><span><strong>Her bedside phone</strong><span>Big talk button, pictures and the night clock</span></span></button>
+      <button class="role" type="button" data-role="parent" aria-pressed="false"><span class="e" aria-hidden="true">📱</span><span><strong>A parent’s phone</strong><span>Talk back, notifications and the sleep page</span></span></button>
+    </div>
+    <div id="joinName" hidden><h3>What does she call you?</h3>${nameChipsHtml('')}</div>
+    <div class="actions"><button class="btn primary" type="button" data-act="join" disabled>Join</button></div>`);
+}
+
+function openConnect() {
+  const deep = `ntfy://ntfy.sh/${TA()}?display=Walkie`;
+  openSheet(head('Get her messages') + `<p>Her taps and voice messages arrive as notifications through ntfy, with reply buttons. Both parents’ phones connect to the same channel.</p>
+    <ol class="steps">
+      <li><strong>Install ntfy</strong>A free notification app. No account needed.<br><a class="btn" href="${PLAY}" target="_blank" rel="noopener">Get ntfy</a></li>
+      <li><strong>Connect it to Walkie</strong><a class="btn" href="${deep}">Connect ntfy</a></li>
+      <li><strong>Turn on instant delivery</strong>In ntfy, open Walkie, tap the ⋮ menu and enable instant delivery. Without it, messages can arrive late.</li>
+    </ol>
+    <div class="actions"><button class="btn primary" type="button" data-act="connected">Done</button><button class="btn" type="button" data-act="test">Send test notification</button></div>
+    <p class="result" id="testRes"></p>`);
+}
+
+function pairLink() { return `${APP}#${C.joinHash({ x: S.fam.x, k: S.fam.k, s: S.fam.s, n: S.fam.n, r: S.fam.r })}`; }
+function openPair() {
+  let qr = '';
+  try { qr = C.QR.svg(pairLink(), 280); } catch {}
+  openSheet(head('Pair a phone') + `<p>On her phone or the other parent’s, open the camera and point it at this code. Or share the link.</p>
+    <div class="qr">${qr}</div>
+    <div class="actions" style="justify-content:center"><button class="btn primary" type="button" data-act="share">Share link</button><button class="btn" type="button" data-act="copy">Copy link</button></div>
+    <p class="small" style="margin-top:16px">Anyone with this link can join your family’s Walkie, so only use it on your own phones.</p>`);
+}
+
+function timesHtml() {
+  const c = cfg();
+  return `<div class="times"><label>Bedtime<input class="field num" type="time" id="tBed" value="${esc(c.bed)}"></label>
+    <label>Wake, weekdays<input class="field num" type="time" id="tWd" value="${esc(c.wd)}"></label>
+    <label>Wake, weekends<input class="field num" type="time" id="tWe" value="${esc(c.we)}"></label></div>
+    <div class="actions"><button class="btn" type="button" data-act="save-times">Save times</button></div>`;
+}
+function sheetStatusTxt() {
+  if (!S.fam.s) return 'Not connected.';
+  const i = S.sheet || {};
+  if (i.err) return i.err;
+  const rel = i.build != null ? (i.build < EXPECT_BUILD ? `Apps Script release ${i.build}, this app needs ${EXPECT_BUILD}.` : `Apps Script release ${i.build}, up to date.`) : '';
+  return `Connected. ${rel}${S.outbox.length ? ` ${S.outbox.length} waiting to save.` : ''}`;
+}
+function openSettings(focus) {
+  const me = S.me;
+  openSheet(head('Settings') + `
+    <h3>You</h3>${nameChipsHtml(me.label)}
+    <div class="actions"><button class="btn" type="button" data-act="save-name">Save name</button></div>
+    <h3>Notifications</h3>
+    <p>${S.connected ? 'Her messages come through ntfy on this phone.' : 'Not set up on this phone yet.'}</p>
+    <div class="actions"><button class="btn${S.connected ? '' : ' primary'}" type="button" data-act="setup-ntfy">${S.connected ? 'Setup steps' : 'Set up'}</button><button class="btn" type="button" data-act="test">Send test notification</button></div>
+    <p class="result" id="testRes"></p>
+    <h3>Her bedtime and wake-up</h3>
+    <p class="small">Her night clock shows the moon from bedtime and the sun from wake-up. Her phone goes to the night clock at bedtime.</p>
+    ${timesHtml()}
+    <h3>Her name</h3>
+    <div class="field-row"><input class="field" id="kidIn" maxlength="30" value="${esc(kidName())}" placeholder="Shown as “Her phone” if empty" aria-label="Her name"><button class="btn" type="button" data-act="save-kid">Save</button></div>
+    <h3 id="sheetHead">Sleep log</h3>
+    <p class="small">Paste the web app address from Apps Script (Deploy, then Manage deployments). The README has the steps.</p>
+    <div class="field-row"><input class="field" id="apiIn" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(S.fam.s || '')}" aria-label="Web app address"></div>
+    <div class="actions"><button class="btn${S.fam.s ? '' : ' primary'}" type="button" data-act="connect-sheet">${S.fam.s ? 'Check' : 'Connect'}</button>${S.sheet && S.sheet.url ? `<a class="link-btn" href="${esc(outLink(S.sheet.url))}" target="_blank" rel="noopener">Open the Sheet</a>` : ''}</div>
+    <p class="result num" id="sheetRes">${esc(sheetStatusTxt())}</p>
+    <h3>Pair a phone</h3>
+    <p>Link her phone or the other parent’s.</p>
+    <div class="actions"><button class="btn" type="button" data-act="pair">Show pairing code</button></div>
+    <h3>Colour theme</h3>${themeGridHtml('theme')}
+    <h3>This phone</h3>
+    <div class="actions"><button class="btn" type="button" data-act="leave">Leave this family</button></div>
+    <p class="small" style="margin-top:22px">Messages travel through ntfy.sh, sealed with your family’s key. Voice clips are deleted by ntfy after 3 hours.</p>`);
+  if (focus === 'sheet') setTimeout(() => $('#sheetHead').scrollIntoView({ block: 'start' }), 60);
+}
+
+function openKidSettings() {
+  K.lastTouch = Date.now();
+  const parents = (S.fam.r || []);
+  const left = C.budget(S.budget, Date.now(), 0, false).left;
+  openSheet(head('Her phone') + `
+    <h3>Grown-ups’ photos</h3>
+    <p class="small">She sees your face when you talk to her. Photos stay on this phone.</p>
+    <ul class="list">${parents.length ? parents.map((p) => `<li><span style="display:flex;align-items:center;gap:12px">${avatarHtml(p.i)}${esc(p.l)}</span>
+      <span><label class="mini" style="cursor:pointer">Take photo<input type="file" accept="image/*" capture="user" data-photo="${esc(p.i)}" hidden></label>
+      ${S.photos[p.i] ? `<button class="mini" type="button" data-unphoto="${esc(p.i)}">Remove</button>` : ''}</span></li>`).join('') : '<li><span class="small">No grown-ups have joined yet. Pair a parent’s phone first.</span></li>'}</ul>
+    <h3>Bedtime and wake-up</h3>${timesHtml()}
+    <h3>Daytime colours</h3>${themeGridHtml('kidTheme')}
+    <p class="small">At night the screen turns black with a dim red clock.</p>
+    <h3>Checks</h3>
+    <div class="actions"><button class="btn" type="button" data-act="chime">Play the chime</button><button class="btn" type="button" data-act="kid-setup">Setup steps</button></div>
+    <p class="result">Screen kept on: ${WAKE ? 'yes' : 'not right now'}. Connection: ${LIVE.ok ? 'live' : 'reconnecting'}. Daytime messages left today: ${left}. At night nothing is held back.</p>
+    <h3>Pair a phone</h3>
+    <div class="actions"><button class="btn" type="button" data-act="pair">Show pairing code</button></div>
+    <h3>This phone</h3>
+    <div class="actions"><button class="btn" type="button" data-act="leave">Leave this family</button></div>`);
+}
+function openKidSetup() {
+  const micOk = !!(REC.stream && REC.stream.active);
+  openSheet(head('Set up her phone') + `<p>A few one-off steps, then this phone stays on Walkie by her bed.</p>
+    <ol class="steps">
+      <li class="${micOk ? 'done' : ''}" id="stMic"><strong>Allow the microphone</strong>So she can hold the button and talk.<br><button class="btn" type="button" data-act="allow-mic">Allow</button></li>
+      <li class="${standalone ? 'done' : ''}"><strong>Install Walkie on this phone</strong>${standalone ? 'Done.' : S.installEvt ? '<button class="btn" type="button" data-act="install">Install</button>' : 'In Chrome, tap ⋮ then Install app. Open Walkie from its new icon.'}</li>
+      <li><strong>Keep it on Walkie</strong>In Android Settings, search for “pinning” and turn on App pinning. Then open Walkie, tap the square Overview button, tap Walkie’s icon and choose Pin.</li>
+      <li><strong>Dim and quiet</strong>Turn the brightness right down, and media volume to about half. Keep it plugged in.</li>
+      <li><strong>Add your photos</strong>Press and hold the slider icon at the top right, then take a photo of each grown-up.</li>
+    </ol>
+    <div class="actions"><button class="btn primary" type="button" data-act="close">Done</button></div>`);
+}
+
+function openFix(day) {
+  const now = Date.now();
+  const base = day != null ? +day : (C.minsOf(now) < 13 * 60 ? C.addDays(C.startOfDay(now), -1) : C.startOfDay(now));
+  const iso = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  openSheet(head('Add or fix a time') + `
+    <div class="switcher" role="group" aria-label="Which time"><button type="button" data-fixkind="sleep" aria-pressed="true">Went to sleep</button><button type="button" data-fixkind="wake" aria-pressed="false">Woke up</button></div>
+    <div class="times" style="grid-template-columns:1fr 1fr">
+      <label>Date<input class="field num" type="date" id="fixDate" value="${iso(base)}" max="${iso(now)}"></label>
+      <label>Time<input class="field num" type="time" id="fixTime" value="${esc(cfg().bed)}"></label></div>
+    <div class="actions"><button class="btn primary" type="button" data-act="save-fix">Save</button></div>
+    <p class="result" id="fixRes"></p>
+    <p class="small">To remove a wrong time, tap that night in the chart.</p>`);
+  $('#sheetBody').dataset.base = String(base);
+}
+function openNight(day) {
+  const n = C.nights(allEvents(), Date.now(), 31).find((x) => x.day === +day);
+  if (!n) return;
+  const rows = n.events.filter((e) => ['sleep', 'wake', 'quick', 'voice'].includes(e.type) && (e.role === 'child' || e.type === 'sleep' || e.type === 'wake'))
+    .map((e) => {
+      const what = e.type === 'sleep' ? '🌙 Night night' : e.type === 'wake' ? '☀️ Awake' : e.type === 'voice' ? `🎙 Voice message, ${e.detail || '?'} s` : `${(TILE[e.detail] || {}).e || ''} ${(TILE[e.detail] || {}).t || e.detail}`;
+      const by = e.role === 'parent' ? ` <small>added by ${esc(e.who || 'a parent')}</small>` : '';
+      return `<li><span class="num">${time(e.ts)} · ${esc(what)}${by}</span><button class="mini" type="button" data-void="${esc(e.id)}" aria-label="Remove ${esc(what)} at ${time(e.ts)}">Remove</button></li>`;
+    }).join('');
+  openSheet(head(esc(new Date(n.day).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })) + ' night')
+    + `<p>${esc(C.sentence(n, time))}</p><ul class="list">${rows || '<li><span class="small">Nothing logged for this night.</span></li>'}</ul>
+    <div class="actions"><button class="btn primary" type="button" data-act="fix-night" data-day="${n.day}">Add a time</button></div>`);
+}
+
+/* ---------- Setup, join, leave ---------- */
+async function createFamily(label, kid) {
+  const me = { id: rid(8), role: 'parent', label };
+  S.fam = { x: rid(18), k: b64(crypto.getRandomValues(new Uint8Array(32))), n: kid || '', r: [{ i: me.id, l: label }], cfg: Object.assign({}, C.DEFAULT_TIMES), cfgAt: Date.now() };
+  S.me = me;
+  saveFam(); put('me', S.me);
+  await boot();
+}
+async function joinFamily(f, role, label) {
+  S.fam = { x: f.x, k: f.k, s: f.s || '', n: f.n || '', r: f.r || [], cfg: Object.assign({}, C.DEFAULT_TIMES), cfgAt: 0 };
+  S.me = { id: rid(8), role, label: role === 'parent' ? label : '' };
+  if (role === 'parent') mergeRoster([{ i: S.me.id, l: label }]);
+  S.since = 0; put('since', 0);
+  saveFam(); put('me', S.me);
+  await boot();
+  if (role === 'parent') { try { await ntfy(TD(), {}, await sealText({ t: 'hello', id: S.me.id, l: label })); } catch {} }
+  if (role === 'child') openKidSetup(); else openConnect();
+}
+function leave() {
+  if (!confirm('Leave this family on this phone? Walkie forgets the pairing here. The other phones carry on.')) return;
+  stopBeat();
+  ['fam', 'me', 'beat', 'items', 'since', 'seen', 'heard', 'played', 'outbox', 'sleep', 'photos', 'log', 'sheetInfo', 'quiet', 'connected', 'budget'].forEach(drop);
+  location.replace(APP);
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('button, a');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.tile) {
+    if (d.tile === 'sleep' || d.tile === 'wake') kidSleepTile(d.tile, t); else sendTile(d.tile, t);
+    return;
+  }
+  if (d.theme) {
+    S.set[d.key] = d.theme; saveSet();
+    t.parentElement.querySelectorAll('.theme-opt').forEach((b) => b.setAttribute('aria-pressed', String(b === t)));
+    if (isKid()) renderKid(); else applyTheme(S.set.theme);
+    return;
+  }
+  if (d.view) { S.view = d.view; renderView.first = true; renderView(); if (d.view === 'sleep' && S.fam.s) loadLog(); window.scrollTo(0, 0); return; }
+  if (d.quick) { sendQuickParent(d.quick, t); return; }
+  if (d.play) {
+    const it = itemById(d.play);
+    if (!it) return;
+    if (PLAYING.eid === it.eid) { stopPlayback(); renderPlayButtons(); return; }
+    try {
+      t.innerHTML = '<span class="spinner"></span>';
+      await playItem(it);
+      if (it.from === 'child' && !S.played[it.eid]) { S.played[it.eid] = 1; put('played', S.played); queueHeard(it.eid); t.closest('.voice').classList.remove('new'); }
+    } catch (err) { toast(err.message === 'expired' ? 'This voice message has expired. ntfy keeps them for 3 hours.' : 'Couldn’t play it. Check your connection.'); }
+    renderPlayButtons();
+    return;
+  }
+  if (d.name) { t.parentElement.querySelectorAll('[data-name]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); const n = $('#nameIn'); if (n) n.value = ''; refreshJoinBtn(); return; }
+  if (d.role) {
+    JOIN.role = d.role;
+    document.querySelectorAll('[data-role]').forEach((b) => b.setAttribute('aria-pressed', String(b === t)));
+    $('#joinName').hidden = d.role !== 'parent';
+    refreshJoinBtn();
+    return;
+  }
+  if (d.fixkind) {
+    t.parentElement.querySelectorAll('[data-fixkind]').forEach((b) => b.setAttribute('aria-pressed', String(b === t)));
+    const base = +$('#sheetBody').dataset.base, c = cfg();
+    const wakeDay = C.addDays(base, 1);
+    const iso = (ms) => { const x = new Date(ms); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+    $('#fixDate').value = iso(d.fixkind === 'wake' ? Math.min(wakeDay, C.startOfDay(Date.now())) : base);
+    $('#fixTime').value = d.fixkind === 'wake' ? (C.isWeekend(wakeDay) ? c.we : c.wd) : c.bed;
+    return;
+  }
+  if (d.void) {
+    const id = d.void;
+    logEvent({ id: rid(10), ts: Date.now(), type: 'void', detail: id });
+    t.closest('li').remove();
+    toast('Removed');
+    flush().then(() => { if (S.view === 'sleep') renderView(); });
+    renderView();
+    return;
+  }
+  if (d.night) { openNight(d.night); return; }
+  if (d.unphoto) { delete S.photos[d.unphoto]; put('photos', S.photos); openKidSettings(); return; }
+  if (d.dismiss) { const x = get('dismissed', {}); x[d.dismiss] = 1; put('dismissed', x); renderNotices(); return; }
+
+  switch (d.act) {
+    case 'close': closeSheet(); break;
+    case 'start': openStart(); break;
+    case 'create': {
+      const label = pickedName();
+      if (!label) { setResult('startRes', 'Choose what she calls you, or type a name.', true); return; }
+      await withBusy(t, async () => { await createFamily(label, cleanLabel(($('#kidIn') || {}).value || '').slice(0, 30)); });
+      openConnect();
+      break;
+    }
+    case 'join': {
+      if (!JOIN || !JOIN.role) return;
+      const label = JOIN.role === 'parent' ? pickedName() : '';
+      if (JOIN.role === 'parent' && !label) return;
+      await withBusy(t, () => joinFamily(JOIN.f, JOIN.role, label));
+      break;
+    }
+    case 'setup-ntfy': openConnect(); break;
+    case 'connected': S.connected = true; put('connected', true); closeSheet(); renderNotices(); toast('Notifications are ready'); break;
+    case 'test':
+      await withBusy(t, async () => {
+        try {
+          await ntfy(TA(), { title: 'Walkie is connected', tags: 'white_check_mark', p: 3, click: APP }, 'Her taps and voice messages will arrive here, on both parents’ phones.');
+          setResult('testRes', `Sent at ${time(Date.now())}. It should reach ntfy within a few seconds.`);
+          toast('Test notification sent');
+        } catch (err) { setResult('testRes', err.limit ? `ntfy’s daily limit is used up. It resets at ${resetAt()}.` : 'Couldn’t reach ntfy. Check your connection.', true); }
+      });
+      break;
+    case 'install': if (S.installEvt) { S.installEvt.prompt(); S.installEvt = null; renderNotices(); } break;
+    case 'pair': openPair(); break;
+    case 'share':
+      try { await navigator.share({ title: 'Walkie', text: 'Join our Walkie', url: pairLink() }); }
+      catch (err) { if (err && err.name !== 'AbortError') { try { await navigator.clipboard.writeText(pairLink()); toast('Link copied'); } catch { toast('Couldn’t share. Use Copy link.'); } } }
+      break;
+    case 'copy':
+      try { await navigator.clipboard.writeText(pairLink()); toast('Link copied'); } catch { toast('Couldn’t copy. Use Share link.'); }
+      break;
+    case 'save-name': {
+      const l = pickedName();
+      if (!l) return;
+      S.me.label = l; put('me', S.me);
+      mergeRoster([{ i: S.me.id, l, fresh: true }]); saveFam();
+      try { await ntfy(TD(), {}, await sealText({ t: 'hello', id: S.me.id, l })); } catch {}
+      toast('Name saved');
+      break;
+    }
+    case 'save-kid':
+      S.fam.n = cleanLabel(($('#kidIn') || {}).value || '').slice(0, 30); S.fam.cfgAt = Date.now(); saveFam(); sendCfg(); renderSub(); toast('Saved');
+      break;
+    case 'save-times': {
+      const bed = $('#tBed').value, wd = $('#tWd').value, we = $('#tWe').value;
+      if ([bed, wd, we].some((v) => C.hm(v) == null)) { toast('Enter all three times'); return; }
+      if (C.hm(bed) < 720) { toast('Bedtime needs to be in the afternoon or evening'); return; }
+      S.fam.cfg = { bed, wd, we }; S.fam.cfgAt = Date.now(); saveFam();
+      await withBusy(t, sendCfg);
+      toast(`Saved. Night clock from ${time(C.at(Date.now(), C.hm(bed)))}`);
+      if (isKid()) kidTick();
+      break;
+    }
+    case 'connect-sheet': {
+      const url = ($('#apiIn').value || '').trim();
+      if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) { setResult('sheetRes', 'That isn’t a web app address. It starts https://script.google.com/ and ends /exec.', true); return; }
+      setResult('sheetRes', 'Connecting…');
+      await withBusy(t, async () => {
+        try {
+          const j = await api('claim', {}, url);
+          const changed = S.fam.s !== url;
+          S.fam.s = url; if (changed) S.fam.cfgAt = Date.now();
+          saveFam();
+          S.sheet = { build: j.build, url: j.sheet, ok: true, mine: true, at: Date.now(), err: '' }; put('sheetInfo', S.sheet);
+          setResult('sheetRes', sheetStatusTxt());
+          if (changed) sendCfg();
+          flush(); loadLog(); renderNotices();
+          toast('Sleep log connected');
+        } catch (err) { setResult('sheetRes', err.message, true); }
+      });
+      break;
+    }
+    case 'settings-sheet': openSettings('sheet'); break;
+    case 'fix': openFix(); break;
+    case 'fix-night': openFix(+d.day); break;
+    case 'save-fix': {
+      const kind = document.querySelector('[data-fixkind][aria-pressed="true"]').dataset.fixkind;
+      const dv = $('#fixDate').value, tv = $('#fixTime').value;
+      const [y, mo, da] = dv.split('-').map(Number), mins = C.hm(tv);
+      if (!y || mins == null) { setResult('fixRes', 'Choose a date and a time.', true); return; }
+      const ts = new Date(y, mo - 1, da, Math.floor(mins / 60), mins % 60).getTime();
+      if (ts > Date.now() + 60e3) { setResult('fixRes', 'That time hasn’t happened yet.', true); return; }
+      logEvent({ id: rid(10), ts, type: kind, role: 'parent' });
+      closeSheet();
+      renderView();
+      toast(kind === 'sleep' ? `Saved: asleep at ${time(ts)}` : `Saved: awake at ${time(ts)}`);
+      flush().then(renderView);
+      break;
+    }
+    case 'chime': chime(false); break;
+    case 'kid-setup': openKidSetup(); break;
+    case 'allow-mic': {
+      const ok = await micReady();
+      const li = $('#stMic'); if (li) li.classList.toggle('done', ok);
+      toast(ok ? 'Microphone allowed' : 'The microphone is blocked. Allow it for this site in Chrome’s settings.');
+      break;
+    }
+    case 'leave': leave(); break;
+  }
+});
+function refreshJoinBtn() {
+  const b = document.querySelector('[data-act="join"]');
+  if (b && JOIN) b.disabled = !JOIN.role || (JOIN.role === 'parent' && !pickedName());
+}
+document.addEventListener('input', (e) => { if (e.target.id === 'nameIn') { if (e.target.value) document.querySelectorAll('[data-name]').forEach((b) => b.setAttribute('aria-pressed', 'false')); refreshJoinBtn(); } });
+document.addEventListener('change', (e) => {
+  const inp = e.target;
+  if (!inp.dataset || !inp.dataset.photo || !inp.files || !inp.files[0]) return;
+  const id = inp.dataset.photo, img = new Image(), url = URL.createObjectURL(inp.files[0]);
+  img.onload = () => {
+    const c = document.createElement('canvas'), s = 192, m = Math.min(img.width, img.height);
+    c.width = c.height = s;
+    c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, s, s);
+    S.photos[id] = c.toDataURL('image/jpeg', 0.82); put('photos', S.photos);
+    URL.revokeObjectURL(url);
+    openKidSettings(); renderKid();
+  };
+  img.src = url;
+});
+$('#settingsBtn').addEventListener('click', () => openSettings());
+$('#themeBtn').addEventListener('click', () => togglePop('themes'));
+$('#replay').addEventListener('click', () => { const it = itemById($('#replay').dataset.eid); if (it) showIncoming(it); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePops(); });
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; renderNotices(); });
+window.addEventListener('online', () => { flush(); if (S.fam) { catchUp(); connect(); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !S.fam) return;
+  keepAwake();
+  catchUp();
+  if (!LIVE.ok) connect();
+  flush();
+  if (!isKid() && S.view === 'sleep') loadLog();
+});
+
+/* ---------- Clock ---------- */
+setInterval(() => {
+  if (!S.me) return;
+  if (isKid()) { if (K.idle) renderKid(); else $('#kClock').textContent = time(Date.now()); }
+}, 1000);
+setInterval(() => {
+  if (!S.me) return;
+  if (isKid()) kidTick();
+  else {
+    renderSub();
+    if (LIVE.es && Date.now() - LIVE.at > 120e3) connect();
+    if (document.visibilityState === 'visible' && (!S.quiet || Date.now() - (S.quiet.checked || 0) > 5 * MIN)) catchUp();
+  }
+  if (S.outbox.length && (!S.sheet || !S.sheet.failAt || Date.now() - S.sheet.failAt > 2 * MIN)) flush();
+}, 15e3);
+
+/* ---------- Start ---------- */
+function show(which) {
+  $('#setupApp').hidden = which !== 'setup';
+  $('#parentApp').hidden = which !== 'parent';
+  $('#kidApp').hidden = which !== 'kid';
+  document.body.classList.toggle('kid', which === 'kid');
+  if (which !== 'kid') $('#clockface').hidden = true;
+}
+function renderSetup() {
+  show('setup');
+  applyTheme(S.set.theme);
+  $('#setupApp').innerHTML = `<section class="setup">
+    <img class="logo" src="icon.svg" alt="">
+    <h1>Walkie</h1>
+    <p class="story">A walkie-talkie between her bedside phone and yours, with an OK-to-wake clock and a sleep log.</p>
+    <div class="actions"><button class="btn primary" type="button" data-act="start">Set up on this parent’s phone</button></div>
+    <p class="small">Setting up her phone, or the other parent’s? On the first parent’s phone, open Settings, then Show pairing code, and scan it with this phone’s camera.</p>
+  </section>`;
+}
+async function boot() {
+  await loadKey();
+  if (isKid()) {
+    show('kid');
+    renderTiles();
+    K.lastTouch = Date.now();
+    renderKid();
+    keepAwake();
+    kidTick();
+  } else {
+    show('parent');
+    applyTheme(S.set.theme);
+    renderQuickRow();
+    renderParent();
+  }
+  await catchUp();
+  connect();
+  checkSheet().then(flush);
+  // a tap on one of her notifications opens Walkie at that message
+  const c = C.clickInfo(location.href);
+  if (c && !isKid()) {
+    history.replaceState(null, '', location.pathname + location.search);
+    S.view = 'talk'; renderView();
+    const el = document.querySelector(`[data-eid="${CSS.escape(c.eid)}"]`);
+    if (el) { el.scrollIntoView({ block: 'center' }); const it = itemById(c.eid); if (it && it.kind === 'voice') { const b = el.querySelector('[data-play]'); if (b && !b.disabled) b.click(); } }
+  }
+}
+(function start() {
+  window.__walkie = { S, K, tick: () => (isKid() ? kidTick() : renderParent()), render: () => (isKid() ? renderKid() : renderParent()) };
+  const f = C.parseJoin(location.hash);
+  if (f) history.replaceState(null, '', location.pathname + location.search);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (S.fam && S.me) {
+    if (f && f.x !== S.fam.x) toast('This phone is already in a Walkie family. Leave it in Settings first.');
+    boot();
+    return;
+  }
+  renderSetup();
+  if (f) openJoin(f);
+})();
+})();
+</script>
+</body>
+</html>
