@@ -431,6 +431,31 @@ body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1
 .dev .spinner { position: absolute; top: 10px; right: 10px; }
 .dev.look { pointer-events: none; opacity: .6; }
 .devs-none { grid-column: 1 / -1; margin: 2px 6px 0; font-size: 13px; line-height: 1.45; color: var(--ink-3); text-align: center; }
+/* Release 9: her songs, big covers to swipe through; the one playing glows and its bars dance */
+.tracks { margin: 14px -18px -4px; }
+.tracks:empty { display: none; }
+.trk-row { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; padding: 10px 18px 14px; scrollbar-width: none; }
+.trk-row::-webkit-scrollbar { display: none; }
+.trk { flex: none; width: 104px; scroll-snap-align: center; display: grid; justify-items: center; gap: 7px; text-align: center; }
+.trk-row.enter .trk { animation: trkin .42s cubic-bezier(.2, 1.3, .4, 1) both; animation-delay: calc(var(--i) * 45ms); }
+@keyframes trkin { from { opacity: 0; transform: translateX(28px) scale(.86); } }
+.trk .pic { position: relative; width: 104px; height: 104px; border-radius: 24px; overflow: hidden; background: var(--raise); display: grid; place-items: center; font-size: 40px; transition: transform .25s cubic-bezier(.2, 1.4, .4, 1), box-shadow .25s; }
+.trk .pic img { width: 100%; height: 100%; object-fit: cover; }
+.trk .pic .no { position: absolute; left: 9px; top: 6px; font-size: 22px; font-weight: 600; color: #fff; text-shadow: 0 1px 5px rgba(0, 0, 0, .75); }
+.trk .nm { max-width: 104px; font-size: 12px; line-height: 1.25; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.trk:active .pic { transform: scale(.9); }
+.trk.on .pic { transform: scale(1.07); box-shadow: 0 0 0 4px var(--sun), 0 10px 24px rgba(0, 0, 0, .35); }
+.trk.on .nm { color: var(--ink); font-weight: 600; }
+.trk .bars { display: none; position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); gap: 3px; align-items: flex-end; height: 22px; padding: 5px 7px; border-radius: 11px; background: rgba(0, 0, 0, .5); }
+.trk.on .bars { display: flex; }
+.trk .bars i { width: 4px; height: 6px; border-radius: 2px; background: #fff; animation: bars .9s ease-in-out infinite; }
+.trk .bars i:nth-child(2) { animation-delay: -.35s; } .trk .bars i:nth-child(3) { animation-delay: -.6s; }
+.trk.still .bars i { animation-play-state: paused; }
+@keyframes bars { 0%, 100% { height: 4px; } 50% { height: 12px; } }
+.trk.busy .pic::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .35); }
+.trk.busy .pic::before { content: ""; position: absolute; z-index: 1; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; color: #fff; background: conic-gradient(from 90deg, transparent 10%, currentColor 95%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.2px), #000 calc(100% - 3px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3.2px), #000 calc(100% - 3px)); animation: spin .8s linear infinite; }
+.trk-wait { display: grid; place-items: center; height: 104px; color: var(--ink-3); }
 /* Your small player: what she's listening to, under the header on every page */
 .pmini { display: flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px; border-radius: 16px; background: var(--raise); }
 .pmini .art { margin-right: 3px; }
@@ -557,7 +582,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .spinner, .btn.busy::after, .round.busy::after { animation: spin 1.6s linear infinite !important; }
+  .spinner, .btn.busy::after, .round.busy::after, .trk.busy .pic::before { animation: spin 1.6s linear infinite !important; }
   .k-gear.holding .hold { --g: 100%; }
   .calm svg { animation: breathe 10s ease-in-out infinite !important; }   /* the slow breathing is the point of the calm star */
   .k-light.fade { transition: opacity 30s ease !important; }
@@ -647,7 +672,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=8"></script>
+<script src="core.js?v=9"></script>
 <script>
 (() => {
 'use strict';
@@ -659,7 +684,7 @@ if (C && typeof C.msgCap !== 'function') { try { if (!sessionStorage.getItem('wl
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 8;           // shown at the top of Settings, so you can see an update has arrived
+const RELEASE = 9;           // shown at the top of Settings, so you can see an update has arrived
 const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
@@ -1662,6 +1687,7 @@ function kidTick() {
   const quietFor = S.sleep.on ? 60e3 : 180e3;
   if (K.room === 'colours' && S.sleep.on) closeRoom();
   if (K.room === 'music' && !musicOn()) closeRoom();
+  if (K.room === 'music') renderTracks();     // her songs: a failed fetch tries again
   // music switched off, or its playlist taken off her phone: it stops too (she'd have no button to stop it)
   if (MU.ctx && (!musicOn() || (!MU.adopted && !muList().some((x) => x.id === MU.ctx)))) muStop();
   // music at night fades out after half an hour, however it was started, wherever it plays
@@ -2093,7 +2119,7 @@ function renderRoom() {
   if (K.room === 'calm') body = `<div class="calm">${STAR_SVG}</div>`;
   if (K.room === 'games') { body = gamesHtml(); right = pieHtml(); }
   if (K.room === 'colours') body = coloursHtml();
-  if (K.room === 'music') body = musicHtml();
+  if (K.room === 'music') body = `<div id="muTop">${musicHtml()}</div><div class="tracks" id="muTracks"></div><div id="muLow">${musicLowerHtml()}</div>`;   // her songs keep their own box, so they don't redraw with every change
   let title = ROOMS[K.room] || '';
   if (K.room === 'play') {
     const g = S.games.find((x) => x.id === K.game) || {};
@@ -2112,6 +2138,7 @@ function renderRoom() {
     <div class="k-room-title" aria-hidden="true">${title}</div><div style="justify-self:end;display:flex;gap:10px;align-items:center">${right}</div></div>
     <div class="k-room-body">${body}</div>`;
   if (K.room === 'play') watchGame();
+  if (K.room === 'music') renderTracks();
 }
 function startCalm() {
   K.calmNoise = !NZ.on;
@@ -2487,14 +2514,14 @@ function muReady() {
   return MU.readyP;
 }
 function muWarm() { if (musicOn()) { muMetaLoad(); muReady().catch(() => {}); } sendMusicSoon(); }
-async function muPlay(id, k) {
+async function muPlay(id, k, at) {
   const x = muList().find((y) => y.id === id) || (k && /^(playlist|album)$/.test(k) && /^[A-Za-z0-9]{22}$/.test(id) ? { id, k } : null);
   if (!x || !S.sp) return false;
   stopStory();
   if (NZ.on && !NZ.silent) stopNoise(3);
   MU.want = id; MU.held = false;
   muChanged();
-  const body = { context_uri: `spotify:${x.k}:${x.id}` };
+  const body = Object.assign({ context_uri: `spotify:${x.k}:${x.id}` }, at ? { offset: { uri: at } } : {});   // `at`: start from this song
   const started = () => {
     MU.ctx = id; MU.ctxK = x.k; MU.adopted = !muList().some((y) => y.id === id); MU.want = ''; MU.err = ''; MU.pausedAt = 0;
     MU.until = nightish() ? Date.now() + 30 * MIN : 0;    // at night music fades out after half an hour
@@ -2601,7 +2628,7 @@ async function muFade() {
   } finally { MU.fading = false; MU.until = 0; }
 }
 function muChanged() {
-  if (K.room === 'music') { const b = $('#kRoom .k-room-body'), h = musicHtml(); if (b && b.dataset.h !== h) { b.innerHTML = h; b.dataset.h = h; } }
+  if (K.room === 'music') { setHtml($('#muTop'), musicHtml()); setHtml($('#muLow'), musicLowerHtml()); renderTracks(); }
   renderKid(); sendStateSoon();
 }
 function muTrack() {
@@ -2639,7 +2666,7 @@ async function muPoll() {
   MU.out.vol = !!dev.supports_volume; MU.out.v = +dev.volume_percent || MU.out.v;
   const it = j.item || null;
   MU.rstate = { is_playing: !!j.is_playing, vol: +dev.volume_percent || 0,
-    item: it ? { name: String(it.name || '').slice(0, 80), album: { images: ((it.album && it.album.images) || []).slice(0, 4) } } : null };
+    item: it ? { uri: String(it.uri || ''), linked_from: it.linked_from ? { uri: String(it.linked_from.uri || '') } : null, name: String(it.name || '').slice(0, 80), album: { images: ((it.album && it.album.images) || []).slice(0, 4) } } : null };
   const c = ctxOf(j.context && j.context.uri);
   if (!fresh && c && c.id !== MU.ctx) { MU.ctx = c.id; MU.ctxK = c.k; MU.adopted = !muList().some((y) => y.id === c.id); }
   else if (!c && !MU.ctx && j.is_playing) { MU.ctx = 'other'; MU.adopted = true; }
@@ -2707,11 +2734,113 @@ function musicHtml() {
     <button type="button" data-act="mu-prev" aria-label="Back a song">⏮</button>
     <button type="button" class="big-go" data-act="mu-toggle" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
     <button type="button" data-act="mu-next" aria-label="Next song">⏭</button></div>` : '';
+  return `<div class="shelf">${cards}</div>${bar}`;
+}
+// Under her songs: how loud, Play on, and a warning if Spotify isn't working
+function musicLowerHtml() {
   const lvl = muLevel(), vol = !MU.out || MU.out.vol;
-  return `<div class="shelf">${cards}</div>${bar}
-    ${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : ''}
+  return `${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : ''}
     ${playOnHtml()}
     ${MU.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}`;
+}
+
+// Her songs: big covers to swipe through under the play buttons. Tap one and it plays from there.
+// The whole list when her Spotify account owns or collaborates on the playlist (or it's an album: Spotify's rule for
+// apps like this); otherwise the next 20 or so from Spotify's play queue, fetched again as each song starts.
+const TL = { lists: {}, busy: '', tapped: '', tapAt: 0, shown: '', qFor: '' };
+const TL_MAX = 100;
+const trkOk = (t) => t && /^spotify:track:[A-Za-z0-9]{22}$/.test(String(t.uri || ''));
+const trkOf = (t, img) => ({ uri: t.uri, n: String(t.name || '').replace(/[<>]/g, '').slice(0, 60), img: img != null ? img : muArt(t), no: t.track_number || 0 });
+async function muFullList(id, k) {
+  const out = [];
+  for (let off = 0; off < TL_MAX; off += 50) {
+    const j = await spApi('GET', k === 'album' ? `/albums/${id}/tracks?limit=50&offset=${off}` : `/playlists/${id}/items?limit=50&offset=${off}&additional_types=track`);
+    if (!j || !Array.isArray(j.items)) return null;
+    for (const e of j.items) {
+      const t = k === 'album' ? e : e && (e.item || e.track);
+      if (trkOk(t) && !(e && e.is_local)) out.push(trkOf(t, k === 'album' ? (S.muMeta[id] || {}).img || '' : null));
+    }
+    if (!j.next) break;
+  }
+  return out;
+}
+async function muQueueList() {
+  const j = await spApi('GET', '/me/player/queue');
+  const seen = new Set(), out = [];
+  for (const t of [j.currently_playing].concat(j.queue || [])) {   // a short playlist repeats in the queue: each song once
+    if (!trkOk(t) || seen.has(t.uri)) continue;
+    seen.add(t.uri); out.push(trkOf(t));
+    if (out.length > 20) break;
+  }
+  return out;
+}
+async function muTracksLoad(force) {
+  const id = MU.ctx, k = MU.ctxK || (muList().find((x) => x.id === id) || {}).k || 'playlist';
+  if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !/^(playlist|album)$/.test(k) || TL.busy) return;
+  const have = TL.lists[id], now = Date.now();
+  if (have && !force && (have.src === 'full' ? now - have.at < 30 * MIN : have.list.length)) return;
+  TL.busy = id;
+  try {
+    let list = null;
+    if (!have || have.src === 'full' || now - (have.denied || 0) > 10 * MIN) {   // after an invite is accepted, the whole list turns up
+      try { list = await muFullList(id, k); } catch (e) { if (e.status !== 403 && e.status !== 404) throw e; }
+    }
+    if (list && list.length) TL.lists[id] = { at: now, src: 'full', list, album: k === 'album' };
+    else {
+      TL.lists[id] = { at: now, src: 'queue', list: await muQueueList().catch(() => []), denied: list ? 0 : (have && have.denied && now - have.denied <= 10 * MIN ? have.denied : now) };
+      TL.qFor = (muCurUri()[0]) || '';
+    }
+    TL.fail = null;
+  } catch { TL.fail = { id, at: now }; } finally { TL.busy = ''; }   // offline, say: try again in half a minute
+  renderTracks();
+}
+function muCurUri() { const t = muTrack(); return t ? [t.uri, t.linked_from && t.linked_from.uri].filter(Boolean) : []; }
+async function muPlayAt(uri) {
+  const id = MU.ctx;
+  if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !/^spotify:track:/.test(uri)) return;
+  K.lastTouch = Date.now();
+  TL.tapped = uri; TL.tapAt = Date.now(); renderTracks();
+  if (MU.player && !MU.out) MU.player.activateElement().catch(() => {});   // straight from her tap, so the sound may start
+  await muPlay(id, MU.ctxK || (muList().find((x) => x.id === id) || {}).k, uri);
+  if (MU.out) muPollSoon(1200);
+  setTimeout(renderTracks, 6000);
+}
+function renderTracks() {
+  const box = $('#muTracks');
+  if (!box) return;
+  const id = MU.ctx, L = id && TL.lists[id];
+  if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !musicOn()) { if (box.dataset.k) { box.innerHTML = ''; box.dataset.k = ''; } return; }
+  if (!L) {
+    if (!TL.busy && !(TL.fail && TL.fail.id === id && Date.now() - TL.fail.at < 30e3)) muTracksLoad();
+    if (box.dataset.k !== 'wait:' + id) { box.innerHTML = '<div class="trk-wait" aria-hidden="true"><span class="spinner"></span></div>'; box.dataset.k = 'wait:' + id; }
+    return;
+  }
+  const key = id + '|' + L.list.map((t) => t.uri).join(',');
+  if (box.dataset.k !== key) {
+    const fresh = box.dataset.id !== id;        // a new playlist slides in; a moving queue just updates
+    box.innerHTML = L.list.length ? `<div class="trk-row${fresh ? ' enter' : ''}" role="list" aria-label="Songs">${L.list.map((t, i) => `<button class="trk" type="button" role="listitem" data-trk="${esc(t.uri)}" style="--i:${Math.min(i, 9)}" aria-label="${esc(t.n || 'Song')}">
+      <span class="pic">${t.img ? `<img src="${esc(t.img)}" alt="" loading="lazy">` : '<span aria-hidden="true">🎵</span>'}${L.album && t.no ? `<b class="no num">${t.no}</b>` : ''}<span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></span>
+      <span class="nm">${esc(t.n)}</span></button>`).join('')}</div>` : '';
+    box.dataset.k = key; box.dataset.id = id; TL.shown = '';
+  }
+  // the song playing now glows, with dancing bars, and stays in view
+  const cur = muCurUri(), playing = muPlaying();
+  if (TL.tapped && (cur.includes(TL.tapped) || Date.now() - TL.tapAt > 5500)) TL.tapped = '';
+  let curEl = null;
+  box.querySelectorAll('[data-trk]').forEach((b) => {
+    const on = cur.includes(b.dataset.trk);
+    b.classList.toggle('on', on); b.classList.toggle('still', on && !playing);
+    b.classList.toggle('busy', TL.tapped === b.dataset.trk);
+    b.setAttribute('aria-current', on ? 'true' : 'false');
+    if (on) curEl = b;
+  });
+  if (curEl && TL.shown !== cur[0]) {
+    TL.shown = cur[0];
+    const row = curEl.parentElement, x = curEl.offsetLeft - (row.clientWidth - curEl.offsetWidth) / 2;
+    try { row.scrollTo({ left: Math.max(0, x), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches || !row.dataset.seen ? 'auto' : 'smooth' }); } catch { row.scrollLeft = Math.max(0, x); }
+    row.dataset.seen = '1';
+  }
+  if (L.src === 'queue' && cur[0] && TL.qFor !== cur[0] && !TL.busy) { TL.qFor = cur[0]; setTimeout(() => { if (K.room === 'music') muTracksLoad(true); }, 800); }   // the queue moves on with each song
 }
 
 // Her small record: whenever music is on and she isn't on the music page. Tap it for back, pause, next and stop.
@@ -3720,9 +3849,10 @@ document.addEventListener('click', async (e) => {
     S.set.muLevel = +d.mulevel; saveSet();
     if (MU.out) { if (MU.out.vol) spApi('PUT', `/me/player/volume?volume_percent=${Math.round(MU_LEVELS[+d.mulevel] * 100)}&device_id=${encodeURIComponent(MU.out.id)}`).catch(() => {}); }
     else if (MU.player) MU.player.setVolume(MU_LEVELS[+d.mulevel]).catch(() => {});
-    renderRoom(); return;
+    muChanged(); return;
   }
   if (d.dev) { muPickOut(d.dev); return; }
+  if (d.trk) { muPlayAt(d.trk); return; }
   if (d.mini) {
     if (MU.player && !MU.out) MU.player.activateElement().catch(() => {});
     muCtl(d.mini);
@@ -4113,7 +4243,7 @@ async function boot() {
   }
 }
 (function start() {
-  window.__walkie = { S, K, MU, tick: () => (isKid() ? kidTick() : renderParent()), render: () => (isKid() ? renderKid() : renderParent()) };
+  window.__walkie = { S, K, MU, TL, tick: () => (isKid() ? kidTick() : renderParent()), render: () => (isKid() ? renderKid() : renderParent()) };
   const f = C.parseJoin(location.hash);
   if (f) history.replaceState(null, '', location.pathname + location.search);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
