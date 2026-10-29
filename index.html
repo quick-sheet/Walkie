@@ -390,6 +390,66 @@ body.sleeping .k-room { background: #000; }
 .mubar .big-go { margin: 0; width: 84px; height: 84px; }
 .mu-warn { text-align: center; font-size: 34px; margin: 18px 0 0; }
 .stories-list .pic img { width: 40px; height: 40px; object-fit: cover; border-radius: 10px; display: block; }
+/* Release 6: her small record (top left, next to Home in her rooms), turning while music plays */
+.k-mini { position: fixed; z-index: 9; left: 12px; top: 8px; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; background: var(--raise-2);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--line-2), 0 6px 16px rgba(0, 0, 0, .3); transition: box-shadow .2s; }
+.k-mini.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sun), 0 6px 16px rgba(0, 0, 0, .3); }
+.k-mini.small { width: 40px; height: 40px; font-size: 19px; }
+.k-mini .disc { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
+.k-mini .disc img { width: 100%; height: 100%; object-fit: cover; }
+.k-mini .disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--bg) 0 9%, rgba(0, 0, 0, .4) 10% 14%, transparent 15% 60%, rgba(0, 0, 0, .16) 61% 63%, transparent 64%); }
+.k-mini.spin .disc { animation: spin 7s linear infinite; }
+.k-mini .badge { position: absolute; right: -6px; bottom: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--raise-2); color: var(--ink); display: grid; place-items: center; font-size: 12px; box-shadow: 0 0 0 2px var(--bg); }
+.k-mini .badge svg { width: 11px; height: 11px; }
+.k-mini:active { transform: scale(.92); }
+.k-minipanel { position: fixed; z-index: 13; left: 50%; top: 64px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 34px; background: var(--raise);
+  box-shadow: 0 0 0 1px var(--line-2), 0 18px 44px rgba(0, 0, 0, .45); max-width: calc(100vw - 16px); animation: drop .18s ease-out; }
+@keyframes drop { from { opacity: 0; transform: translate(-50%, -8px); } }
+.k-minipanel .art { width: 56px; height: 56px; border-radius: 16px; overflow: hidden; background: var(--raise-2); display: grid; place-items: center; font-size: 26px; flex: none; position: relative; }
+.k-minipanel .art img { width: 100%; height: 100%; object-fit: cover; }
+.k-minipanel .art i { position: absolute; right: 2px; bottom: 2px; font-style: normal; font-size: 15px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6)); }
+.k-minipanel button { width: 54px; height: 54px; border-radius: 50%; background: var(--raise-2); color: var(--ink); font-size: 21px; display: grid; place-items: center; flex: none; transition: transform .12s; }
+.k-minipanel button.go { width: 62px; height: 62px; background: var(--sun); color: var(--on-sun); }
+.k-minipanel button svg { width: 24px; height: 24px; }
+.k-minipanel button:active { transform: scale(.92); }
+body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-38deg) brightness(.62); }
+/* Play on: her phone, or a speaker, TV or computer signed in to her Spotify */
+.playon { display: grid; justify-items: center; gap: 12px; margin: 22px auto 0; max-width: 560px; }
+.playon-btn { height: 52px; max-width: 100%; padding: 0 18px 0 14px; border-radius: 26px; background: var(--raise); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--ink-2); }
+.playon-btn .e { font-size: 24px; line-height: 1; }
+.playon-btn .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.playon-btn svg { width: 20px; height: 20px; flex: none; color: var(--ink-3); }
+.playon-btn.away { box-shadow: 0 0 0 3px var(--sun-soft); color: var(--ink); }
+.playon-btn[aria-expanded="true"] { box-shadow: 0 0 0 3px var(--sun); }
+.devs { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; width: 100%; }
+.dev { min-height: 96px; border-radius: 22px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 6px; padding: 10px 8px; position: relative; transition: transform .12s; }
+.dev:active { transform: scale(.94); }
+.dev .e { font-size: 34px; line-height: 1; }
+.dev .nm { font-size: 12.5px; color: var(--ink-2); text-align: center; line-height: 1.25; overflow-wrap: anywhere; }
+.dev[aria-pressed="true"] { box-shadow: 0 0 0 4px var(--sun); }
+.dev[aria-pressed="true"] .nm { color: var(--ink); }
+.dev .spinner { position: absolute; top: 10px; right: 10px; }
+.dev.look { pointer-events: none; opacity: .6; }
+.devs-none { grid-column: 1 / -1; margin: 2px 6px 0; font-size: 13px; line-height: 1.45; color: var(--ink-3); text-align: center; }
+/* Your small player: what she's listening to, under the header on every page */
+.pmini { display: flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px; border-radius: 16px; background: var(--raise); }
+.pmini .art { margin-right: 3px; }
+.pmini .art { width: 44px; height: 44px; border-radius: 11px; overflow: hidden; flex: none; background: var(--raise-2); display: grid; place-items: center; font-size: 20px; position: relative; }
+.pmini .art img { width: 100%; height: 100%; object-fit: cover; }
+.pmini .t { flex: 1; min-width: 0; }
+.pmini .t b { display: block; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pmini .t small { display: block; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pmini .round { width: 40px; height: 40px; }
+.pmini .round svg { width: 17px; height: 17px; }
+.pmini .eq { position: absolute; left: 4px; bottom: 4px; display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+.pmini .eq i { width: 3px; border-radius: 1px; background: #fff; box-shadow: 0 0 2px rgba(0, 0, 0, .6); animation: eq 1s ease-in-out infinite; }
+.pmini .eq i:nth-child(2) { animation-delay: -.4s; } .pmini .eq i:nth-child(3) { animation-delay: -.7s; }
+@keyframes eq { 0%, 100% { height: 4px; } 50% { height: 12px; } }
+.round.busy { position: relative; }
+.round.busy > svg { opacity: 0; }
+.round.busy::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: conic-gradient(from 90deg, transparent 10%, currentColor 95%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.2px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.2px), #000 calc(100% - 2px)); animation: spin .8s linear infinite; }
+.stories-list .round + .round { margin-left: -4px; }
 .k-dock:has(> :nth-child(6)) { gap: 8px; }
 .k-dock:has(> :nth-child(6)) button { width: 50px; height: 50px; font-size: 23px; }
 /* Games */
@@ -497,7 +557,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .spinner, .btn.busy::after { animation: spin 1.6s linear infinite !important; }
+  .spinner, .btn.busy::after, .round.busy::after { animation: spin 1.6s linear infinite !important; }
   .k-gear.holding .hold { --g: 100%; }
   .calm svg { animation: breathe 10s ease-in-out infinite !important; }   /* the slow breathing is the point of the calm star */
   .k-light.fade { transition: opacity 30s ease !important; }
@@ -527,6 +587,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
         <button type="button" role="tab" data-view="sleep" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M19.5 14.2A8 8 0 0 1 9.8 4.5a8 8 0 1 0 9.7 9.7Z"/></svg>Sleep</button>
         <button type="button" role="tab" data-view="room" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="7" y="2.8" width="10" height="18.4" rx="2.4"/><path d="M10.5 17.6h3" stroke-linecap="round"/></svg>Her phone</button>
       </nav>
+      <div class="pmini" id="pMini" hidden role="group" aria-label="What she’s listening to"></div>
     </div>
   </header>
   <div class="pop" id="themes" hidden role="group" aria-label="Colour theme"></div>
@@ -573,6 +634,8 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
   </div>
 </div>
 <div class="k-room" id="kRoom" hidden></div>
+<button class="k-mini" id="kMini" type="button" hidden aria-expanded="false"></button>
+<div class="k-minipanel" id="kMiniPanel" hidden role="group" aria-label="Music"></div>
 <input type="file" accept="audio/*" id="storyFile" hidden>
 <div class="k-popwrap" id="kPopWrap" hidden><div class="k-in" id="kPop"></div></div>
 <div class="k-light" id="kLight" hidden><button class="tapoff" type="button" aria-label="Turn the light off"></button></div>
@@ -584,7 +647,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=5"></script>
+<script src="core.js?v=6"></script>
 <script>
 (() => {
 'use strict';
@@ -596,7 +659,7 @@ if (C && typeof C.spotifyRef !== 'function') { try { if (!sessionStorage.getItem
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 5;           // shown at the top of Settings, so you can see an update has arrived
+const RELEASE = 6;           // shown at the top of Settings, so you can see an update has arrived
 const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
@@ -635,6 +698,9 @@ const ICON = {
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
   pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5.5" width="3.6" height="13" rx="1"/><rect x="13.4" y="5.5" width="3.6" height="13" rx="1"/></svg>',
+  next: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5.8v12.4l9-6.2z"/><rect x="15.6" y="5.8" width="3.2" height="12.4" rx="1"/></svg>',
+  prev: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5.8v12.4l-9-6.2z"/><rect x="5.2" y="5.8" width="3.2" height="12.4" rx="1"/></svg>',
+  cast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8V6.5a2 2 0 0 1 2-2h15a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H14"/><path d="M2.5 12a8 8 0 0 1 7.5 7.5M2.5 15.8a4 4 0 0 1 3.7 3.7"/><path d="M2.6 19.4h.01"/></svg>',
   x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1Z"/></svg>',
   sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.6" fill="currentColor"/><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M4.8 19.2l1.8-1.8M17.4 6.6l1.8-1.8"/></svg>',
@@ -991,10 +1057,15 @@ async function onData(m, live) {
   const fresh = Date.now() - ts < 10 * MIN;   // a command that arrives late (her phone was offline) is ignored
   if (isKid() && o.t === 'story') { receiveStory(o, m); return; }
   if (isKid() && o.t === 'unstory' && okSid(o.sid)) { removeStory(o.sid); return; }
-  if (isKid() && ['play', 'stop', 'noise', 'music'].includes(o.t) && fresh) K.cmdAt = Date.now();
+  if (isKid() && ['play', 'stop', 'noise', 'music', 'mctl', 'watch'].includes(o.t) && fresh) K.cmdAt = Date.now();
   if (isKid() && o.t === 'play' && okSid(o.sid) && fresh) { playStory(o.sid); return; }
-  if (isKid() && o.t === 'stop' && fresh) { stopStory(); stopNoise(3); muPause(); return; }
-  if (isKid() && o.t === 'music' && fresh && /^[A-Za-z0-9]{22}$/.test(String(o.id || ''))) { muPlay(o.id, o.k); return; }
+  if (isKid() && o.t === 'stop' && fresh) { stopStory(); stopNoise(3); muStop(); return; }
+  if (isKid() && o.t === 'music' && fresh && /^[A-Za-z0-9]{22}$/.test(String(o.id || ''))) { K.watchUntil = Math.max(K.watchUntil || 0, Date.now() + 10 * MIN); muPlay(o.id, o.k); return; }
+  // your pause, play, next and stop for her music
+  if (isKid() && o.t === 'mctl' && fresh && ['pause', 'resume', 'next', 'prev', 'stop'].includes(o.a)) { K.watchUntil = Math.max(K.watchUntil || 0, Date.now() + 10 * MIN); muCtl(o.a); return; }
+  // a grown-up has Walkie open while her music plays: each new song goes to them for the next 10 minutes
+  if (isKid() && o.t === 'watch') { if (fresh && MU.ctx) { K.watchUntil = Math.max(K.watchUntil || 0, ts + 10 * MIN); K.stateKey = ''; if (MU.out) muPollSoon(500); sendStateSoon(); } return; }
+  if (!isKid() && o.t === 'watch') { K.watchAt = Math.max(K.watchAt || 0, ts); return; }
   if (!isKid() && o.t === 'musiclist' && Array.isArray(o.items)) {
     if (!S.kmusic || (o.at || 0) >= (S.kmusic.at || 0)) {
       S.kmusic = { at: o.at || ts, acct: String(o.acct || '').slice(0, 40), err: String(o.err || '').slice(0, 12),
@@ -1025,7 +1096,8 @@ async function onData(m, live) {
     if (!S.kstate || (o.at || 0) >= (S.kstate.at || 0)) {
       S.kstate = { at: o.at || ts, noise: o.noise || null, story: o.story || null,
         game: o.game && typeof o.game === 'object' ? { n: String(o.game.n || '').slice(0, 30), since: +o.game.since || 0 } : null, gu: Math.max(0, +o.gu || 0), gd: String(o.gd || ''),
-        music: o.music && typeof o.music === 'object' ? { n: String(o.music.n || '').slice(0, 40), tr: String(o.music.tr || '').slice(0, 60) } : null };
+        music: o.music && typeof o.music === 'object' ? { id: /^[A-Za-z0-9]{22}$/.test(String(o.music.id || '')) ? o.music.id : '', n: String(o.music.n || '').slice(0, 40), tr: String(o.music.tr || '').slice(0, 60),
+          art: okImg(o.music.art), p: o.music.p ? 1 : 0, on: String(o.music.on || '').slice(0, 30) } : null };
       put('kstate', S.kstate); refresh();
     }
     return;
@@ -1391,6 +1463,7 @@ function renderKid() {
     cf.setAttribute('aria-label', `${txt}. ${ph === 'moon' ? 'Still night time' : 'Time to get up'}`);
     cf.hidden = false;
   } else cf.hidden = true;
+  try { renderMini(); } catch {}     // her small record never takes the rest down
 }
 
 // A message from a grown-up: play it now, or wait with a soft glow if she's asleep
@@ -1587,10 +1660,15 @@ function kidTick() {
   if (K.room === 'colours' && S.sleep.on) closeRoom();
   if (K.room === 'music' && !musicOn()) closeRoom();
   // music switched off, or its playlist taken off her phone: it stops too (she'd have no button to stop it)
-  if (muPlaying() && (!musicOn() || !muList().some((x) => x.id === MU.ctx))) muPause();
-  // music at night fades out after half an hour, however it was started
+  if (MU.ctx && (!musicOn() || (!MU.adopted && !muList().some((x) => x.id === MU.ctx)))) muStop();
+  // music at night fades out after half an hour, however it was started, wherever it plays
   if (muPlaying() && nightish() && !MU.until) MU.until = now + 30 * MIN;
   if (muPlaying() && MU.until && now > MU.until) muFade();
+  // paused for ten minutes: the music is put away and the small record goes
+  if (MU.ctx && !muPlaying() && !MU.want && !MU.held && !MU.fading) { if (!MU.pausedAt) MU.pausedAt = now; else if (now - MU.pausedAt > 10 * MIN) muStop(); }
+  else MU.pausedAt = 0;
+  if (S.sleep.on && MU.out && !MU.ctx) { muOutGone(); muChanged(); }   // a speaker picked but not used by bedtime: back to her phone
+  if (MU.out && !MU.pollT && !MU.polling && document.visibilityState === 'visible') muPollSoon(1000);
   if (S.sp && now - (K.muAt || 0) > 6 * HOUR) { K.muAt = now; setTimeout(muWarm, 3000); }
   if (K.room === 'games' || K.room === 'play') {
     if (S.sleep.on || !gamesOn()) closeRoom();
@@ -1819,22 +1897,37 @@ function extraOk() {
 function sendStateSoon() {
   if (!isKid()) return;
   clearTimeout(stateTimer);
-  const gap = Date.now() - (K.cmdAt || 0) < 2 * MIN ? 4000 : MIN;
+  const gap = Date.now() - (K.cmdAt || 0) < 2 * MIN || Date.now() < (K.watchUntil || 0) ? 4000 : MIN;
   stateTimer = setTimeout(sendState, Math.max(2000, (K.stateAt || 0) + gap - Date.now()));
+}
+// New songs go out only while a grown-up is watching, and at most 40 a day, so music can't use up the day's messages
+const SONG_CAP = 40;
+function songOk() {
+  const day = new Date().toISOString().slice(0, 10), x = get('songs', null), n = x && x.day === day ? x.n : 0;
+  if (n >= SONG_CAP) return false;
+  put('songs', { day, n: n + 1 });
+  return true;
 }
 async function sendState() {
   const now0 = Date.now(), game = K.room === 'play' && K.game ? S.games.find((x) => x.id === K.game) : null;
+  const tr = muTrack(), mOn = !!MU.ctx && musicOn();
   const st = { t: 'state', at: now0, noise: NZ.on && !NZ.silent ? { kind: NZ.kind, until: NZ.until } : null, story: null,
     game: game ? { n: game.name, since: K.gOpen || now0 } : null, gu: Math.round(gmUsed(now0) / MIN), gd: gmDay(now0),
-    music: muPlaying() ? { n: (S.muMeta[MU.ctx] || {}).n || 'Music', tr: String((muTrack() || {}).name || '').slice(0, 60) } : null };
+    music: mOn ? { id: /^[A-Za-z0-9]{22}$/.test(MU.ctx) ? MU.ctx : '', n: (S.muMeta[MU.ctx] || {}).n || 'Music', tr: String((tr || {}).name || '').slice(0, 60),
+      art: muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '', p: !muPlaying() && !MU.held ? 1 : 0, on: MU.out ? MU.out.name : '' } : null };
   if (K.story) {
     const meta = S.shelf.find((x) => x.sid === K.story.sid) || {};
     const left = isFinite(storyEl.duration) ? (storyEl.duration - storyEl.currentTime) * 1000 : (meta.d || 0) * 1000;
     st.story = { sid: K.story.sid, title: meta.t || '', pic: meta.p || '📖', until: Date.now() + Math.max(0, left) };
   }
-  const key = JSON.stringify([st.noise && st.noise.kind, st.noise && Math.round(st.noise.until / 6e4), st.story && st.story.sid, st.game && st.game.n, st.game ? 0 : st.gu, st.music && st.music.n]);
+  const m = st.music;
+  const base = JSON.stringify([st.noise && st.noise.kind, st.noise && Math.round(st.noise.until / 6e4), st.story && st.story.sid, st.game && st.game.n, st.game ? 0 : st.gu, m && [m.id, m.n, m.p, m.on]]);
+  const watched = !!m && now0 < (K.watchUntil || 0);
+  const key = base + '\u0001' + (watched ? m.tr : '');
   if (key === K.stateKey) return;
-  if (!extraOk() || !spend(1)) return;
+  const songOnly = !!K.stateKey && K.stateKey.split('\u0001')[0] === base;    // only the song changed
+  if (songOnly && !watched) { K.stateKey = key; return; }                     // and nobody's watching any more: nothing to say
+  if (!(songOnly ? songOk() : extraOk()) || !spend(1)) return;
   K.stateAt = Date.now();
   try { await ntfy(TD(), {}, await sealText(st)); K.stateKey = key; } catch { refund(1); }
 }
@@ -1962,6 +2055,8 @@ function openRoom(name) {
   if (name === 'music' && !musicOn()) return;
   if (K.room === 'play') closeRoom();
   K.room = name;
+  K.miniOpen = false; K.pickOpen = false;
+  if (name === 'music' && MU.out) muPollSoon(300);     // what's on the speaker right now
   if (name === 'stories') K.newStory = false;
   renderRoom();
   $('#kRoom').hidden = false;
@@ -1972,7 +2067,7 @@ function openRoom(name) {
 function closeRoom() {
   if (K.room === 'calm') stopCalm();
   if (K.room === 'play') { gameAccrue(); clearTimeout(K.gLimitT); K.game = null; K.gStart = 0; sendStateSoon(); recache(); }
-  K.room = null;
+  K.room = null; K.pickOpen = false;
   $('#kRoom').hidden = true;
   $('#kRoom').innerHTML = '';
   K.lastTouch = Date.now();
@@ -2210,13 +2305,20 @@ const spCid = () => (C.spotifyCid ? C.spotifyCid((cfg().sp || {}).cid) : '');
 function muList() {
   return (Array.isArray(cfg().mu) ? cfg().mu : []).filter((x) => x && (x.k === 'playlist' || x.k === 'album') && /^[A-Za-z0-9]{22}$/.test(x.id)).slice(0, 12);
 }
-const MU = { player: null, device: '', ready: false, sdk: null, readyP: null, tokenP: null, state: null, ctx: '', want: '', err: '', held: false, until: 0, fading: false, activated: false };
+// `out` is where the music plays when it isn't her phone: a speaker, TV or computer signed in to her Spotify (Spotify Connect).
+// Spotify then plays it there itself, and Walkie steers it through the Web API and asks what's playing every few seconds.
+const MU = { player: null, device: '', ready: false, sdk: null, readyP: null, tokenP: null, state: null, ctx: '', want: '', err: '', held: false, until: 0, fading: false, activated: false,
+  out: null, outAt: 0, rstate: null, devs: null, picking: '', adopted: false, pausedAt: 0, pollT: 0, pollFails: 0 };
 const MU_LEVELS = [0.3, 0.55, 0.85];
 const muLevel = () => (S.set.muLevel != null ? S.set.muLevel : 1);
 S.sp = get('sp', null);
 S.muMeta = get('muMeta', {});
 const musicOn = () => isKid() && !!(S.sp && S.sp.rt && spCid()) && muList().length > 0;
-const muPlaying = () => !!(MU.state && !MU.state.paused && MU.ctx);
+const muPlaying = () => !!(MU.ctx && (MU.out ? MU.rstate && MU.rstate.is_playing : MU.state && !MU.state.paused));
+const DEV_ICON = { Computer: '💻', Tablet: '📱', Smartphone: '📱', Speaker: '🔊', TV: '📺', CastVideo: '📺', STB: '📺', AVR: '🔊', AudioDongle: '🔊', CastAudio: '🔊', GameConsole: '🎮', Automobile: '🚗' };
+const devIcon = (t) => DEV_ICON[t] || '🔊';
+const cleanDev = (d) => ({ id: String(d.id || '').slice(0, 64), name: String(d.name || 'Speaker').replace(/[<>]/g, '').slice(0, 30), type: String(d.type || '').slice(0, 20), vol: !!d.supports_volume, act: !!d.is_active, v: +d.volume_percent || 0 });
+const ctxOf = (uri) => { const m = /^spotify:(playlist|album|artist|show):([A-Za-z0-9]{22})$/.exec(String(uri || '')); return m ? { k: m[1], id: m[2] } : null; };
 
 // Sign-in, on her phone, once
 async function spSignIn() {
@@ -2299,7 +2401,9 @@ const spWhy = (e) => (e.reason === 'PREMIUM_REQUIRED' ? 'premium' : e.status ===
 function spSignedOut(msg) {
   S.sp = null; drop('sp');
   if (MU.player) { try { MU.player.disconnect(); } catch {} }
-  Object.assign(MU, { player: null, device: '', ready: false, readyP: null, state: null, ctx: '', want: '', err: '', held: false, until: 0 });
+  muPollStop();
+  Object.assign(MU, { player: null, device: '', ready: false, readyP: null, state: null, ctx: '', want: '', err: '', held: false, until: 0, out: null, rstate: null, devs: null, picking: '', adopted: false, pausedAt: 0 });
+  K.pickOpen = false; K.miniOpen = false;
   if (msg && isKid()) toast(msg);
   if (K.room === 'music') closeRoom();
   sendMusicSoon(); sendStateSoon(); renderKid();
@@ -2398,9 +2502,25 @@ async function muPlay(id, k) {
   if (NZ.on && !NZ.silent) stopNoise(3);
   MU.want = id; MU.held = false;
   muChanged();
+  const body = { context_uri: `spotify:${x.k}:${x.id}` };
+  const started = () => {
+    MU.ctx = id; MU.ctxK = x.k; MU.adopted = !muList().some((y) => y.id === id); MU.want = ''; MU.err = ''; MU.pausedAt = 0;
+    MU.until = nightish() ? Date.now() + 30 * MIN : 0;    // at night music fades out after half an hour
+  };
   try {
+    if (MU.out) {   // on the speaker she picked
+      try {
+        await spApi('PUT', `/me/player/play?device_id=${encodeURIComponent(MU.out.id)}`, body);
+        started(); MU.outAt = Date.now();
+        MU.rstate = { is_playing: true, item: null, vol: (MU.rstate && MU.rstate.vol) || MU.out.v };
+        muChanged(); sendMusicSoon(); muPollSoon(1500);
+        return true;
+      } catch (e) {
+        if (e.status !== 404) throw e;
+        muOutGone();     // that speaker has gone (switched off, or Spotify let it go): it plays on her phone instead
+      }
+    }
     const dev = await muReady();
-    const body = { context_uri: `spotify:${x.k}:${x.id}` };
     const play = () => spApi('PUT', `/me/player/play?device_id=${encodeURIComponent(dev)}`, body);
     try { await play(); }
     catch (e) {   // a player that has only just connected isn't always known to Spotify yet
@@ -2410,8 +2530,7 @@ async function muPlay(id, k) {
       await sleepMs(800);
       await play();
     }
-    MU.ctx = id; MU.want = ''; MU.err = '';
-    MU.until = nightish() ? Date.now() + 30 * MIN : 0;    // at night music fades out after half an hour
+    started();
     if (K.rec || K.press || PLAYING.eid) { MU.held = true; MU.player.pause().catch(() => {}); }   // she's talking, or a message is playing: wait for it
     muChanged(); sendMusicSoon();
     return true;
@@ -2422,14 +2541,68 @@ async function muPlay(id, k) {
     return false;
   }
 }
-function muPause() { MU.held = false; if (MU.player && muPlaying()) MU.player.pause().catch(() => {}); }
-function muHold() { if (MU.player && muPlaying()) { MU.held = true; MU.player.pause().catch(() => {}); } }
-function muResume() { if (MU.held && MU.player && !K.rec && !K.press && !PLAYING.eid) { MU.held = false; MU.player.resume().catch(() => {}); } }
+// Pause, play, skip and stop, wherever the music is: her phone's own player, or the speaker through Spotify
+async function muCtl(a) {
+  if (a === 'stop') { muStop(); return; }
+  if (!MU.ctx) return;
+  MU.pausedAt = 0;
+  if (MU.out) {
+    const path = { pause: 'PUT /me/player/pause', resume: 'PUT /me/player/play', next: 'POST /me/player/next', prev: 'POST /me/player/previous' }[a];
+    if (!path) return;
+    if (a === 'pause' || a === 'resume') { MU.rstate = Object.assign({}, MU.rstate, { is_playing: a === 'resume' }); MU.held = false; }   // shows at once
+    MU.outAt = Date.now();
+    muChanged();
+    const [method, p] = path.split(' ');
+    try { await spApi(method, `${p}?device_id=${encodeURIComponent(MU.out.id)}`); }
+    catch (e) { if (e.status === 404) { muOutGone(); MU.ctx = ''; muChanged(); return; } }   // the speaker has gone
+    muPollSoon(1500);
+    return;
+  }
+  if (a === 'pause') { muPause(); return; }
+  const again = () => { if (/^[A-Za-z0-9]{22}$/.test(MU.ctx)) muPlay(MU.ctx, MU.ctxK); };
+  if (!MU.player) { if (a === 'resume') again(); return; }
+  if (a === 'resume') {
+    MU.player.activateElement().catch(() => {});
+    MU.held = false;
+    if (MU.state) {
+      MU.player.resume().catch(() => {});
+      setTimeout(() => { if (!muPlaying() && MU.ctx && !MU.out) again(); }, 2000);   // Spotify had let this player go (Wi-Fi blip): start it again
+    } else again();
+  }
+  if (a === 'next') MU.player.nextTrack().catch(() => {});
+  if (a === 'prev') MU.player.previousTrack().catch(() => {});
+}
+function muPause() {
+  MU.held = false;
+  if (!muPlaying()) return;
+  if (MU.out) { muCtl('pause'); return; }
+  if (MU.player) MU.player.pause().catch(() => {});
+}
+// While she talks or a message plays, only her phone's own music waits (a speaker elsewhere carries on)
+function muHold() { if (!MU.out && MU.player && muPlaying()) { MU.held = true; MU.player.pause().catch(() => {}); } }
+function muResume() { if (MU.held && !MU.out && MU.player && !K.rec && !K.press && !PLAYING.eid) { MU.held = false; MU.player.resume().catch(() => {}); } }
+// Stop: the music ends wherever it is, the small record goes, and next time it starts on her phone again
+function muStop() {
+  if (!MU.ctx && !MU.out && !MU.want) return;
+  muPause();
+  Object.assign(MU, { ctx: '', ctxK: '', want: '', held: false, until: 0, pausedAt: 0, adopted: false });
+  muOutGone();
+  K.miniOpen = false; K.pickOpen = false;
+  muChanged();
+}
 async function muFade() {
-  if (MU.fading || !MU.player) return;
+  if (MU.fading || (!MU.player && !MU.out)) return;
   MU.fading = true;
-  const v0 = MU_LEVELS[muLevel()];
   try {
+    if (MU.out) {   // a speaker: turned down step by step if Spotify allows it, then paused, then put back as it was
+      const o = MU.out, dq = `device_id=${encodeURIComponent(o.id)}`, v0 = (MU.rstate && MU.rstate.vol) || o.v || 50;
+      if (o.vol) for (let i = 9; i >= 0 && muPlaying() && MU.out === o; i--) { await spApi('PUT', `/me/player/volume?volume_percent=${Math.round(v0 * i / 10)}&${dq}`).catch(() => {}); await sleepMs(2000); }
+      if (MU.out === o) { await spApi('PUT', `/me/player/pause?${dq}`).catch(() => {}); MU.rstate = Object.assign({}, MU.rstate, { is_playing: false }); }
+      if (o.vol) await spApi('PUT', `/me/player/volume?volume_percent=${Math.round(v0)}&${dq}`).catch(() => {});
+      muChanged();
+      return;
+    }
+    const v0 = MU_LEVELS[muLevel()];
     for (let i = 9; i >= 0 && muPlaying(); i--) { await MU.player.setVolume(v0 * i / 10).catch(() => {}); await sleepMs(2000); }
     await MU.player.pause().catch(() => {});
     await MU.player.setVolume(v0).catch(() => {});
@@ -2439,7 +2612,97 @@ function muChanged() {
   if (K.room === 'music') { const b = $('#kRoom .k-room-body'), h = musicHtml(); if (b && b.dataset.h !== h) { b.innerHTML = h; b.dataset.h = h; } }
   renderKid(); sendStateSoon();
 }
-function muTrack() { const t = MU.state && MU.state.track_window && MU.state.track_window.current_track; return t || null; }
+function muTrack() {
+  if (MU.out) return (MU.rstate && MU.rstate.item) || null;
+  const t = MU.state && MU.state.track_window && MU.state.track_window.current_track; return t || null;
+}
+// The song's cover: a mid-sized one, as Spotify lists several
+function muArt(tr) {
+  const imgs = ((tr && tr.album && tr.album.images) || []).slice().sort((a, b) => (a.width || 300) - (b.width || 300));
+  return okImg((imgs.find((i) => (i.width || 300) >= 120) || imgs[imgs.length - 1] || {}).url);
+}
+
+// Play on: speakers, TVs and computers signed in to her Spotify (a Chromecast only while it's already playing it)
+function muOutGone() { MU.out = null; MU.rstate = null; muPollStop(); }
+function muPollStop() { clearTimeout(MU.pollT); MU.pollT = 0; }
+function muPollSoon(ms) { muPollStop(); if (MU.out) MU.pollT = setTimeout(muPoll, ms); }
+const muPollGap = () => (K.room === 'music' || K.miniOpen || Date.now() < (K.watchUntil || 0) ? 4000 : muPlaying() ? 12000 : 30000);
+async function muPoll() {
+  MU.pollT = 0;
+  const o = MU.out;
+  if (!o || !S.sp) return;
+  let j;
+  MU.polling = true;
+  try { j = await spApi('GET', '/me/player'); MU.pollFails = 0; }
+  catch { MU.pollFails++; muPollSoon(MU.pollFails > 3 ? 30000 : 8000); return; }
+  finally { MU.polling = false; }
+  if (MU.out !== o) return;     // changed while asking
+  const dev = j && j.device, fresh = Date.now() - MU.outAt < 8000;   // Spotify takes a moment to catch up after a change
+  if (!dev || !dev.id || dev.id !== o.id) {
+    if (fresh) { muPollSoon(1500); return; }
+    if (dev && dev.id && dev.id === MU.device) { muOutGone(); muChanged(); return; }            // moved back to her phone
+    if (!dev || !dev.id) { muOutGone(); MU.ctx = ''; MU.adopted = false; muChanged(); return; }  // nothing playing anywhere now
+    MU.out = cleanDev(dev);                                                                     // moved on in a Spotify app: Walkie follows it
+  }
+  MU.out.vol = !!dev.supports_volume; MU.out.v = +dev.volume_percent || MU.out.v;
+  const it = j.item || null;
+  MU.rstate = { is_playing: !!j.is_playing, vol: +dev.volume_percent || 0,
+    item: it ? { name: String(it.name || '').slice(0, 80), album: { images: ((it.album && it.album.images) || []).slice(0, 4) } } : null };
+  const c = ctxOf(j.context && j.context.uri);
+  if (!fresh && c && c.id !== MU.ctx) { MU.ctx = c.id; MU.ctxK = c.k; MU.adopted = !muList().some((y) => y.id === c.id); }
+  else if (!c && !MU.ctx && j.is_playing) { MU.ctx = 'other'; MU.adopted = true; }
+  muChanged();
+  muPollSoon(muPollGap());
+}
+async function muLoadDevs() {
+  MU.devs = null; muChanged();
+  try {
+    const j = await spApi('GET', '/me/player/devices');
+    MU.devs = (j.devices || []).filter((d) => d && d.id && !d.is_restricted && d.id !== MU.device && d.name !== 'Walkie').map(cleanDev).slice(0, 8);
+  } catch { MU.devs = []; }
+  muChanged();
+}
+async function muPickOut(id) {
+  if (MU.picking) return;
+  const here = id === 'here', d = here ? null : (MU.devs || []).find((x) => x.id === id);
+  if (!here && !d) return;
+  if (here ? !MU.out : MU.out && MU.out.id === id) { K.pickOpen = false; muChanged(); return; }   // already playing there
+  const had = !!MU.ctx, playing = muPlaying(), tr = muTrack();
+  MU.picking = id; muChanged();
+  try {
+    if (here) {
+      if (had) { const dev = await muReady(); await spApi('PUT', '/me/player', { device_ids: [dev], play: playing }); }
+      muOutGone();
+    } else {
+      if (had) await spApi('PUT', '/me/player', { device_ids: [d.id], play: playing });   // what's on moves there
+      MU.out = d;
+      // already playing there (a Chromecast she's joining): Walkie takes it over at once; otherwise her next song plays there
+      MU.outAt = had ? Date.now() : 0;
+      MU.rstate = had ? { is_playing: playing, item: tr, vol: d.v } : null;
+      if (had || d.act) muPollSoon(had ? 1500 : 100);
+    }
+    K.pickOpen = false;
+  } catch (e) {
+    if (e.status === 404) MU.devs = (MU.devs || []).filter((x) => x.id !== id);   // gone from Spotify's list since
+    else MU.err = e.status ? spWhy(e) : 'play';
+  } finally { MU.picking = ''; }
+  muChanged();
+}
+function playOnHtml() {
+  if (S.sleep.on) return '';     // the daytime only: at night her music stays on her phone
+  const o = MU.out, open = !!K.pickOpen;
+  const tile = (id, e, nm, on) => `<button class="dev${MU.picking && MU.picking !== id ? ' look' : ''}" type="button" data-dev="${esc(id)}" aria-pressed="${on}"><span class="e" aria-hidden="true">${e}</span><span class="nm">${esc(nm)}</span>${MU.picking === id ? '<span class="spinner"></span>' : ''}</button>`;
+  let tiles = '';
+  if (open) {
+    tiles = tile('here', '📱', 'This phone', !o) + (MU.devs ? MU.devs.map((d) => tile(d.id, devIcon(d.type), d.name, !!(o && o.id === d.id))).join('')
+      : '<div class="dev look" aria-hidden="true"><span class="spinner"></span></div>');
+    if (o && MU.devs && !MU.devs.some((d) => d.id === o.id)) tiles += tile(o.id, devIcon(o.type), o.name, true);
+    if (MU.devs && !MU.devs.length && !o) tiles += '<p class="devs-none">Nothing else found. Speakers, TVs and computers show here while they’re signed in to her Spotify. A Chromecast shows only while it’s already playing her Spotify.</p>';
+  }
+  return `<div class="playon"><button class="playon-btn${o ? ' away' : ''}" type="button" data-act="mu-pick" aria-expanded="${open}" aria-label="Play on: ${esc(o ? o.name : 'this phone')}">
+    <span class="e" aria-hidden="true">${o ? devIcon(o.type) : '📱'}</span><span class="nm">${esc(o ? o.name : 'This phone')}</span>${ICON.cast}</button>
+    ${open ? `<div class="devs" role="group" aria-label="Play on">${tiles}</div>` : ''}</div>`;
+}
 function musicHtml() {
   const playing = muPlaying(), tr = muTrack();
   const cards = muList().map((x) => {
@@ -2447,16 +2710,71 @@ function musicHtml() {
     return `<button class="story-card music-card${on ? ' playing' : ''}${m.bad ? ' bad' : ''}" type="button" data-music="${x.id}" aria-label="${esc(m.n || 'Music')}">
       ${m.img ? `<img src="${esc(m.img)}" alt="">` : '<span class="pic" aria-hidden="true">🎵</span>'}${MU.want === x.id ? '<span class="spinner"></span>' : ''}${m.bad ? '<span class="glock" aria-hidden="true">⚠️</span>' : ''}</button>`;
   }).join('');
-  const art = tr && tr.album && tr.album.images && tr.album.images.length ? okImg(tr.album.images[0].url) : '';
+  const art = muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '';
   const bar = MU.ctx ? `<div class="mubar"><span class="art">${art ? `<img src="${esc(art)}" alt="">` : '🎵'}</span>
     <button type="button" data-act="mu-prev" aria-label="Back a song">⏮</button>
     <button type="button" class="big-go" data-act="mu-toggle" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
     <button type="button" data-act="mu-next" aria-label="Next song">⏭</button></div>` : '';
-  const lvl = muLevel();
+  const lvl = muLevel(), vol = !MU.out || MU.out.vol;
   return `<div class="shelf">${cards}</div>${bar}
-    <div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>
+    ${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : ''}
+    ${playOnHtml()}
     ${MU.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}`;
 }
+
+// Her small record: whenever music is on and she isn't on the music page. Tap it for back, pause, next and stop.
+function renderMini() {
+  const el = $('#kMini'), pn = $('#kMiniPanel');
+  if (!el) return;
+  const show = isKid() && !!MU.ctx && musicOn() && K.room !== 'music' && !K.light && !K.idle;
+  if (!show) { el.hidden = true; pn.hidden = true; K.miniOpen = false; return; }
+  const tr = muTrack(), art = muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '', playing = muPlaying();
+  const pic = art ? `<img src="${esc(art)}" alt="">` : '<span aria-hidden="true">🎵</span>';
+  setHtml(el, `<span class="disc">${pic}</span>${playing ? '' : `<span class="badge" aria-hidden="true">${ICON.pause}</span>`}`);
+  el.classList.toggle('spin', playing);
+  el.classList.toggle('on', playing);
+  el.setAttribute('aria-label', `${playing ? 'Music playing' : 'Music paused'}. Tap for the music buttons.`);
+  el.setAttribute('aria-expanded', String(!!K.miniOpen));
+  // where: next to Home in her rooms, top left on her main screen (after the replay button when it shows)
+  let r, size = 46;
+  const home = K.room ? $('#kRoom .k-home') : null;
+  if (home && home.offsetParent) {
+    const h = home.getBoundingClientRect();
+    if (K.room === 'play') size = 40;
+    r = { left: h.right + 10, top: h.top + (h.height - size) / 2 };
+  } else {
+    const top = $('.k-top').getBoundingClientRect(), rp = $('#replay');
+    const left = rp && !rp.hidden ? rp.getBoundingClientRect().right + 6 : top.left + 12;
+    r = { left, top: top.top + (top.height - size) / 2 };
+  }
+  el.classList.toggle('small', size === 40);
+  el.style.left = `${Math.round(r.left)}px`; el.style.top = `${Math.round(r.top)}px`;
+  el.hidden = false;
+  pn.hidden = !K.miniOpen;
+  if (K.miniOpen) {
+    pn.style.top = `${Math.round(r.top + size + 12)}px`;
+    setHtml(pn, `<span class="art">${pic}${MU.out ? `<i>${devIcon(MU.out.type)}</i>` : ''}</span>
+      <button type="button" data-mini="prev" aria-label="Back a song">⏮</button>
+      <button type="button" class="go" data-mini="${playing ? 'pause' : 'resume'}" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
+      <button type="button" data-mini="next" aria-label="Next song">⏭</button>
+      <button type="button" data-mini="stop" aria-label="Stop the music">${ICON.stop}</button>`);
+  }
+}
+function miniOpen(on) {
+  K.miniOpen = on;
+  clearTimeout(K.miniT);
+  if (on) { K.miniT = setTimeout(() => { K.miniOpen = false; renderKid(); }, 8000); if (MU.out) muPollSoon(300); }   // tucks itself away after 8 seconds
+  renderKid();
+}
+$('#kMini').addEventListener('click', () => miniOpen(!K.miniOpen));
+// with the buttons out, a tap anywhere else only tucks them away (it doesn't also press what's underneath)
+document.addEventListener('pointerdown', (e) => {
+  if (!isKid() || !K.miniOpen || SW.pid === e.pointerId || e.target.closest('#kMini, #kMiniPanel')) return;
+  SW.pid = e.pointerId;
+  miniOpen(false);
+  swallow(e);
+}, true);
+window.addEventListener('resize', () => { if (isKid() && !$('#kMini').hidden) renderMini(); });
 const MU_ERRS = { premium: 'Spotify says this account needs Premium (not a mobile-only plan).', auth: 'Spotify sign-in needs doing again (or her phone is offline).',
   access: 'Spotify refused: check her account is added under User Management in your Spotify developer dashboard (up to 5 people).',
   browser: 'Chrome on her phone couldn’t start Spotify’s player. In Chrome: Settings, Site settings, Protected content: allowed.',
@@ -2781,12 +3099,13 @@ function renderParent() {
   renderSub();
   renderNotices();
   renderView();
+  renderPMini(); pmWatch();
 }
 let refreshQueued = false;
 function refresh() {
   if (refreshQueued) return;
   refreshQueued = true;
-  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); if ((S.view === 'talk' && !REC.on) || (S.view === 'room' && !SR.on && !sheet.open)) renderView(); } });
+  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); renderPMini(); pmWatch(); if ((S.view === 'talk' && !REC.on) || (S.view === 'room' && !SR.on && !sheet.open)) renderView(); } });
 }
 
 // Parent hold-to-talk, Signal style: hold, slide left to cancel, slide up to keep recording hands-free
@@ -2877,7 +3196,7 @@ function nowHtml() {
   const music = st && st.music && now - st.at < 3 * HOUR ? st.music : null;
   if (game && !noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🎮</span><p><strong>Playing ${esc(game.n)}</strong>Since ${esc(time(game.since || st.at))}${gmc().m ? `, ${gmc().m} minutes a day` : ''}.</p></div>`;
   if (!noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🌙</span><p><strong>Nothing playing</strong>${st ? `Checked ${ago(st.at)}.` : 'Her phone tells you here when a story or sound is playing.'}</p></div>`;
-  const what = [music && `🎵 ${esc(music.n)}${music.tr ? ` · ${esc(music.tr)}` : ''}`, story && `📖 ${esc(story.title || 'A story')}`, noise && `🎧 ${esc(soundName(noise.kind))}, ${esc(leftTxt(noise.until))}`].filter(Boolean).join('<br>');
+  const what = [music && `🎵 ${esc(music.n)}${music.tr ? ` · ${esc(music.tr)}` : ''}${music.on ? `, on ${esc(music.on)}` : ''}${music.p ? ' (paused)' : ''}`, story && `📖 ${esc(story.title || 'A story')}`, noise && `🎧 ${esc(soundName(noise.kind))}, ${esc(leftTxt(noise.until))}`].filter(Boolean).join('<br>');
   return `<div class="now"><span class="e" aria-hidden="true">${music ? '🎵' : story ? esc(story.pic || '📖') : '🎧'}</span><p><strong>Playing on her phone</strong>${what}</p>
     <button class="btn" type="button" data-act="remote-stop">Stop</button></div>`;
 }
@@ -2929,8 +3248,41 @@ function roomHtml() {
   <p class="foot">${S.shelfAt ? `Her shelf as of ${ago(S.shelfAt)}.` : ''}</p>`;
 }
 
+// What she's listening to, as her phone last said (within 3 hours)
+function kidMusic() { const st = S.kstate; return st && st.music && Date.now() - st.at < 3 * HOUR ? st.music : null; }
+// Your small player, under the header on every page
+function renderPMini() {
+  const el = $('#pMini');
+  if (!el) return;
+  const m = isKid() ? null : kidMusic();
+  if (!m) { el.hidden = true; return; }
+  const sub = [m.p && 'Paused', m.on && `on ${m.on}`, m.tr && m.n].filter(Boolean).join(' · ') || 'Her music';
+  setHtml(el, `<span class="art" aria-hidden="true">${m.art ? `<img src="${esc(m.art)}" alt="">` : '🎵'}${m.p ? '' : '<span class="eq"><i></i><i></i><i></i></span>'}</span>
+    <div class="t"><b>${esc(m.tr || m.n || 'Music')}</b><small>${esc(sub)}</small></div>
+    <button class="round${m.p ? ' go' : ''}" type="button" data-pm="${m.p ? 'resume' : 'pause'}" aria-label="${m.p ? 'Play' : 'Pause'} her music" title="${m.p ? 'Play' : 'Pause'}">${m.p ? ICON.play : ICON.pause}</button>
+    <button class="round" type="button" data-pm="next" aria-label="Next song" title="Next song">${ICON.next}</button>
+    <button class="round" type="button" data-pm="stop" aria-label="Stop her music" title="Stop">${ICON.stop}</button>`);
+  el.hidden = false;
+}
+async function pmCtl(a, btn) {
+  const said = { pause: 'Paused on her phone', resume: 'Playing on her phone', next: 'Next song on her phone', stop: 'Her music stopped' }[a];
+  if (!said || !(await remote({ t: 'mctl', a }, btn, said))) return;
+  K.watchAt = Date.now();         // her phone sends new songs for the next 10 minutes anyway
+  const m = S.kstate && S.kstate.music;
+  if (m) { if (a === 'stop') S.kstate.music = null; else if (a === 'pause') m.p = 1; else if (a === 'resume') m.p = 0; put('kstate', S.kstate); }
+  renderPMini(); refresh();
+}
+// While you have Walkie open and her music plays, her phone sends each new song (asked for at most every 8 minutes, by one of you)
+function pmWatch() {
+  if (isKid() || !S.me || !S.fam || document.visibilityState !== 'visible') return;
+  const m = kidMusic();
+  if (!m || m.p || Date.now() - (K.watchAt || 0) < 8 * MIN) return;
+  K.watchAt = Date.now();
+  sealText({ t: 'watch', at: Date.now(), by: S.me.id }).then((b) => ntfy(TD(), {}, b)).then((r) => { if (r && r.id) markSeen(r.id); })
+    .catch(() => { K.watchAt = Date.now() - 6 * MIN; });   // try again in 2 minutes
+}
 function musicCardHtml() {
-  const km = S.kmusic || {}, names = new Map((km.items || []).map((x) => [x.id, x])), list = muList();
+  const km = S.kmusic || {}, names = new Map((km.items || []).map((x) => [x.id, x])), list = muList(), cur = kidMusic();
   if (!spCid()) return `<section class="card"><h2><span class="e" aria-hidden="true">🎵</span>Music</h2>
     <p>Play your Spotify playlists on her phone, inside Walkie. It needs your Family plan and a one-off setup.</p>
     <div class="actions"><button class="btn primary" type="button" data-act="settings-spotify">Set up Spotify</button></div></section>`;
@@ -2942,7 +3294,9 @@ function musicCardHtml() {
     ${list.length ? `<ul class="stories-list">${list.map((x) => { const m = names.get(x.id) || {}; return `<li>
       <span class="pic" aria-hidden="true">${m.img ? `<img src="${esc(m.img)}" alt="">` : '🎵'}</span>
       <span class="t"><b>${esc(m.n || (x.k === 'album' ? 'Album' : 'Playlist'))}</b><small${m.bad ? ' class="warn-txt"' : ''}>${m.bad ? 'Spotify won’t let apps play its own playlists. Use one you made.' : x.k === 'album' ? 'Album' : 'Playlist'}</small></span>
-      <button class="round go" type="button" data-mplay="${x.id}" aria-label="Play on her phone">${ICON.play}</button>
+      ${cur && cur.id === x.id ? `<button class="round${cur.p ? ' go' : ''}" type="button" data-pm="${cur.p ? 'resume' : 'pause'}" aria-label="${cur.p ? 'Play' : 'Pause'} on her phone">${cur.p ? ICON.play : ICON.pause}</button>
+      <button class="round" type="button" data-pm="stop" aria-label="Stop on her phone">${ICON.stop}</button>`
+      : `<button class="round go" type="button" data-mplay="${x.id}" aria-label="Play on her phone">${ICON.play}</button>`}
       <button class="round" type="button" data-munrm="${x.id}" aria-label="Remove">${ICON.x}</button></li>`; }).join('')}</ul>` : ''}
     <div class="field-row" style="margin-top:12px"><input class="field" id="muIn" autocomplete="off" placeholder="Paste a Spotify link" aria-label="Spotify link"><button class="btn" type="button" data-act="mu-add">Add</button></div>
     <p class="result" id="muRes"></p>
@@ -3339,7 +3693,7 @@ function leave() {
   K.reloading = true;
   stopBeat();
   ['fam', 'me', 'beat', 'items', 'since', 'seen', 'heard', 'played', 'outbox', 'sleep', 'photos', 'log', 'sheetInfo', 'quiet', 'connected', 'budget',
-    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away', 'sp', 'spAuth', 'muMeta', 'musicSent', 'kmusic'].forEach(drop);
+    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away', 'sp', 'spAuth', 'muMeta', 'musicSent', 'kmusic', 'songs'].forEach(drop);
   try { indexedDB.deleteDatabase('walkie'); } catch {}
   location.replace(APP);
 }
@@ -3354,14 +3708,25 @@ document.addEventListener('click', async (e) => {
   if (d.game) { openGame(d.game, t); return; }
   if (d.music) {
     if (MU.player) MU.player.activateElement().catch(() => {});   // straight from her tap, so the sound is allowed to start
-    if (MU.ctx === d.music && MU.state) {
-      if (muPlaying()) muPause();
-      else { MU.player.resume().catch(() => {}); setTimeout(() => { if (!muPlaying() && MU.ctx === d.music) muPlay(d.music); }, 2000); }
-    }
+    if (MU.ctx === d.music && (MU.out || MU.state)) muCtl(muPlaying() ? 'pause' : 'resume');
     else muPlay(d.music);
     return;
   }
-  if (d.mulevel != null) { S.set.muLevel = +d.mulevel; saveSet(); if (MU.player) MU.player.setVolume(MU_LEVELS[+d.mulevel]).catch(() => {}); renderRoom(); return; }
+  if (d.mulevel != null) {
+    S.set.muLevel = +d.mulevel; saveSet();
+    if (MU.out) { if (MU.out.vol) spApi('PUT', `/me/player/volume?volume_percent=${Math.round(MU_LEVELS[+d.mulevel] * 100)}&device_id=${encodeURIComponent(MU.out.id)}`).catch(() => {}); }
+    else if (MU.player) MU.player.setVolume(MU_LEVELS[+d.mulevel]).catch(() => {});
+    renderRoom(); return;
+  }
+  if (d.dev) { muPickOut(d.dev); return; }
+  if (d.mini) {
+    if (MU.player && !MU.out) MU.player.activateElement().catch(() => {});
+    muCtl(d.mini);
+    if (d.mini === 'stop') miniOpen(false); else miniOpen(true);    // the buttons stay out a little longer while she uses them
+    return;
+  }
+  // yours: pause, play, next and stop for her music
+  if (d.pm) { pmCtl(d.pm, t); return; }
   if (d.mplay) { const x = muList().find((y) => y.id === d.mplay); if (x) remote({ t: 'music', id: x.id, k: x.k }, t, 'Playing on her phone'); return; }
   if (d.munrm) {
     const n = ((S.kmusic && S.kmusic.items) || []).find((y) => y.id === d.munrm);
@@ -3465,15 +3830,15 @@ document.addEventListener('click', async (e) => {
     case 'close': closeSheet(); break;
     case 'room-home': closeRoom(); break;
     case 'mu-toggle':
-      if (MU.player) MU.player.activateElement().catch(() => {});
-      if (muPlaying()) muPause();
-      else if (MU.player && MU.state) {
-        MU.player.resume().catch(() => {});
-        setTimeout(() => { if (!muPlaying() && MU.ctx) muPlay(MU.ctx); }, 2000);   // Spotify had let this player go (Wi-Fi blip): start it again
-      } else if (MU.ctx) muPlay(MU.ctx);
+      if (MU.player && !MU.out) MU.player.activateElement().catch(() => {});
+      muCtl(muPlaying() ? 'pause' : 'resume');
       break;
-    case 'mu-next': if (MU.player) MU.player.nextTrack().catch(() => {}); break;
-    case 'mu-prev': if (MU.player) MU.player.previousTrack().catch(() => {}); break;
+    case 'mu-next': muCtl('next'); break;
+    case 'mu-prev': muCtl('prev'); break;
+    case 'mu-pick':
+      K.pickOpen = !K.pickOpen;
+      if (K.pickOpen) muLoadDevs(); else muChanged();
+      break;
     case 'sp-in': spSignIn(); break;
     case 'sp-out': if (confirm('Sign her phone out of Spotify?')) { spSignedOut(); openKidSettings(); } break;
     case 'save-cid': {
@@ -3670,6 +4035,7 @@ document.addEventListener('visibilitychange', () => {
   if (!LIVE.ok) connect();
   flush();
   if (!isKid() && S.view === 'sleep') loadLog();
+  if (!isKid()) pmWatch();
 });
 
 /* ---------- Clock ---------- */
@@ -3681,7 +4047,7 @@ setInterval(() => {
   if (!S.me) return;
   if (isKid()) kidTick();
   else {
-    renderSub();
+    renderSub(); renderPMini(); pmWatch();
     if (LIVE.es && Date.now() - LIVE.at > 120e3) connect();
     if (document.visibilityState === 'visible' && (!S.quiet || Date.now() - (S.quiet.checked || 0) > 5 * MIN)) catchUp();
   }
