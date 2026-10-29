@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="Walkie">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Hanken+Grotesk:wght@300;400;500;600&display=swap">
 <style>
 :root{--bg:#0F1528;--raise:#161E37;--raise-2:#1D2645;--line:rgba(205,214,245,.09);--line-2:rgba(205,214,245,.17);
 --ink:#ECE8DF;--ink-2:#A3ABC2;--ink-3:#6E7794;--sun:#F2C063;--sun-soft:rgba(242,192,99,.17);--on-sun:#1D1505;
@@ -157,6 +157,85 @@ a { color: inherit; }
 .lock { position: absolute; right: 6px; bottom: 68px; width: 44px; padding: 10px 0; border-radius: 22px; background: var(--raise); color: var(--ink-2); display: grid; justify-items: center; gap: 4px; }
 .lock svg { width: 20px; height: 20px; }
 
+/* Release 13, your phone: the pages along the bottom, with a big talk button in the middle, on every page */
+.parent-wrap { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
+.parent-wrap .thread { padding-bottom: calc(212px + env(safe-area-inset-bottom)); }
+.pfade { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; height: calc(150px + env(safe-area-inset-bottom)); pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent), var(--bg) 64%); }
+body.ptalkview .pfade { height: calc(232px + env(safe-area-inset-bottom)); }
+.pbar { position: fixed; z-index: 7; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); max-width: 32rem; margin: 0 auto; height: 68px; display: grid; grid-template-columns: 1fr 1.12fr 88px 1.12fr 1fr;
+  border-radius: 26px; background: color-mix(in srgb, var(--raise-2) 82%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 0 0 1px var(--line), 0 16px 40px rgba(0, 0, 0, .45); }
+.pbar > button { display: grid; justify-items: center; align-content: center; gap: 2px; min-width: 0; padding: 0 2px; font-size: 11.5px; font-weight: 600; letter-spacing: .01em; color: var(--ink-3); transition: color .2s; }
+.pbar > button i { display: grid; place-items: center; width: 50px; height: 30px; border-radius: 15px; transition: background .25s, color .25s, transform .3s cubic-bezier(.3, 1.5, .5, 1); }
+.pbar > button svg { width: 22px; height: 22px; }
+.pbar > button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pbar > button[aria-current="page"] { color: var(--ink); }
+.pbar > button[aria-current="page"] i { background: var(--sun-soft); color: var(--sun); }
+.pbar > button:active i { transform: scale(.88); }
+.pbar-mid { position: relative; }
+.ptalk-wrap { position: absolute; left: 50%; bottom: 14px; width: 82px; height: 82px; margin-left: -41px; }
+.ptalk { position: absolute; inset: 0; border-radius: 50%; color: var(--on-sun); display: grid; place-items: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--sun) 82%, #fff), var(--sun) 70%); box-shadow: 0 0 0 6px var(--bg), 0 12px 28px rgba(0, 0, 0, .5); transition: transform .18s cubic-bezier(.3, 1.4, .5, 1); }
+.ptalk svg { width: 34px; height: 34px; pointer-events: none; }
+.ptalk-wrap .talk-ring { inset: -13%; width: 126%; height: 126%; }
+body.prec .ptalk { transform: scale(.93); }
+body.prec .ptalk-wrap .talk-ring .lvl { opacity: .3; transform: scale(calc(.97 + var(--plvl, 0) * .3)); }
+body.prec .ptalk-wrap .talk-ring .prog { opacity: 1; }
+.ptalk.wiggle { animation: wiggle .5s ease; }
+.precbar { position: fixed; z-index: 8; left: 50%; bottom: calc(122px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 20px;
+  border-radius: 23px; background: var(--raise-2); box-shadow: 0 0 0 1px var(--line-2), 0 12px 30px rgba(0, 0, 0, .4); font-size: 14.5px; font-weight: 600; white-space: nowrap; animation: drop .18s ease-out; }
+body.prec #view { opacity: .5; transition: opacity .2s; }
+body.prec .pdeck { opacity: 0; pointer-events: none; }
+.pdeck { position: fixed; z-index: 6; left: 12px; right: 12px; bottom: calc(118px + env(safe-area-inset-bottom)); max-width: 32rem; margin: 0 auto; display: grid; justify-items: center; gap: 10px; pointer-events: none; transition: opacity .2s; }
+.pdeck > * { pointer-events: auto; }
+.pquick { display: flex; justify-content: center; gap: 5px; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.pquick::-webkit-scrollbar { display: none; }
+.pquick .chip { flex: none; height: 36px; padding: 0 11px; font-size: 13px; gap: 5px; color: var(--ink); background: color-mix(in srgb, var(--raise-2) 86%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 0 0 1px var(--line); transition: transform .15s; }
+.pquick .chip:active { transform: scale(.94); }
+.pnow { display: inline-flex; align-items: center; gap: 10px; height: 44px; max-width: 100%; padding: 0 18px 0 6px; border-radius: 22px; background: var(--sun); color: var(--on-sun); font-size: 14px; font-weight: 600;
+  box-shadow: 0 0 0 5px var(--sun-soft), 0 10px 24px rgba(0, 0, 0, .35); animation: nowin .25s ease-out; white-space: nowrap; }
+@keyframes nowin { from { opacity: 0; transform: translateY(8px) scale(.96); } }
+.pnow .pi { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .14); flex: none; }
+.pnow .pi svg { width: 15px; height: 15px; }
+.pnow small { font-size: 12.5px; font-weight: 500; opacity: .75; }
+/* the conversation: day labels stay at the top as you scroll; swipe her message right to answer it, or hold any message for more */
+.parent-wrap .day { position: sticky; top: calc(var(--hdr, 72px) + 6px); z-index: 3; width: max-content; margin: 18px auto 10px; padding: 5px 13px; border-radius: 13px; font-size: 12.5px; font-weight: 600; color: var(--ink-2);
+  background: color-mix(in srgb, var(--raise-2) 84%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 0 0 1px var(--line); }
+.parent-wrap .msg { position: relative; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.parent-wrap .msg.kid { touch-action: pan-y; }
+.parent-wrap .msg > :not(.sw-acts) { transform: translateX(var(--sx, 0px)); transition: transform .3s cubic-bezier(.2, 1.2, .4, 1); }
+.parent-wrap .msg.dragging > :not(.sw-acts) { transition: none; }
+.sw-acts { position: absolute; left: 0; top: 50%; display: flex; gap: 6px; transform: translateY(-50%); opacity: var(--so, 0); transition: opacity .2s; pointer-events: none; }
+.msg.swiped .sw-acts { pointer-events: auto; opacity: 1; }
+.sw-acts button { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; background: var(--raise-2); box-shadow: 0 0 0 1px var(--line-2); transition: transform .2s cubic-bezier(.3, 1.6, .5, 1); transform: scale(calc(.6 + var(--so, 0) * .4)); }
+.msg.swiped .sw-acts button { transform: scale(1); }
+.sw-acts button:active { transform: scale(.9); }
+.parent-wrap .msg.held { z-index: 13; }
+.msg.held > :not(.sw-acts) { transform: scale(1.03); }
+.line.fold { color: var(--ink-3); }
+.pmenu { position: fixed; inset: 0; z-index: 12; background: rgba(0, 0, 0, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: fadein .15s ease-out; }
+@keyframes fadein { from { opacity: 0; } }
+.pmenu .card2 { position: absolute; left: 16px; right: 16px; max-width: 22rem; margin: 0 auto; padding: 10px; border-radius: 24px; background: var(--raise-2); box-shadow: 0 0 0 1px var(--line-2), 0 20px 50px rgba(0, 0, 0, .5); animation: pop .2s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes pop { from { opacity: 0; transform: scale(.92); } }
+.pmenu .reacts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.pmenu .reacts button { display: grid; justify-items: center; gap: 4px; padding: 10px 4px 8px; border-radius: 18px; background: var(--raise); font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.pmenu .reacts button span { font-size: 28px; line-height: 1; }
+.pmenu .reacts button:active { transform: scale(.95); }
+.pmenu .acts { display: grid; margin-top: 6px; }
+.pmenu .acts button { display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 12px; border-radius: 14px; font-weight: 600; font-size: 15px; text-align: left; }
+.pmenu .acts button:active { background: var(--raise); }
+.pmenu .acts svg { width: 20px; height: 20px; color: var(--sun); }
+/* your games */
+.pgames h2 { margin: 18px 0 4px; font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+.pgames .games { margin-top: 16px; }
+.pgame { position: fixed; inset: 0; z-index: 11; display: grid; grid-template-rows: auto 1fr; background: var(--bg); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.pgame-top { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; height: 60px; padding: 0 6px; }
+.pgame-top b { text-align: center; font-weight: 600; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgame-top .ptalk-wrap { position: relative; left: auto; bottom: auto; margin: 0 auto; width: 44px; height: 44px; }
+.pgame-top .ptalk { box-shadow: none; }
+.pgame-top .ptalk svg { width: 22px; height: 22px; }
+.pgame iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+
 /* Sleep page */
 .hero { padding: 10px 0 8px; }
 .section-title { margin: 30px 0 10px; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
@@ -222,6 +301,8 @@ dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
   background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 22px; font-size: 14px; font-weight: 500; transition: opacity .2s, transform .2s; text-align: center; z-index: 30; display: flex; align-items: center; gap: 8px; overflow: visible; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast[popover]:not(:popover-open) { display: none; }
+body:not(.kid) .toast { bottom: calc(124px + env(safe-area-inset-bottom)); }          /* your phone: clear of the talk button */
+body.ptalkview .toast, body.prec .toast { bottom: calc(232px + env(safe-area-inset-bottom)); }   /* and of the replies and the recording time */
 
 /* ---------- Her phone ---------- */
 body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
@@ -353,7 +434,26 @@ body.sleeping .k-dock, body.sleeping .k-routine, body.sleeping .k-info { filter:
 body.sleeping .k-palette { display: none; }
 .k-room { position: fixed; inset: 0; z-index: 9; background: var(--bg); display: grid; grid-template-rows: auto 1fr; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 body.sleeping .k-room { background: #000; }
-.k-room-top { display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; height: 72px; padding: 0 8px; }
+.k-room-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; height: 72px; padding: 0 8px; }
+.k-left, .k-right { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.k-right { justify-content: flex-end; }
+/* her talk button in every room: like the big one, smaller, in the middle at the top */
+.k-rtalk-wrap { position: relative; width: 58px; height: 58px; }
+.k-rtalk { position: absolute; inset: 0; border-radius: 50%; color: var(--on-sun); display: grid; place-items: center; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--sun) 84%, #fff), var(--sun) 70%); box-shadow: 0 0 0 4px var(--sun-soft), 0 8px 18px rgba(0, 0, 0, .3); transition: transform .15s; }
+.k-rtalk svg { width: 28px; height: 28px; pointer-events: none; }
+.k-rtalk .rest { display: none; font-size: 24px; line-height: 1; }
+.k-rtalk-wrap .talk-ring { inset: -14%; width: 128%; height: 128%; }
+.k-room.rec .k-rtalk { transform: scale(.93); }
+.k-room.rec .k-rtalk-wrap .talk-ring .lvl { opacity: .3; }
+.k-room.rec .k-rtalk-wrap .talk-ring .prog { opacity: 1; }
+.k-rtalk.wiggle { animation: wiggle .5s ease; }
+.k-room.resting .k-rtalk { opacity: .45; }
+.k-room.resting .k-rtalk .rest { display: block; }
+.k-room.resting .k-rtalk svg { display: none; }
+body.sleeping .k-rtalk { background: #1C0604; color: #B8402C; box-shadow: 0 0 0 4px rgba(255, 91, 61, .07); }
+.k-room.gameroom .k-rtalk-wrap { width: 44px; height: 44px; }
+.k-room.gameroom .k-rtalk svg { width: 22px; height: 22px; }
 .k-home { width: 56px; height: 56px; border-radius: 50%; background: var(--raise); display: grid; place-items: center; color: var(--ink); }
 .k-home svg { width: 28px; height: 28px; }
 .k-room-title { text-align: center; font-size: 34px; }
@@ -382,28 +482,22 @@ body.sleeping .k-room { background: #000; }
 .left { text-align: center; margin: 10px 0 0; color: var(--ink-2); font-size: 15px; }
 .sctl { display: grid; justify-items: center; }
 /* Music */
-.music-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .music-card.bad { opacity: .45; filter: grayscale(.8); }
 .music-card .spinner { position: absolute; }
-.mubar { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 20px auto 0; }
-.mubar .art { width: 60px; height: 60px; border-radius: 14px; overflow: hidden; background: var(--raise); display: grid; place-items: center; font-size: 28px; flex: none; }
-.mubar .art img { width: 100%; height: 100%; object-fit: cover; }
-.mubar > button:not(.big-go) { width: 56px; height: 56px; border-radius: 50%; background: var(--raise); font-size: 22px; }
-.mubar .big-go { margin: 0; width: 84px; height: 84px; }
 .mu-warn { text-align: center; font-size: 34px; margin: 18px 0 0; }
 .stories-list .pic img { width: 40px; height: 40px; object-fit: cover; border-radius: 10px; display: block; }
 /* Release 6: her small record (top left, next to Home in her rooms), turning while music plays */
 .k-mini { position: fixed; z-index: 9; left: 12px; top: 8px; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; background: var(--raise-2);
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--line-2), 0 6px 16px rgba(0, 0, 0, .3); transition: box-shadow .2s; }
-.k-mini.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sun), 0 6px 16px rgba(0, 0, 0, .3); }
+.k-mini.on, .p-rec.on { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sun), 0 6px 16px rgba(0, 0, 0, .3); }
 .k-mini.small { width: 40px; height: 40px; font-size: 19px; }
-.k-mini .disc { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
-.k-mini .disc img { width: 100%; height: 100%; object-fit: cover; }
-.k-mini .disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--bg) 0 9%, rgba(0, 0, 0, .4) 10% 14%, transparent 15% 60%, rgba(0, 0, 0, .16) 61% 63%, transparent 64%); }
-.k-mini.spin .disc { animation: spin 7s linear infinite; }
-.k-mini .badge { position: absolute; right: -6px; bottom: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--raise-2); color: var(--ink); display: grid; place-items: center; font-size: 12px; box-shadow: 0 0 0 2px var(--bg); }
-.k-mini .badge svg { width: 11px; height: 11px; }
-.k-mini:active { transform: scale(.92); }
+.k-mini .disc, .p-rec .disc { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
+.k-mini .disc img, .p-rec .disc img { width: 100%; height: 100%; object-fit: cover; }
+.k-mini .disc::after, .p-rec .disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--bg) 0 9%, rgba(0, 0, 0, .4) 10% 14%, transparent 15% 60%, rgba(0, 0, 0, .16) 61% 63%, transparent 64%); }
+.k-mini.spin .disc, .p-rec.spin .disc { animation: spin 7s linear infinite; }
+.k-mini .badge, .p-rec .badge { position: absolute; right: -6px; bottom: -6px; width: 22px; height: 22px; border-radius: 50%; background: var(--raise-2); color: var(--ink); display: grid; place-items: center; font-size: 12px; box-shadow: 0 0 0 2px var(--bg); }
+.k-mini .badge svg, .p-rec .badge svg { width: 11px; height: 11px; }
+.k-mini:active, .p-rec:active { transform: scale(.92); }
 .k-minipanel { position: fixed; z-index: 13; left: 50%; top: 64px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 34px; background: var(--raise);
   box-shadow: 0 0 0 1px var(--line-2), 0 18px 44px rgba(0, 0, 0, .45); max-width: calc(100vw - 16px); animation: drop .18s ease-out; }
 @keyframes drop { from { opacity: 0; transform: translate(-50%, -8px); } }
@@ -418,9 +512,6 @@ body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1
 /* Her music page fits her screen: playlists in one row to swipe, then the buttons, her songs, how loud */
 .shelf.mu-covers { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; margin: -4px -18px 0; padding: 12px 18px 10px; scrollbar-width: none; }
 .mu-covers::-webkit-scrollbar { display: none; }
-.mu-covers .music-card { flex: none; width: 124px; height: 124px; scroll-snap-align: start; border-radius: 26px; }
-.mu-covers .music-card .pic { font-size: 48px; }
-.mubar { margin-top: 10px; }
 /* Play on: a round button at the top right of her music page; the speakers drop down under it */
 .playon-btn { position: relative; }
 .playon-btn .e { font-size: 26px; line-height: 1; }
@@ -466,24 +557,116 @@ body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1
 .trk.busy .pic::before { content: ""; position: absolute; z-index: 1; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; color: #fff; background: conic-gradient(from 90deg, transparent 10%, currentColor 95%);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.2px), #000 calc(100% - 3px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3.2px), #000 calc(100% - 3px)); animation: spin .8s linear infinite; }
 .trk-wait { display: grid; place-items: center; height: 104px; color: var(--ink-3); }
+/* Release 13, her music page: playlists are square covers with their names, songs are little round records, and the song
+   playing is a big record turning in the middle, with a line to slide along the song. Headings in Fredoka. */
+:root { --kfont: "Fredoka", "Hanken Grotesk", system-ui, sans-serif; }
+.mroom { --rec: clamp(104px, 18vh, 164px); display: flex; flex-direction: column; gap: 10px; min-height: 100%; }
+.mroom > #muDevs { position: absolute; }      /* the speakers drop over the page: nothing under them moves */
+.mh { display: flex; align-items: center; gap: 9px; margin: 0 0 0 2px; font: 600 17px/1.2 var(--kfont); letter-spacing: .01em; color: var(--ink); }
+.mh::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 4px var(--sun-soft); }
+.mroom .shelf.mu-covers { display: flex; gap: 12px; margin: 0 -18px; padding: 10px 18px 4px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; }
+.mroom .music-card { position: relative; flex: none; width: 86px; display: grid; justify-items: center; gap: 6px; text-align: center; scroll-snap-align: start; }
+.mroom .music-card .cv { position: relative; width: 86px; height: 86px; border-radius: 22px; overflow: hidden; display: grid; place-items: center; background: var(--raise); box-shadow: 0 6px 16px rgba(0, 0, 0, .25);
+  transition: transform .25s cubic-bezier(.2, 1.4, .4, 1), box-shadow .25s; }
+.mroom .music-card .cv img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mroom .music-card .cv .pic { font-size: 34px; }
+.mroom .music-card .cap { max-width: 86px; font: 500 12px/1.25 var(--kfont); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mroom .music-card.cur .cv { box-shadow: 0 0 0 3px var(--sun), 0 8px 20px rgba(0, 0, 0, .3); }
+.mroom .music-card.cur .cap { color: var(--ink); }
+.mroom .music-card.playing .cv { animation: plglow 1.8s ease-in-out infinite; }
+@keyframes plglow { 50% { box-shadow: 0 0 0 3px var(--sun), 0 0 22px 2px var(--sun-soft), 0 8px 20px rgba(0, 0, 0, .3); } }
+.mroom .music-card:active .cv { transform: scale(.92); }
+.mroom .music-card.bad { opacity: .45; filter: grayscale(.8); }
+.mroom .music-card .spinner { position: absolute; }
+.mroom .music-card .glock { position: absolute; top: 6px; right: 8px; font-size: 16px; }
+.mnow { position: relative; display: grid; justify-items: center; gap: 2px; padding: 14px 14px 12px; border-radius: 30px;
+  background: linear-gradient(180deg, var(--raise), color-mix(in srgb, var(--raise) 55%, transparent)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 0 0 1px var(--line); overflow: hidden; }
+.mrec-wrap { position: relative; width: var(--rec); height: var(--rec); margin-bottom: 8px; }
+.mrec-wrap::after { content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 20deg, transparent 0 12%, rgba(255, 255, 255, .11) 18%, transparent 26% 62%, rgba(255, 255, 255, .07) 68%, transparent 76%); }
+.mglow { position: absolute; inset: -14%; width: 128%; height: 128%; object-fit: cover; border-radius: 50%; filter: blur(28px) saturate(1.5); opacity: .55; pointer-events: none; }
+.mrec { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center;
+  background: repeating-radial-gradient(circle, #141416 0 1.4px, #222226 1.4px 2.8px); box-shadow: 0 16px 32px rgba(0, 0, 0, .45), inset 0 0 0 2px rgba(255, 255, 255, .05); }
+.mrec .lbl { position: relative; width: 56%; height: 56%; border-radius: 50%; overflow: hidden; display: grid; place-items: center; font-size: 32px; background: var(--raise-2); box-shadow: 0 0 0 3px rgba(0, 0, 0, .45); }
+.mrec .lbl img { width: 100%; height: 100%; object-fit: cover; }
+.mrec .lbl::after { content: ""; position: absolute; left: 50%; top: 50%; width: 13%; height: 13%; transform: translate(-50%, -50%); border-radius: 50%; background: #111; box-shadow: 0 0 0 2px rgba(255, 255, 255, .25); }
+.mrec.spin { animation: spin 6s linear infinite; }
+.mtitle { max-width: 100%; font: 600 20px/1.25 var(--kfont); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msub { min-height: 17px; max-width: 100%; font-size: 13px; color: var(--ink-3); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mtime { display: grid; grid-template-columns: 42px 1fr 46px; align-items: center; gap: 8px; width: 100%; margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+.mtime span:last-child { text-align: right; }
+.mbar { position: relative; height: 34px; touch-action: none; cursor: pointer; }
+.mbar::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 10px; margin-top: -5px; border-radius: 5px; background: var(--raise-2); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3); }
+.mbar .mfill { position: absolute; left: 0; top: 50%; height: 10px; margin-top: -5px; width: calc(var(--f, 0) * 100%); border-radius: 5px; background: linear-gradient(90deg, color-mix(in srgb, var(--sun) 65%, #fff), var(--sun)); }
+.mbar .mknob { position: absolute; top: 50%; left: calc(var(--f, 0) * 100%); width: 24px; height: 24px; margin: -12px 0 0 -12px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px var(--sun), 0 4px 10px rgba(0, 0, 0, .35); transition: transform .15s; }
+.mbar.drag .mknob { transform: scale(1.25); }
+.mnow .mubar { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 4px; }
+.mnow .mubar .big-go { margin: 0; width: 76px; height: 76px; box-shadow: 0 0 0 8px var(--sun-soft), 0 10px 22px rgba(0, 0, 0, .3); }
+.mnow .mubar .big-go svg { width: 34px; height: 34px; }
+.mnow .mstep { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: var(--raise-2); color: var(--ink); }
+.mnow .mstep svg { width: 24px; height: 24px; }
+.mnow .mside { position: relative; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-3); transition: background .2s, color .2s; }
+.mnow .mside svg { width: 21px; height: 21px; }
+.mnow .mside.lit { background: var(--sun-soft); color: var(--sun); }
+.mnow .mside .one { position: absolute; right: 3px; bottom: 3px; width: 15px; height: 15px; border-radius: 50%; background: var(--sun); color: var(--on-sun); font: 700 10px/15px var(--kfont); text-align: center; }
+.mnow .mubar button { transition: transform .15s cubic-bezier(.3, 1.5, .5, 1); }
+.mnow .mubar button:active { transform: scale(.9); }
+.mnow.empty { padding: 18px 14px; }
+.mnow.empty .mrec { opacity: .45; }
+.mpick { display: flex; align-items: center; gap: 8px; margin: 2px 0 0; font: 600 17px var(--kfont); color: var(--ink-2); }
+.mpick .up { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateY(-5px); } }
+.mroom .tracks { margin: 0 -18px; }
+.mroom .trk-row { gap: 10px; padding: 8px 18px 4px; }
+.mroom .trk { width: 72px; gap: 6px; }
+.mroom .trk .pic { width: 62px; height: 62px; border-radius: 50%; overflow: visible; background: repeating-radial-gradient(circle, #141416 0 1.2px, #222226 1.2px 2.4px); box-shadow: 0 6px 14px rgba(0, 0, 0, .3); }
+.mroom .trk .pic img { position: absolute; left: 21%; top: 21%; width: 58%; height: 58%; border-radius: 50%; object-fit: cover; }
+.mroom .trk .pic > span[aria-hidden] { font-size: 22px; }
+.mroom .trk .nm { max-width: 72px; font: 500 11.5px/1.2 var(--kfont); }
+.mroom .trk.on .pic { transform: scale(1.1); box-shadow: 0 0 0 3px var(--sun), 0 8px 18px rgba(0, 0, 0, .35); }
+.mroom .trk.on:not(.still) .pic img { animation: spin 4s linear infinite; }
+.mroom .trk .pic .no { left: 50%; top: 50%; z-index: 1; transform: translate(-50%, -50%); font: 600 17px var(--kfont); }
+.mroom .trk .bars { left: auto; right: -7px; top: -5px; bottom: auto; transform: none; height: 18px; padding: 3px 5px; gap: 2px; border-radius: 9px; background: var(--sun); }
+.mroom .trk .bars i { width: 3px; background: var(--on-sun); }
+.mroom .trk.busy .pic::after { border-radius: 50%; }
+.mroom .trk-wait { height: 80px; }
+.mlow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 2px; }
+.mroom .levels { margin: 0; gap: 8px; justify-content: flex-start; }
+.mroom .levels button { min-width: 0; width: 48px; height: 48px; padding: 0; border-radius: 50%; font-size: 19px; }
+.mstop { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px 0 16px; border-radius: 24px; background: var(--raise-2); color: var(--ink); font: 600 16px var(--kfont); transition: transform .15s; }
+.mstop svg { width: 17px; height: 17px; color: #E5484D; }
+.mstop:active { transform: scale(.94); }
+.mroom .mu-warn { margin: 0; font-size: 26px; }
+body.sleeping .mglow { opacity: .12; }
+@media (orientation: landscape) and (max-height: 520px) {     /* on its side: the record and buttons on the left, playlists and songs on the right */
+  .mroom { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-rows: auto auto 1fr; column-gap: 18px; row-gap: 8px; --rec: 92px; }
+  #muNow { grid-column: 1; grid-row: 1 / 3; align-self: start; }
+  #muLow { grid-column: 1; grid-row: 3; align-self: end; }
+  .mpl { grid-column: 2; grid-row: 1; } .msongs { grid-column: 2; grid-row: 2 / 4; }
+  .mnow { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "rec title" "rec sub" "rec time" "ctl ctl"; column-gap: 14px; justify-items: stretch; align-items: center; padding: 10px 14px; }
+  .mnow .mrec-wrap { grid-area: rec; margin: 0; }
+  .mnow .mtitle { grid-area: title; text-align: left; font-size: 17px; align-self: end; }
+  .mnow .msub { grid-area: sub; text-align: left; }
+  .mnow .mtime { grid-area: time; margin: 0; }
+  .mnow .mubar { grid-area: ctl; margin-top: 6px; }
+  .mnow .mubar .big-go { width: 60px; height: 60px; box-shadow: 0 0 0 6px var(--sun-soft); }
+  .mnow .mubar .big-go svg { width: 26px; height: 26px; }
+  .mnow .mstep { width: 46px; height: 46px; }
+  .mnow.empty { grid-template-areas: "rec title"; }
+  .mnow.empty .mpick { grid-area: title; }
+  .mroom .music-card, .mroom .music-card .cv { width: 70px; }
+  .mroom .music-card .cv { height: 70px; border-radius: 18px; }
+  .mroom .trk { width: 64px; }
+  .mroom .trk .pic { width: 52px; height: 52px; }
+}
 /* Your small player: what she's listening to, under the header on every page */
-.pmini { display: flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px; border-radius: 16px; background: var(--raise); }
-
-.pmini .rec { position: relative; width: 44px; height: 44px; border-radius: 50%; flex: none; margin-right: 3px; background: var(--raise-2); display: grid; place-items: center; font-size: 20px;
-  box-shadow: 0 0 0 2px var(--raise), 0 0 0 4px var(--line-2); }
-.pmini .rec.on { box-shadow: 0 0 0 2px var(--raise), 0 0 0 4px var(--sun); }
-.pmini .rec .disc { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
-.pmini .rec .disc img { width: 100%; height: 100%; object-fit: cover; }
-.pmini .rec .disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--raise) 0 9%, rgba(0, 0, 0, .4) 10% 14%, transparent 15% 60%, rgba(0, 0, 0, .16) 61% 63%, transparent 64%); }
-.pmini .rec.spin .disc { animation: spin 7s linear infinite; }
-.pmini .rec .badge { position: absolute; right: -5px; bottom: -5px; width: 20px; height: 20px; border-radius: 50%; background: var(--raise-2); color: var(--ink); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--raise); }
-.pmini .rec .badge svg { width: 10px; height: 10px; }
-.pmini .t { flex: 1; min-width: 0; }
-.pmini .t b { display: block; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pmini .t small { display: block; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pmini .round { width: 37px; height: 37px; }
-.pmini .round svg { width: 16px; height: 16px; }
-.pmini { gap: 5px; }
+/* Your small record, like hers: before the Walkie name at the top, turning while her music plays; tap it for her buttons */
+.who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.who > div { min-width: 0; }
+.sub .st { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who:has(.p-rec:not([hidden])) .kp { display: none; }   /* with your record showing: just how her phone is */
+.p-rec { position: relative; width: 46px; height: 46px; margin: -4px 0; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 22px; background: var(--raise-2);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--line-2), 0 6px 16px rgba(0, 0, 0, .3); transition: box-shadow .2s; }
 .round.busy { position: relative; }
 .round.busy > svg { opacity: 0; }
 .round.busy::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: conic-gradient(from 90deg, transparent 10%, currentColor 95%);
@@ -505,7 +688,7 @@ body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1
 .gdone { display: flex; justify-content: center; align-items: center; gap: 12px; font-size: 56px; padding: 2vh 0 4vh; }
 .gdone .z { font-size: 30px; align-self: flex-start; } .gdone .arrow { font-size: 30px; color: var(--ink-3); }
 .gpie { display: block; width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(var(--bg) 0 50%, transparent 51%), conic-gradient(var(--sun) calc(var(--p, 100) * 1%), var(--raise-2) 0); }
-.k-room.gameroom .k-room-top { height: 56px; grid-template-columns: 56px 1fr 56px; }
+.k-room.gameroom .k-room-top { height: 56px; }
 .k-room.gameroom .k-home { width: 44px; height: 44px; }
 .k-room.gameroom .k-home svg { width: 24px; height: 24px; }
 .k-room.gameroom .k-room-title img { width: 30px; height: 30px; border-radius: 22%; vertical-align: middle; }
@@ -532,11 +715,31 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 .calm { display: grid; place-items: center; height: 100%; }
 .calm svg { width: min(70vw, 50vh); height: auto; overflow: visible; transform-origin: 50% 50%; animation: breathe 10s ease-in-out infinite; filter: drop-shadow(0 0 24px rgba(255, 200, 61, .5)); }
 @keyframes breathe { 0% { transform: scale(.62); } 40% { transform: scale(1); } 100% { transform: scale(.62); } }
-.draw-wrap { display: grid; grid-template-rows: 1fr auto; gap: 12px; height: 100%; }
+.draw-wrap { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; height: 100%; }
+@media (orientation: landscape) and (max-height: 520px) { .draw-wrap { grid-template-rows: minmax(0, 1fr); grid-template-columns: minmax(0, 1fr) auto; gap: 16px; } .draw-tools { align-content: center; } }
 .draw-pad { border-radius: 22px; background: #fff; touch-action: none; width: 100%; height: 100%; min-height: 0; display: block; }
-.colours { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
-.colours button { width: 46px; height: 46px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line-2); }
-.colours button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); transform: scale(1.08); }
+.draw-tools { display: grid; grid-template-columns: auto auto; justify-content: center; align-items: center; column-gap: 14px; row-gap: 12px; }
+/* her pens stand in a tray, tips in her colour; the one she's holding rises out of it */
+.pens { grid-column: 1 / -1; display: flex; justify-content: space-around; align-items: flex-end; height: 68px; padding: 0 6px; border-radius: 24px; color: var(--ink);
+  clip-path: inset(-40px -4px 0 -4px round 0 0 24px 24px);   /* the pen she's holding rises out of the top; the rest sink into the tray (not a scroll box: a tap can't shift them) */
+  background: linear-gradient(to bottom, var(--raise-2), var(--raise)); box-shadow: inset 0 -14px 18px -8px rgba(0, 0, 0, .22), inset 0 0 0 1px var(--line); }
+.pens button { width: 48px; height: 68px; display: grid; justify-items: center; align-items: start; padding-top: 4px; transform: translateY(20px); transition: transform .26s cubic-bezier(.3, 1.6, .5, 1); }
+.pens button svg { width: 32px; height: 58px; overflow: visible; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .25)); }
+.pens button[aria-pressed="true"] { transform: translateY(0); }
+.pens button[aria-pressed="true"] svg { filter: drop-shadow(0 5px 7px rgba(0, 0, 0, .35)); }
+.pens button:active { transform: translateY(6px); transition-duration: .08s; }
+.colours { display: grid; grid-template-columns: repeat(5, 38px); gap: 8px; }
+.colours button { width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line-2), inset 0 -4px 8px rgba(0, 0, 0, .14); transition: transform .15s; }
+.colours button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); transform: scale(1.1); }
+.sizes { display: grid; grid-template-columns: repeat(2, 38px); gap: 8px; padding-left: 14px; border-left: 1px solid var(--line-2); }
+.sizes button { width: 38px; height: 38px; border-radius: 50%; background: var(--raise); display: grid; place-items: center; transition: transform .15s; }
+.sizes i { display: block; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 1px rgba(0, 0, 0, .18); }
+.sizes button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); transform: scale(1.06); }
+.draw-tools[data-pen="rainbow"] .sizes i { background: conic-gradient(#FF3B30, #FFCC00, #34C759, #0A84FF, #AF52DE, #FF3B30); }
+.draw-tools[data-pen="rubber"] .sizes i { background: #fff; box-shadow: 0 0 0 1.5px var(--ink-3); }
+.draw-tools[data-pen="spray"] .sizes i { background: radial-gradient(circle, var(--ink) 0 22%, transparent 24%) 0 0 / 6px 6px; box-shadow: none; }
+.k-undo svg { width: 26px; height: 26px; }
+.k-undo:disabled { opacity: .35; }
 .k-send { width: 56px; height: 56px; border-radius: 50%; background: var(--sun); color: var(--on-sun); display: grid; place-items: center; justify-self: end; }
 .k-send svg { width: 26px; height: 26px; }
 .k-bin { width: 56px; height: 56px; border-radius: 50%; background: var(--raise); display: grid; place-items: center; font-size: 24px; justify-self: end; }
@@ -610,7 +813,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
   <header class="appbar" id="appbar">
     <div class="appbar-in">
       <div class="top">
-        <div><div class="mark">Walkie</div><div class="sub num" id="sub"></div></div>
+        <div class="who"><button class="p-rec" id="pRec" type="button" hidden aria-expanded="false"></button><div><div class="mark">Walkie</div><div class="sub num" id="sub"></div></div></div>
         <div class="tools">
           <button class="icon-btn" id="themeBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="themes" aria-label="Colour theme" title="Colour theme">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>
@@ -620,15 +823,9 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
           </button>
         </div>
       </div>
-      <nav class="tabs" id="tabs" role="tablist" aria-label="Pages">
-        <span class="tab-ink" aria-hidden="true"></span>
-        <button type="button" role="tab" data-view="talk" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4.5 5.5h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5v-3.5h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"/></svg>Talk</button>
-        <button type="button" role="tab" data-view="sleep" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M19.5 14.2A8 8 0 0 1 9.8 4.5a8 8 0 1 0 9.7 9.7Z"/></svg>Sleep</button>
-        <button type="button" role="tab" data-view="room" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="7" y="2.8" width="10" height="18.4" rx="2.4"/><path d="M10.5 17.6h3" stroke-linecap="round"/></svg>Her phone</button>
-      </nav>
-      <div class="pmini" id="pMini" hidden role="group" aria-label="What she’s listening to"></div>
     </div>
   </header>
+  <div class="k-minipanel" id="pMiniPanel" hidden role="group" aria-label="Her music"></div>
   <div class="pop" id="themes" hidden role="group" aria-label="Colour theme"></div>
   <div class="wrap parent-wrap">
     <div id="notices"></div>
@@ -645,6 +842,18 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
       </div>
     </div>
   </div>
+  <div class="pfade" aria-hidden="true"></div>
+  <div class="pdeck" id="pDeck"><div class="pnowbox" id="pNow"></div><div class="pquick" id="pQuick" role="group" aria-label="Quick replies"></div></div>
+  <div class="precbar" id="pRecBar" hidden><span class="rec-dot"></span><span class="num" id="pRecTime">0:00</span><span>Let go to send</span></div>
+  <nav class="pbar" id="pbar" aria-label="Pages">
+    <button type="button" data-view="talk" aria-current="page"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4.5 5.5h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5v-3.5h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"/></svg></i><span>Talk</span></button>
+    <button type="button" data-view="sleep"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19.5 14.2A8 8 0 0 1 9.8 4.5a8 8 0 1 0 9.7 9.7Z"/></svg></i><span>Sleep</span></button>
+    <div class="pbar-mid"><div class="ptalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="ptalk" id="ptalk" type="button" aria-label="Hold to talk to her, let go to send" title="Hold to talk"></button></div></div>
+    <button type="button" data-view="room"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="2.8" width="10" height="18.4" rx="2.4"/><path d="M10.5 17.6h3" stroke-linecap="round"/></svg></i><span id="pRoomName">Her phone</span></button>
+    <button type="button" data-view="games"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 5.4l-.8 3.7a2.3 2.3 0 0 1-3.9 1.1L14.3 16H9.7l-1.9 2.2a2.3 2.3 0 0 1-3.9-1.1l-.8-3.7A4.5 4.5 0 0 1 7.5 8Z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="15.5" cy="11.6" r=".6" fill="currentColor"/><circle cx="17" cy="13.4" r=".6" fill="currentColor"/></svg></i><span>Games</span></button>
+  </nav>
+  <div class="pmenu" id="pMenu" hidden></div>
+  <div class="pgame" id="pGame" hidden></div>
 </div>
 
 <div id="kidApp" class="kid-app" hidden>
@@ -686,7 +895,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=11"></script>
+<script src="core.js?v=13"></script>
 <script>
 (() => {
 'use strict';
@@ -698,7 +907,7 @@ if (C && typeof C.msgCap !== 'function') { try { if (!sessionStorage.getItem('wl
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 11;          // shown at the top of Settings, so you can see an update has arrived
+const RELEASE = 13;          // shown at the top of Settings, so you can see an update has arrived
 const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
@@ -1112,11 +1321,11 @@ async function onData(m, live) {
   // your pause, play, next and stop for her music
   if (isKid() && o.t === 'mctl' && fresh && ['pause', 'resume', 'next', 'prev', 'stop'].includes(o.a)) { muCtl(o.a); return; }
   if (o.t === 'watch') return;     // release 6 only: song updates are gone
-  // the other parent's pause, play, next or Stop: your strip catches up (signed in to her Spotify: by asking it at once)
-  if (!isKid() && ['mctl', 'stop'].includes(o.t) && o.by !== (S.me && S.me.id)) {
+  // the other parent's pause, play, next or Stop, or her own Stop: your strip catches up (signed in to her Spotify: by asking it at once)
+  if (!isKid() && ['mctl', 'stop', 'mstop'].includes(o.t) && o.by !== (S.me && S.me.id)) {     // mstop: she pressed Stop herself
     if (o.t === 'mctl' && S.kstate && S.kstate.music) pmApply(o.a, ts);
-    if (o.t === 'stop' && S.kstate && S.kstate.music) pmApply('stop', ts);
-    if (lvOn() && (o.t === 'stop' || o.a === 'stop') && Date.now() - ts < 30e3) LV.stopped = Math.max(LV.stopped, ts);
+    if (o.t !== 'mctl' && S.kstate && S.kstate.music) pmApply('stop', ts);
+    if (lvOn() && (o.t !== 'mctl' || o.a === 'stop') && Date.now() - ts < 30e3) LV.stopped = Math.max(LV.stopped, ts);
     renderPMini(); refresh();
     if (lvOn()) setTimeout(lvPoll, 1500);
     return;
@@ -1162,7 +1371,7 @@ async function onData(m, live) {
     const from = o.from || (o.t === 'quick' ? 'grown-up' : 'child');
     if (!/^[a-z0-9-]{1,12}$/.test(from)) return;
     const it = { eid: String(o.eid || m.id).slice(0, 20), ts, from, kind: o.t };
-    if (o.t === 'draw') { if (isKid()) return; Object.assign(it, { mime: 'image/png', att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null }); }
+    if (o.t === 'draw') { if (isKid()) return; Object.assign(it, { mime: o.mime === 'image/jpeg' ? 'image/jpeg' : 'image/png', att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null }); }
     else if (o.t === 'voice') Object.assign(it, { dur: +o.dur || 0, pk: String(o.pk || '').slice(0, 40), mime: String(o.mime || 'audio/webm').slice(0, 40), att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null });
     else { if (!QUICK[o.q]) return; Object.assign(it, { q: o.q, re: o.re }); }
     const isNew = !itemById(it.eid);
@@ -1372,9 +1581,9 @@ async function sendVoice(rec) {
   saveItems();
   refresh();
 }
-async function sendQuickParent(q, btn) {
+async function sendQuickParent(q, btn, reEid) {
   const eid = rid(10), now = Date.now();
-  const last = [...S.items].reverse().find((x) => x.from === 'child');
+  const last = (reEid && itemById(reEid)) || [...S.items].reverse().find((x) => x.from === 'child');
   const it = upsert({ eid, ts: now, from: S.me.id, kind: 'quick', q, re: last && last.eid, st: 'sending' });
   refresh();
   await withBusy(btn, async () => {
@@ -1476,7 +1685,7 @@ function renderKid() {
   setKidTheme();
   const now = Date.now();
   $('#kClock').textContent = time(now);
-  $('#kidApp').classList.toggle('resting', K.restUntil > now);
+  $('#kidApp').classList.toggle('resting', K.restUntil > now); $('#kRoom').classList.toggle('resting', K.restUntil > now);
   try { renderExtras(now); } catch {}      // stars, countdown, routine and dock never take her talk button down
   // the talk button, or who's talking to her
   const above = !!(K.room || K.light), inEl = $(above ? '#kPop' : '#kIn');   // above her rooms and the night light
@@ -1756,28 +1965,36 @@ function kidTick() {
 // Hold to talk
 const talk = $('#talk');
 talk.insertAdjacentHTML('beforeend', ICON.mic);
-talk.addEventListener('pointerdown', async (e) => {
+// the same button, smaller, at the top of each of her rooms: hold to talk from anywhere
+const ROOM_TALK = `<div class="k-rtalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="k-rtalk" type="button" aria-label="Hold to talk"><span class="rest" aria-hidden="true">💤</span>${ICON.mic}</button></div>`;
+async function talkDown(e, btn) {
   e.preventDefault();
   kidTouch();
   if (K.press || K.rec) return;
-  if (K.restUntil > Date.now() || !canSpend(2)) { rest(); return; }
-  try { talk.setPointerCapture(e.pointerId); } catch {}
-  K.press = { up: false, pid: e.pointerId };
+  if (K.restUntil > Date.now() || !canSpend(2)) { rest(); wiggle(btn); return; }
+  try { btn.setPointerCapture(e.pointerId); } catch {}
+  K.press = { up: false, pid: e.pointerId, btn };
   stopPlayback();
   K.overlay = null; renderKid();
   hush(true);
   const ok = await micReady();
   if (!K.press) { hush(false); return; }
-  if (K.press.up || !ok || !recStart()) { K.press = null; wiggle(); hush(false); return; }
+  if (K.press.up || !ok || !recStart()) { K.press = null; wiggle(btn); hush(false); return; }
   K.rec = true;
-  $('#kidApp').classList.add('rec');
+  $('#kidApp').classList.add('rec'); $('#kRoom').classList.add('rec');
   K.recTimer = setInterval(() => {
-    const el = Date.now() - REC.t0;
-    $('#kidApp').style.setProperty('--lvl', REC.lvl.toFixed(2));
-    $('#prog').style.strokeDashoffset = String(100 - Math.min(100, el / KID_MAX * 100));
+    const el = Date.now() - REC.t0, off = String(100 - Math.min(100, el / KID_MAX * 100)), lv = REC.lvl.toFixed(2);
+    $('#kidApp').style.setProperty('--lvl', lv); $('#kRoom').style.setProperty('--lvl', lv);
+    $('#prog').style.strokeDashoffset = off;
+    document.querySelectorAll('#kRoom .k-rtalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = off; });
     if (el >= KID_MAX) talkEnd(null);
   }, 90);
-});
+}
+talk.addEventListener('pointerdown', (e) => talkDown(e, talk));
+$('#kRoom').addEventListener('pointerdown', (e) => { const b = e.target.closest('.k-rtalk'); if (b) talkDown(e, b); });
+$('#kRoom').addEventListener('contextmenu', (e) => { if (e.target.closest('.k-rtalk')) e.preventDefault(); });
+// her finger lifting anywhere ends it, even if her room redrew under it
+['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => { if (isKid() && K.press && e.pointerId === K.press.pid) talkEnd(e); }));
 async function talkEnd(e) {
   if (!K.press) return;
   if (e && e.pointerId != null && K.press.pid != null && e.pointerId !== K.press.pid) return;   // another finger: ignore
@@ -1785,11 +2002,12 @@ async function talkEnd(e) {
   if (!K.rec) return;
   clearInterval(K.recTimer);
   K.rec = false;
-  $('#kidApp').classList.remove('rec');
+  $('#kidApp').classList.remove('rec'); $('#kRoom').classList.remove('rec');
   $('#prog').style.strokeDashoffset = '100';
-  const held = Date.now() - REC.t0;
+  document.querySelectorAll('#kRoom .k-rtalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = '100'; });
+  const held = Date.now() - REC.t0, btn = K.press.btn;
   K.press = null;
-  if (held < MIN_HOLD) { recCancel(); wiggle(); hush(false); return; }
+  if (held < MIN_HOLD) { recCancel(); wiggle(btn); hush(false); return; }
   const rec = await recStop(REC_TAIL);     // half a second more, then her story or music carries on
   hush(false);
   if (rec && rec.blob.size) sendVoice(rec);
@@ -1797,7 +2015,7 @@ async function talkEnd(e) {
 talk.addEventListener('pointerup', talkEnd);
 talk.addEventListener('pointercancel', talkEnd);
 talk.addEventListener('contextmenu', (e) => e.preventDefault());
-function wiggle() { talk.classList.remove('wiggle'); void talk.offsetWidth; talk.classList.add('wiggle'); setTimeout(() => talk.classList.remove('wiggle'), 1300); }
+function wiggle(btn) { const b = btn && btn.isConnected ? btn : talk; b.classList.remove('wiggle'); void b.offsetWidth; b.classList.add('wiggle'); setTimeout(() => b.classList.remove('wiggle'), 1300); }
 
 // While the clock is showing, the first touch only wakes the buttons: that whole touch, however long, presses nothing
 const SW = { pid: null, clickUntil: 0 };
@@ -2130,7 +2348,7 @@ function closeRoom() {
   if (K.room === 'play') { gameAccrue(); clearTimeout(K.gLimitT); K.game = null; K.gStart = 0; sendStateSoon(); recache(); }
   K.room = null; K.pickOpen = false;
   $('#kRoom').hidden = true;
-  $('#kRoom').innerHTML = '';
+  $('#kRoom').innerHTML = ''; $('#kRoom').dataset.room = '';
   K.lastTouch = Date.now();
   renderKid();
 }
@@ -2162,7 +2380,14 @@ function renderRoom() {
   if (K.room === 'calm') body = `<div class="calm">${STAR_SVG}</div>`;
   if (K.room === 'games') { body = gamesHtml(); right = pieHtml(); }
   if (K.room === 'colours') body = coloursHtml();
-  if (K.room === 'music') { body = `<div id="muDevs">${devsHtml()}</div><div id="muTop">${musicHtml()}</div><div class="tracks" id="muTracks"></div><div id="muLow">${musicLowerHtml()}</div>`; right = `<div id="muPickTop">${playOnHtml()}</div>`; }   // her songs keep their own box, so they don't redraw with every change
+  if (K.room === 'music') {      // her songs keep their own box, so they don't redraw with every change
+    body = `<div class="mroom"><div id="muDevs">${devsHtml()}</div>
+      <div class="mpl"><h3 class="mh">Playlists</h3><div id="muTop">${musicHtml()}</div></div>
+      <div id="muNow">${musicNowHtml()}</div>
+      <div class="msongs" hidden><h3 class="mh">Songs</h3><div class="tracks" id="muTracks"></div></div>
+      <div id="muLow">${musicLowerHtml()}</div></div>`;
+    right = `<div id="muPickTop">${playOnHtml()}</div>`;
+  }
   let title = ROOMS[K.room] || '';
   if (K.room === 'play') {
     const g = S.games.find((x) => x.id === K.game) || {};
@@ -2171,15 +2396,23 @@ function renderRoom() {
     // her game, on the same site: no address bar, and the frame can't open other pages or leave Walkie
     body = `<iframe class="game-frame" id="gameFrame" src="${esc(g.url || 'about:blank')}" title="${esc(g.name || 'Game')}" sandbox="allow-scripts allow-same-origin allow-forms" allow="autoplay"></iframe>`;
   }
-  el.className = 'k-room' + (K.room === 'play' ? ' gameroom' : '');
+  let left = '';
   if (K.room === 'draw') {
-    body = `<div class="draw-wrap"><canvas class="draw-pad" id="pad" aria-label="Drawing paper"></canvas>
-      <div class="colours" role="group" aria-label="Colours">${COLOURS.map((c) => `<button type="button" data-colour="${c}" aria-pressed="${DRAW.colour === c}" style="background:${c}" aria-label="${c === '#FFFFFF' ? 'Rubber' : 'Colour'}"></button>`).join('')}</div></div>`;
+    body = `<div class="draw-wrap"><canvas class="draw-pad" id="pad" aria-label="Drawing paper"></canvas>${drawToolsHtml()}</div>`;
+    left = `<button class="k-bin k-undo" id="kUndo" type="button" data-act="k-undo" aria-label="Undo"${DRAW.undo.length ? '' : ' disabled'}>${ICON.undo}</button>`;
     right = `<button class="k-bin" type="button" data-act="k-bin" aria-label="Start again">🗑️</button><button class="k-send" type="button" data-act="k-send" aria-label="Send to the grown-ups">${ICON.plane}</button>`;
   }
-  el.innerHTML = `<div class="k-room-top"><button class="k-home" type="button" data-act="room-home" aria-label="Home">${ICON.home}</button>
-    <div class="k-room-title" aria-hidden="true">${title}</div><div style="justify-self:end;display:flex;gap:10px;align-items:center">${right}</div></div>
-    <div class="k-room-body">${body}</div>`;
+  void title;
+  el.className = 'k-room' + (K.room === 'play' ? ' gameroom' : '') + (K.room === 'draw' ? ' drawroom' : '') + (el.classList.contains('rec') ? ' rec' : '') + (K.restUntil > Date.now() ? ' resting' : '');
+  // each part is only redrawn when it changes, so her talk button stays put under her finger
+  if (el.dataset.room !== K.room || !el.querySelector('.k-room-top')) {
+    el.innerHTML = '<div class="k-room-top"><div class="k-left"></div><div class="k-room-title"></div><div class="k-right"></div></div><div class="k-room-body"></div>';
+    el.dataset.room = K.room;
+  }
+  setHtml(el.querySelector('.k-left'), `<button class="k-home" type="button" data-act="room-home" aria-label="Home">${ICON.home}</button>${left}`);
+  setHtml(el.querySelector('.k-room-title'), ROOM_TALK);
+  setHtml(el.querySelector('.k-right'), right);
+  setHtml(el.querySelector('.k-room-body'), body);
   if (K.room === 'play') watchGame();
   if (K.room === 'music') renderTracks();
 }
@@ -2210,9 +2443,144 @@ function closeLight() {
 }
 $('#kLight').addEventListener('click', closeLight);
 
-// Draw
+// Draw: felt pen, crayon, paintbrush, spray, rainbow pen and rubber, four thicknesses, ten colours, and undo
 const COLOURS = ['#E53935', '#FB8C00', '#FDD835', '#43A047', '#1E88E5', '#8E24AA', '#F06292', '#6D4C41', '#212121', '#FFFFFF'];
-const DRAW = { colour: '#1E88E5', ctx: null, pid: null, last: null, dirty: false };
+const TOOLS = [
+  { id: 'pen', name: 'Felt pen', w: [4, 8, 14, 24] },
+  { id: 'crayon', name: 'Crayon', w: [6, 10, 16, 26] },
+  { id: 'brush', name: 'Paintbrush', w: [8, 14, 22, 34] },
+  { id: 'spray', name: 'Spray', w: [12, 20, 30, 44] },        // spray: how far the paint spreads
+  { id: 'rainbow', name: 'Rainbow pen', w: [5, 9, 15, 24] },
+  { id: 'rubber', name: 'Rubber', w: [14, 26, 42, 64] }];
+const SIZE_DOT = [6, 11, 18, 27], SIZE_NAME = ['Thin', 'Medium', 'Thick', 'Extra thick'];
+// the tools as they look in her tray, standing up, tips in the colour she's picked
+const TOOL_SVG = {
+  pen: '<svg viewBox="0 0 40 72" aria-hidden="true"><rect x="13" y="22" width="14" height="52" rx="4" fill="#F3F4F7"/><rect x="13" y="22" width="14" height="11" fill="currentColor"/><rect x="13" y="58" width="14" height="4" fill="currentColor" opacity=".55"/><path d="M15 22 18 11h4l3 11z" fill="#C9CDD3"/><path d="M18 11l1.2-6.5h1.6L22 11z" fill="currentColor" stroke="rgba(0,0,0,.2)" stroke-width=".6"/><rect x="13" y="22" width="5" height="52" fill="#000" opacity=".06"/></svg>',
+  crayon: '<svg viewBox="0 0 40 72" aria-hidden="true"><rect x="12" y="24" width="16" height="50" rx="3" fill="currentColor" stroke="rgba(0,0,0,.2)" stroke-width=".6"/><rect x="12" y="34" width="16" height="28" fill="#fff" opacity=".82"/><path d="M12 38h16M12 58h16" stroke="currentColor" stroke-width="2.2"/><path d="M13 24 20 6l7 18z" fill="currentColor" stroke="rgba(0,0,0,.2)" stroke-width=".6"/><path d="M13 24 20 6v18z" fill="#000" opacity=".14"/><rect x="12" y="24" width="5" height="50" fill="#000" opacity=".08"/></svg>',
+  brush: '<svg viewBox="0 0 40 72" aria-hidden="true"><rect x="16" y="36" width="8" height="38" rx="4" fill="#C98B4F"/><rect x="16" y="36" width="3" height="38" fill="#000" opacity=".1"/><rect x="14" y="25" width="12" height="13" rx="2" fill="#B9C0C8"/><path d="M14 30h12" stroke="#8E959E" stroke-width="1.2"/><path d="M14 26c0-9 4-16 6-21 2 5 6 12 6 21z" fill="currentColor" stroke="rgba(0,0,0,.2)" stroke-width=".6"/><path d="M18 24c0-6 1-11 2-15" stroke="#fff" stroke-width="1.2" opacity=".35" fill="none"/></svg>',
+  spray: '<svg viewBox="0 0 40 72" aria-hidden="true"><rect x="10" y="25" width="20" height="49" rx="6" fill="#E9EDF2"/><rect x="10" y="36" width="20" height="24" fill="currentColor" stroke="rgba(0,0,0,.15)" stroke-width=".6"/><rect x="10" y="25" width="6" height="49" fill="#000" opacity=".07"/><rect x="15" y="16" width="10" height="10" rx="2.5" fill="#9AA3AE"/><rect x="18" y="11" width="4" height="6" rx="1" fill="#59606A"/><circle cx="12" cy="6" r="1.7" fill="currentColor"/><circle cx="20" cy="3" r="1.5" fill="currentColor"/><circle cx="28" cy="6" r="1.7" fill="currentColor"/><circle cx="16" cy="9" r="1.1" fill="currentColor"/><circle cx="24" cy="9" r="1.1" fill="currentColor"/></svg>',
+  rainbow: '<svg viewBox="0 0 40 72" aria-hidden="true"><defs><linearGradient id="drawRbw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF3B30"/><stop offset=".2" stop-color="#FF9500"/><stop offset=".4" stop-color="#FFCC00"/><stop offset=".6" stop-color="#34C759"/><stop offset=".8" stop-color="#0A84FF"/><stop offset="1" stop-color="#AF52DE"/></linearGradient></defs><rect x="13" y="22" width="14" height="52" rx="4" fill="url(#drawRbw)"/><path d="M15 22 18 11h4l3 11z" fill="#F3F4F7"/><path d="M18 11l1.2-6.5h1.6L22 11z" fill="#FF3B30"/><rect x="13" y="22" width="5" height="52" fill="#fff" opacity=".18"/></svg>',
+  rubber: '<svg viewBox="0 0 40 72" aria-hidden="true"><rect x="10" y="14" width="20" height="60" rx="6" fill="#F48FB1"/><rect x="10" y="40" width="20" height="34" fill="#4FC3F7"/><path d="M10 40h20" stroke="#fff" stroke-width="1.5" opacity=".7"/><rect x="10" y="14" width="6" height="60" fill="#000" opacity=".07"/><rect x="14" y="17" width="4" height="18" rx="2" fill="#fff" opacity=".35"/></svg>' };
+ICON.undo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
+const DRAW = { colour: '#1E88E5', tool: 'pen', ink: 'pen', size: 1, ctx: null, pid: null, last: null, mid: null, t: 0, bw: 0, hue: 0, bristles: [], spray: 0, dirty: false, undo: [], grain: {} };
+const drawTool = () => TOOLS.find((x) => x.id === DRAW.tool) || TOOLS[0];
+const drawW = () => drawTool().w[DRAW.size] || 8;
+function drawToolsHtml() {
+  return `<div class="draw-tools" data-pen="${DRAW.tool}" style="--ink:${DRAW.colour}">
+    <div class="pens" role="group" aria-label="Pens">${TOOLS.map((x) => `<button type="button" data-tool="${x.id}" aria-pressed="${DRAW.tool === x.id}" aria-label="${x.name}">${TOOL_SVG[x.id]}</button>`).join('')}</div>
+    <div class="colours" role="group" aria-label="Colours">${COLOURS.map((c) => `<button type="button" data-colour="${c}" aria-pressed="${DRAW.colour === c && DRAW.tool !== 'rubber' && DRAW.tool !== 'rainbow'}" style="background:${c}" aria-label="Colour"></button>`).join('')}</div>
+    <div class="sizes" role="group" aria-label="How thick">${SIZE_DOT.map((d, i) => `<button type="button" data-size="${i}" aria-pressed="${DRAW.size === i}" aria-label="${SIZE_NAME[i]}"><i style="width:${d}px;height:${d}px"></i></button>`).join('')}</div>
+  </div>`;
+}
+// her picks show at once, without redrawing the page (her picture stays)
+function drawUi() {
+  const w = $('.draw-tools');
+  if (!w) return;
+  w.dataset.pen = DRAW.tool; w.style.setProperty('--ink', DRAW.colour);
+  w.querySelectorAll('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === DRAW.tool)));
+  w.querySelectorAll('[data-size]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.size === DRAW.size)));
+  w.querySelectorAll('[data-colour]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.colour === DRAW.colour && DRAW.tool !== 'rubber' && DRAW.tool !== 'rainbow')));
+  const u = $('#kUndo'); if (u) u.disabled = !DRAW.undo.length;
+}
+function drawPick(d) {
+  if (d.tool && TOOLS.some((x) => x.id === d.tool)) { DRAW.tool = d.tool; if (d.tool !== 'rubber' && d.tool !== 'rainbow') DRAW.ink = d.tool; }
+  if (d.size != null && SIZE_DOT[+d.size]) DRAW.size = +d.size;
+  if (d.colour) { DRAW.colour = d.colour; if (DRAW.tool === 'rubber' || DRAW.tool === 'rainbow') DRAW.tool = DRAW.ink; }   // a colour picks her last pen back up
+  drawUi();
+}
+// crayon: her colour with tiny gaps, like wax on paper
+function crayonInk(ctx) {
+  if (DRAW.grain[DRAW.colour]) return DRAW.grain[DRAW.colour];
+  const c = document.createElement('canvas'); c.width = c.height = 48;
+  const g = c.getContext('2d');
+  g.fillStyle = DRAW.colour; g.fillRect(0, 0, 48, 48);
+  g.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 300; i++) g.fillRect(Math.floor(Math.random() * 48), Math.floor(Math.random() * 48), 1 + Math.floor(Math.random() * 2), 1 + Math.floor(Math.random() * 1.6));   // clean gaps, so going over it again keeps the grain
+  return (DRAW.grain[DRAW.colour] = ctx.createPattern(c, 'repeat'));
+}
+function drawInk(ctx) {
+  const t = DRAW.tool;
+  return t === 'rubber' ? '#FFFFFF' : t === 'rainbow' ? `hsl(${Math.round(DRAW.hue)}, 92%, 55%)` : t === 'crayon' ? crayonInk(ctx) : DRAW.colour;
+}
+function sprayAt(p, more) {
+  const ctx = DRAW.ctx, r = drawW(), n = Math.round(5 + r * 0.8 + (more || 0) * 0.5);
+  ctx.save(); ctx.fillStyle = DRAW.colour;
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, d = r * Math.sqrt(Math.random()) * (0.35 + 0.65 * Math.random()), z = 0.7 + Math.random() * 1.2;
+    ctx.globalAlpha = 0.45 + Math.random() * 0.55;
+    ctx.fillRect(p[0] + Math.cos(a) * d - z / 2, p[1] + Math.sin(a) * d - z / 2, z, z);
+  }
+  ctx.restore();
+}
+function drawDot(p) {
+  const ctx = DRAW.ctx, w = drawW();
+  if (DRAW.tool === 'spray') { sprayAt(p, 0); return; }
+  ctx.save(); ctx.fillStyle = drawInk(ctx);
+  ctx.beginPath(); ctx.arc(p[0], p[1], DRAW.tool === 'brush' ? w * 0.42 : w / 2, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+// one smooth piece of her line: a curve through the middles of her finger's points
+function drawTo(p, t) {
+  const ctx = DRAW.ctx, a = DRAW.last, d = Math.hypot(p[0] - a[0], p[1] - a[1]);
+  if (d < 0.7) return;
+  const m = [(a[0] + p[0]) / 2, (a[1] + p[1]) / 2], w = drawW(), tool = DRAW.tool;
+  if (tool === 'spray') sprayAt(p, d);
+  else {
+    ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (tool === 'rainbow') DRAW.hue = (DRAW.hue + d * 0.9) % 360;
+    if (tool === 'brush') {      // a paintbrush: thick when slow, thinner when quick, laid down by its bristles (each a shade of her colour)
+      const v = d / Math.max(1, t - DRAW.t), want = w * Math.max(0.38, Math.min(1, 1.12 - v * 0.33));
+      DRAW.bw += (want - DRAW.bw) * 0.3;
+      const nx = -(p[1] - a[1]) / d, ny = (p[0] - a[0]) / d, s0 = DRAW.mid, td = Math.hypot(a[0] - s0[0], a[1] - s0[1]);
+      const ux = td ? (a[0] - s0[0]) / td : 0, uy = td ? (a[1] - s0[1]) / td : 0;   // each piece starts a hair's breadth back, so the pieces meet without a seam
+      ctx.lineWidth = Math.max(1.5, DRAW.bw * 0.3); ctx.lineCap = 'butt';
+      for (const h of DRAW.bristles) {
+        const ox = nx * h.o * DRAW.bw, oy = ny * h.o * DRAW.bw;
+        ctx.strokeStyle = h.c;
+        ctx.beginPath(); ctx.moveTo(s0[0] + ox - ux * 1.2, s0[1] + oy - uy * 1.2); ctx.lineTo(s0[0] + ox, s0[1] + oy); ctx.quadraticCurveTo(a[0] + ox, a[1] + oy, m[0] + ox, m[1] + oy); ctx.stroke();
+      }
+    } else {
+      ctx.lineWidth = w; ctx.strokeStyle = drawInk(ctx);
+      ctx.beginPath(); ctx.moveTo(DRAW.mid[0], DRAW.mid[1]); ctx.quadraticCurveTo(a[0], a[1], m[0], m[1]); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  DRAW.last = p; DRAW.mid = m; DRAW.t = t;
+}
+// the last little piece, right up to where her finger lifted
+function drawEnd() {
+  const ctx = DRAW.ctx, a = DRAW.mid, b = DRAW.last, d = a && b ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0;
+  if (!ctx || !a || !b || DRAW.tool === 'spray' || d < 0.5) return;
+  ctx.save(); ctx.lineCap = 'round';
+  if (DRAW.tool === 'brush') {
+    const nx = -(b[1] - a[1]) / d, ny = (b[0] - a[0]) / d;
+    ctx.lineWidth = Math.max(1.5, DRAW.bw * 0.3);
+    for (const h of DRAW.bristles) { ctx.strokeStyle = h.c; ctx.beginPath(); ctx.moveTo(a[0] + nx * h.o * DRAW.bw, a[1] + ny * h.o * DRAW.bw); ctx.lineTo(b[0] + nx * h.o * DRAW.bw, b[1] + ny * h.o * DRAW.bw); ctx.stroke(); }
+  } else { ctx.lineWidth = drawW(); ctx.strokeStyle = drawInk(ctx); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+  ctx.restore();
+}
+// the paintbrush's bristles: side by side across the brush, each a slightly lighter or darker shade of her colour
+function brushHairs() {
+  const n = parseInt(DRAW.colour.slice(1), 16), rgb = [n >> 16 & 255, n >> 8 & 255, n & 255];
+  return [-0.36, -0.22, -0.08, 0.06, 0.2, 0.34].map((o, i) => {
+    const k = [-0.14, 0.05, -0.04, 0.09, -0.1, 0.02][i] + (Math.random() - 0.5) * 0.04;
+    const c = rgb.map((x) => Math.round(k < 0 ? x * (1 + k) : x + (255 - x) * k));
+    return { o: o + (Math.random() - 0.5) * 0.03, c: `rgb(${c.join(',')})` };
+  });
+}
+// Undo: up to 8 steps back, Start again included
+function drawSave() {
+  const cv = $('#pad');
+  if (!cv || !DRAW.ctx) return;
+  try { DRAW.undo.push({ img: DRAW.ctx.getImageData(0, 0, cv.width, cv.height), dirty: DRAW.dirty }); } catch { return; }
+  if (DRAW.undo.length > 8) DRAW.undo.shift();
+  const u = $('#kUndo'); if (u) u.disabled = false;
+}
+function drawUndo() {
+  const s2 = DRAW.undo.pop(), cv = $('#pad');
+  if (s2 && cv && DRAW.ctx && s2.img.width === cv.width && s2.img.height === cv.height) { DRAW.ctx.putImageData(s2.img, 0, 0); DRAW.dirty = s2.dirty; }
+  drawUi();
+}
 function setupDraw() {
   const cv = $('#pad');
   if (!cv) return;
@@ -2221,12 +2589,28 @@ function setupDraw() {
   const ctx = cv.getContext('2d');
   ctx.scale(dpr, dpr); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, r.width, r.height);
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  Object.assign(DRAW, { ctx, pid: null, last: null, dirty: false });
+  Object.assign(DRAW, { ctx, pid: null, last: null, dirty: false, undo: [], grain: {} });
+  drawUi();
   const pos = (e) => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
-  const line = (a, b2) => { ctx.strokeStyle = DRAW.colour; ctx.lineWidth = DRAW.colour === '#FFFFFF' ? 28 : 9; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b2[0], b2[1]); ctx.stroke(); };
-  cv.addEventListener('pointerdown', (e) => { if (DRAW.pid != null) return; e.preventDefault(); DRAW.pid = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch {} DRAW.last = pos(e); line(DRAW.last, [DRAW.last[0] + 0.1, DRAW.last[1]]); DRAW.dirty = true; });
-  cv.addEventListener('pointermove', (e) => { if (e.pointerId !== DRAW.pid) return; const p2 = pos(e); line(DRAW.last, p2); DRAW.last = p2; K.lastTouch = Date.now(); });
-  const end = (e) => { if (e.pointerId === DRAW.pid) DRAW.pid = null; };
+  const spraying = () => { if (DRAW.pid == null || DRAW.tool !== 'spray') return; sprayAt(DRAW.last, 0); DRAW.spray = requestAnimationFrame(spraying); };   // held still, the spray builds up
+  cv.addEventListener('pointerdown', (e) => {
+    if (DRAW.pid != null) return;
+    e.preventDefault();
+    DRAW.pid = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch {}
+    drawSave();
+    const p = pos(e);
+    Object.assign(DRAW, { last: p, mid: p, t: e.timeStamp, bw: drawW() * 0.85, bristles: brushHairs() });
+    drawDot(p);
+    DRAW.dirty = true; K.lastTouch = Date.now();
+    if (DRAW.tool === 'spray') { cancelAnimationFrame(DRAW.spray); DRAW.spray = requestAnimationFrame(spraying); }
+  });
+  cv.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== DRAW.pid) return;
+    const evs = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
+    for (const ev of evs.length ? evs : [e]) drawTo(pos(ev), ev.timeStamp || e.timeStamp);
+    K.lastTouch = Date.now();
+  });
+  const end = (e) => { if (e.pointerId === DRAW.pid) { drawEnd(); DRAW.pid = null; cancelAnimationFrame(DRAW.spray); } };
   cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
 }
 // Turning the phone: the paper changes shape, and her picture is kept (fitted and centred)
@@ -2243,10 +2627,11 @@ function sizePad() {
   ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
   ctx.drawImage(old, (w - old.width * k) / 2, (h - old.height * k) / 2, old.width * k, old.height * k);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-  DRAW.ctx = ctx; DRAW.pid = null;
+  Object.assign(DRAW, { ctx, pid: null, undo: [], grain: {} });     // the old steps no longer fit the new paper
+  drawUi();
 }
 window.addEventListener('resize', () => { if (K.room === 'draw') { clearTimeout(K.padT); K.padT = setTimeout(sizePad, 200); } });
-function clearPad() { const cv = $('#pad'); if (!cv || !DRAW.ctx) return; DRAW.ctx.fillStyle = '#FFFFFF'; DRAW.ctx.fillRect(0, 0, cv.width, cv.height); DRAW.dirty = false; }
+function clearPad() { const cv = $('#pad'); if (!cv || !DRAW.ctx) return; drawSave(); DRAW.ctx.save(); DRAW.ctx.setTransform(1, 0, 0, 1, 0, 0); DRAW.ctx.fillStyle = '#FFFFFF'; DRAW.ctx.fillRect(0, 0, cv.width, cv.height); DRAW.ctx.restore(); DRAW.dirty = false; }
 async function sendDrawing(btn) {
   const cv = $('#pad');
   if (!cv || !DRAW.dirty) { wiggleEl(btn); return; }
@@ -2254,9 +2639,11 @@ async function sendDrawing(btn) {
   btn.disabled = true;
   const eid = rid(10), now = Date.now();
   try {
-    const blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+    let blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+    if (blob && blob.size > 1.6e6) blob = await new Promise((r) => cv.toBlob(r, 'image/jpeg', 0.9));   // lots of crayon and spray: still under ntfy's 2 MB
+    const mime = (blob && blob.type) || 'image/png';
     const sealed = await seal(new Uint8Array(await blob.arrayBuffer()));
-    await tryHard(async () => ntfy(TD(), { filename: 'd.bin', message: await sealText({ t: 'draw', eid, from: 'child', mime: 'image/png' }) }, sealed));
+    await tryHard(async () => ntfy(TD(), { filename: 'd.bin', message: await sealText({ t: 'draw', eid, from: 'child', mime }) }, sealed));
     const actions = await replyActions(eid);
     await tryHard(() => ntfy(TA(), { title: 'A drawing for you', tags: 'art', p: 3, click: `${APP}#e=${eid}&w=draw`, actions }, 'Tap to see it in Walkie.'));
     logEvent({ id: eid, ts: now, type: 'draw' });
@@ -2291,6 +2678,7 @@ async function loadGames() {
     put('games', j); S.games = C.gameList(j, APP);
     if (K.room === 'games') renderRoom();
     renderKid();
+    if (!isKid() && S.view === 'games') renderView();
   } catch {}
 }
 const gmc = () => (C.gmCfg ? C.gmCfg(cfg()) : { on: false, m: 30 });
@@ -2627,6 +3015,13 @@ function muAdopt(st) {
   if (NZ.on && !NZ.silent) stopNoise(3);
 }
 // Pause, play, skip and stop, wherever the music is: her phone's own player, or the speaker through Spotify
+// Her own Stop (her music page or her small record): her music goes, and one message tells your phones, so your strips
+// go too (Spotify only says "paused"). On a day her messages are used up, your strips put it away after 10 minutes anyway.
+function muStopMine() {
+  const had = !!(MU.ctx || MU.out || MU.want);
+  muStop();
+  if (had && S.me && spend(1)) sealText({ t: 'mstop', by: S.me.id, at: Date.now() }).then((b) => ntfy(TD(), {}, b)).catch(() => refund(1));
+}
 async function muCtl(a) {
   if (a === 'stop') { muStop(); return; }
   if (!MU.ctx) return;
@@ -2696,7 +3091,8 @@ async function muFade() {
 function muChanged() {
   if (K.room === 'music') {
     const row = $('#muTop .mu-covers'), x = row ? row.scrollLeft : 0;     // her row of playlists keeps its place
-    setHtml($('#muPickTop'), playOnHtml()); setHtml($('#muDevs'), devsHtml()); setHtml($('#muTop'), musicHtml()); setHtml($('#muLow'), musicLowerHtml());
+    setHtml($('#muPickTop'), playOnHtml()); setHtml($('#muDevs'), devsHtml()); setHtml($('#muTop'), musicHtml()); setHtml($('#muNow'), musicNowHtml()); setHtml($('#muLow'), musicLowerHtml());
+    paintTime();
     const row2 = $('#muTop .mu-covers'); if (row2 && row2 !== row) row2.scrollLeft = x;
     renderTracks();
   }
@@ -2736,7 +3132,7 @@ async function muPoll() {
   }
   MU.out.vol = !!dev.supports_volume; MU.out.v = +dev.volume_percent || MU.out.v;
   const it = j.item || null;
-  MU.rstate = { is_playing: !!j.is_playing, vol: +dev.volume_percent || 0, pos: +j.progress_ms || 0, posAt: Date.now(),
+  MU.rstate = { is_playing: !!j.is_playing, vol: +dev.volume_percent || 0, pos: +j.progress_ms || 0, posAt: Date.now(), shuffle: !!j.shuffle_state, repeat: String(j.repeat_state || 'off'),
     item: it ? { uri: String(it.uri || ''), linked_from: it.linked_from ? { uri: String(it.linked_from.uri || '') } : null, name: String(it.name || '').slice(0, 80), duration_ms: +it.duration_ms || 0, album: { images: ((it.album && it.album.images) || []).slice(0, 4) } } : null };
   const c = ctxOf(j.context && j.context.uri);
   if (!fresh && c && c.id !== MU.ctx) { MU.ctx = c.id; MU.ctxK = c.k; MU.adopted = !muList().some((y) => y.id === c.id); }
@@ -2794,26 +3190,124 @@ function devsHtml() {
   if (MU.devs && !MU.devs.length && !o) tiles += '<p class="devs-none">Nothing else found. Speakers, TVs and computers show here while they’re signed in to her Spotify. A Chromecast shows only while it’s already playing her Spotify.</p>';
   return `<div class="devs" role="group" aria-label="Play on">${tiles}</div>`;
 }
+// Her playlists: square covers with their names, in a row to swipe
 function musicHtml() {
-  const playing = muPlaying(), tr = muTrack();
+  const playing = muPlaying();
   const cards = muList().map((x) => {
     const m = S.muMeta[x.id] || {}, on = (MU.ctx === x.id && playing) || MU.want === x.id;
-    return `<button class="story-card music-card${on ? ' playing' : ''}${m.bad ? ' bad' : ''}" type="button" data-music="${x.id}" aria-label="${esc(m.n || 'Music')}">
-      ${m.img ? `<img src="${esc(m.img)}" alt="">` : '<span class="pic" aria-hidden="true">🎵</span>'}${MU.want === x.id ? '<span class="spinner"></span>' : ''}${m.bad ? '<span class="glock" aria-hidden="true">⚠️</span>' : ''}</button>`;
+    return `<button class="music-card${on ? ' playing' : ''}${MU.ctx === x.id ? ' cur' : ''}${m.bad ? ' bad' : ''}" type="button" data-music="${x.id}" aria-label="${esc(m.n || 'Music')}">
+      <span class="cv">${m.img ? `<img src="${esc(m.img)}" alt="">` : '<span class="pic" aria-hidden="true">🎵</span>'}${MU.want === x.id ? '<span class="spinner"></span>' : ''}${m.bad ? '<span class="glock" aria-hidden="true">⚠️</span>' : ''}</span>
+      <span class="cap">${esc(m.n || (x.k === 'album' ? 'Album' : 'Playlist'))}</span></button>`;
   }).join('');
-  const art = muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '';
-  const bar = MU.ctx ? `<div class="mubar"><span class="art">${art ? `<img src="${esc(art)}" alt="">` : '🎵'}</span>
-    <button type="button" data-act="mu-prev" aria-label="Back a song">⏮</button>
-    <button type="button" class="big-go" data-act="mu-toggle" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
-    <button type="button" data-act="mu-next" aria-label="Next song">⏭</button></div>` : '';
-  return `<div class="shelf mu-covers" role="group" aria-label="Her music">${cards}</div>${bar}`;
+  return `<div class="shelf mu-covers" role="group" aria-label="Her playlists">${cards}</div>`;
 }
-// Under her songs: how loud, Play on, and a warning if Spotify isn't working
+ICON.shuffle = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5h4v4"/><path d="M3.5 20.5 20.5 3.5"/><path d="M20.5 16.5v4h-4"/><path d="m14.8 14.8 5.7 5.7"/><path d="M3.5 3.5 9 9"/></svg>';
+ICON.repeat = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2.5 3.5 3.5L17 9.5"/><path d="M3.5 11.5V10a4 4 0 0 1 4-4h13"/><path d="m7 21.5-3.5-3.5L7 14.5"/><path d="M20.5 12.5V14a4 4 0 0 1-4 4h-13"/></svg>';
+// The song playing: a big record turning, its name, a line to slide along the song, and her buttons
+function musicNowHtml() {
+  if (!MU.ctx) return `<section class="mnow empty"><div class="mrec-wrap"><div class="mrec"><span class="lbl"><span aria-hidden="true">🎵</span></span></div></div>
+    <p class="mpick"><span class="up" aria-hidden="true">☝️</span>Pick a playlist</p></section>`;
+  const playing = muPlaying(), tr = muTrack(), art = muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '';
+  const name = tr ? String(tr.name || '') : '', pl = (S.muMeta[MU.ctx] || {}).n || '';
+  const shuf = muShuffle(), rep = muRepeat();
+  return `<section class="mnow${playing ? ' on' : ''}">
+    <div class="mrec-wrap">${art ? `<img class="mglow" src="${esc(art)}" alt="">` : ''}<div class="mrec${playing ? ' spin' : ''}"><span class="lbl">${art ? `<img src="${esc(art)}" alt="">` : '<span aria-hidden="true">🎵</span>'}</span></div></div>
+    <div class="mtitle">${esc(name || pl || 'Music')}</div>
+    <div class="msub">${esc([name ? pl : '', MU.out ? `on ${MU.out.name}` : ''].filter(Boolean).join(' · '))}</div>
+    <div class="mtime"><span class="num" id="muT0">0:00</span><div class="mbar" id="muBar" role="slider" aria-label="Where in the song" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i class="mfill"></i><b class="mknob"></b></div><span class="num" id="muT1"></span></div>
+    <div class="mubar">
+      <button type="button" class="mside${shuf ? ' lit' : ''}" data-act="mu-shuffle" aria-pressed="${shuf}" aria-label="Shuffle">${ICON.shuffle}</button>
+      <button type="button" class="mstep" data-act="mu-prev" aria-label="Back a song">${ICON.prev}</button>
+      <button type="button" class="big-go" data-act="mu-toggle" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
+      <button type="button" class="mstep" data-act="mu-next" aria-label="Next song">${ICON.next}</button>
+      <button type="button" class="mside${rep ? ' lit' : ''}" data-act="mu-repeat" aria-pressed="${rep}" aria-label="Play this song again and again">${ICON.repeat}${rep ? '<b class="one">1</b>' : ''}</button>
+    </div></section>`;
+}
+// At the bottom: how loud, and Stop (away from play and pause), and a warning if Spotify isn't working
 function musicLowerHtml() {
   const lvl = muLevel(), vol = !MU.out || MU.out.vol;
-  return `${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : ''}
-    ${MU.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}`;
+  return `<div class="mlow">${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : '<span></span>'}
+    ${MU.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}
+    ${MU.ctx ? `<button type="button" class="mstop" data-act="mu-stop" aria-label="Stop the music">${ICON.stop}<span>Stop</span></button>` : ''}</div>`;
 }
+// Where in the song, from Spotify's last word and the time since: [now, length] in ms
+function muPos() {
+  if (MU.out) {
+    const r = MU.rstate, d = r && r.item ? +r.item.duration_ms || 0 : 0;
+    if (!d) return null;
+    return [Math.min(d, Math.max(0, (r.pos || 0) + (r.is_playing ? Date.now() - (r.posAt || Date.now()) : 0))), d];
+  }
+  const st = MU.state, t = st && st.track_window && st.track_window.current_track;
+  const d = (st && +st.duration) || (t && +t.duration_ms) || 0;
+  if (!t || !d) return null;
+  return [Math.min(d, Math.max(0, (+st.position || 0) + (st.paused ? 0 : Date.now() - (MU.stateAt || Date.now())))), d];
+}
+const muShuffle = () => (MU.shufOver != null && Date.now() - MU.shufAt < 5000 ? MU.shufOver : MU.out ? !!(MU.rstate && MU.rstate.shuffle) : !!(MU.state && MU.state.shuffle));
+const muRepeat = () => (MU.repOver != null && Date.now() - MU.repAt < 5000 ? MU.repOver : MU.out ? !!(MU.rstate && MU.rstate.repeat === 'track') : !!(MU.state && MU.state.repeat_mode === 2));
+// Shuffle and repeat-this-song, on her phone or on a speaker
+async function muMode(kind) {
+  const dev = MU.out ? MU.out.id : MU.device;
+  if (!dev || !MU.ctx) return;
+  K.lastTouch = Date.now();
+  if (kind === 'shuffle') {
+    const on = !muShuffle(); MU.shufOver = on; MU.shufAt = Date.now(); muChanged();
+    try { await spApi('PUT', `/me/player/shuffle?state=${on}&device_id=${encodeURIComponent(dev)}`); setTimeout(() => { if (K.room === 'music') muTracksLoad(true); }, 1200); }
+    catch { MU.shufOver = null; muChanged(); }
+  } else {
+    const on = !muRepeat(); MU.repOver = on; MU.repAt = Date.now(); muChanged();
+    try { await spApi('PUT', `/me/player/repeat?state=${on ? 'track' : 'off'}&device_id=${encodeURIComponent(dev)}`); }
+    catch { MU.repOver = null; muChanged(); }
+  }
+  if (MU.out) muPollSoon(1500);
+}
+// Sliding along the song
+async function muSeek(ms) {
+  ms = Math.max(0, Math.round(ms));
+  K.lastTouch = Date.now();
+  if (MU.out) {
+    MU.rstate = Object.assign({}, MU.rstate, { pos: ms, posAt: Date.now() });
+    spApi('PUT', `/me/player/seek?position_ms=${ms}&device_id=${encodeURIComponent(MU.out.id)}`).catch(() => {});
+    muPollSoon(1500);
+  } else if (MU.player) {
+    if (MU.state) { MU.state = Object.assign({}, MU.state, { position: ms }); MU.stateAt = Date.now(); }
+    MU.player.seek(ms).catch(() => {});
+  }
+  paintTime();
+}
+const TM = { drag: null, pid: null };
+function paintTime() {
+  const bar = $('#muBar');
+  if (!bar) return;
+  const pd = muPos(), d = pd ? pd[1] : 0, p = TM.drag != null ? TM.drag : pd ? pd[0] : 0, f = d ? Math.min(1, p / d) : 0;
+  bar.style.setProperty('--f', f.toFixed(4));
+  bar.setAttribute('aria-valuenow', String(Math.round(f * 100)));
+  bar.classList.toggle('drag', TM.drag != null);
+  const t0 = $('#muT0'), t1 = $('#muT1');
+  if (t0) t0.textContent = durTxt(p / 1000);
+  if (t1) t1.textContent = d ? `-${durTxt(Math.max(0, d - p) / 1000)}` : '';
+}
+setInterval(() => { if (K.room === 'music' && document.visibilityState === 'visible') paintTime(); }, 250);
+function tmAt(e, bar) {
+  const pd = muPos(), r = bar.getBoundingClientRect();
+  if (!pd) return;
+  TM.drag = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * pd[1];
+  K.lastTouch = Date.now();
+  paintTime();
+}
+$('#kRoom').addEventListener('pointerdown', (e) => {
+  const bar = e.target.closest('#muBar');
+  if (!bar || !muPos()) return;
+  e.preventDefault();
+  TM.pid = e.pointerId;
+  try { bar.setPointerCapture(e.pointerId); } catch {}
+  tmAt(e, bar);
+});
+$('#kRoom').addEventListener('pointermove', (e) => { if (TM.pid === e.pointerId && TM.drag != null) { const bar = $('#muBar'); if (bar) tmAt(e, bar); } });
+['pointerup', 'pointercancel'].forEach((t) => $('#kRoom').addEventListener(t, (e) => {
+  if (TM.pid !== e.pointerId) return;
+  const ms = TM.drag; TM.pid = null; TM.drag = null;
+  if (ms != null && t === 'pointerup') muSeek(ms); else paintTime();
+}));
 
 // Her songs: big covers to swipe through under the play buttons. Tap one and it plays from there.
 // The whole list when her Spotify account owns or collaborates on the playlist (or it's an album: Spotify's rule for
@@ -2880,6 +3374,8 @@ function renderTracks() {
   const box = $('#muTracks');
   if (!box) return;
   const id = MU.ctx, L = id && TL.lists[id];
+  const sec = box.closest('.msongs');
+  if (sec) sec.hidden = !/^[A-Za-z0-9]{22}$/.test(id || '');
   if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !musicOn()) { if (box.dataset.k) { box.innerHTML = ''; box.dataset.k = ''; } return; }
   if (!L) {
     if (!TL.busy && !(TL.fail && TL.fail.id === id && Date.now() - TL.fail.at < 30e3)) muTracksLoad();
@@ -2918,7 +3414,7 @@ function renderTracks() {
 function renderMini() {
   const el = $('#kMini'), pn = $('#kMiniPanel');
   if (!el) return;
-  const show = isKid() && !!MU.ctx && musicOn() && K.room !== 'music' && !K.light && !K.idle;
+  const show = isKid() && !!MU.ctx && musicOn() && K.room !== 'music' && K.room !== 'draw' && !K.light && !K.idle;
   if (!show) { el.hidden = true; pn.hidden = true; K.miniOpen = false; return; }
   const tr = muTrack(), art = muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '', playing = muPlaying();
   const pic = art ? `<img src="${esc(art)}" alt="">` : '<span aria-hidden="true">🎵</span>';
@@ -3098,7 +3594,7 @@ function renderSub() {
   }
   const hint = `Hold the mic to talk to ${kidName() || 'her'}`;
   if ($('#holdHint').textContent !== hint) $('#holdHint').textContent = hint;
-  el.innerHTML = `<span class="dot${LIVE.ok ? ' ok' : ''}" aria-hidden="true"></span><span>${esc(kidPhone())} · ${esc(txt)}</span><span class="vh">${LIVE.ok ? 'Connected' : 'Reconnecting'}</span>`;
+  el.innerHTML = `<span class="dot${LIVE.ok ? ' ok' : ''}" aria-hidden="true"></span><span class="st"><span class="kp">${esc(kidPhone())} · </span>${esc(txt)}</span><span class="vh">${LIVE.ok ? 'Connected' : 'Reconnecting'}</span>`;
 }
 
 function renderNotices() {
@@ -3136,7 +3632,7 @@ function msgHtml(it, showWho) {
     return `<p class="line num${it.kind === 'quiet' || it.kind === 'away' ? ' warn' : ''}" data-eid="${esc(it.eid)}">${L.e} ${esc(L.t)} · ${t}</p>`;
   }
   const kid = it.from === 'child', mine = it.from === S.me.id;
-  const side = kid ? '' : mine ? ' mine' : ' parent';
+  const side = kid ? ' kid' : mine ? ' mine' : ' parent';
   const who = showWho ? `<span class="who${kid ? ' kid' : ''}">${esc(senderName(it.from))}</span>` : '';
   let st = '';
   if (it.st === 'sending') st = ' · Sending…';
@@ -3170,9 +3666,16 @@ function threadHtml() {
     return `<div class="empty"><h2>All quiet</h2><p>When she talks or taps a picture, it appears here and on your ntfy notifications. Messages stay for 12 hours, voice for 3.</p></div>`;
   }
   let html = '', lastDay = null, prev = null, prevTs = 0;
-  for (const it of list) {
+  for (let i = 0; i < list.length; i++) {
+    const it = list[i], nx = list[i + 1];
     const d = dayKey(it.ts);
     if (d !== lastDay) { html += `<h2 class="day">${esc(dayWord(it.ts))}</h2>`; lastDay = d; prev = null; }
+    // her screen going and coming back fold into one quiet line, so her messages stand out
+    if ((it.kind === 'away' || it.kind === 'quiet') && nx && nx.kind === 'back' && dayKey(nx.ts) === d) {
+      const a = time(it.ts), b = time(nx.ts);
+      html += `<p class="line fold num" data-eid="${esc(it.eid)}">${it.kind === 'away' ? '📵 Walkie was off her screen' : '⚠️ Walkie went quiet'} · ${a}${a === b ? '' : `–${b}`}</p>`;
+      i++; prev = null; prevTs = nx.ts; continue;
+    }
     // the name goes on the first message of each run from the same person, like a group chat
     const line = isLine(it), showWho = !line && (it.from !== prev || it.ts - prevTs > 5 * MIN);
     html += msgHtml(it, showWho);
@@ -3188,11 +3691,12 @@ function paintProgress(eid, done) {
   box.innerHTML = waveHtml(it.pk, p);
 }
 function renderPlayButtons() {
-  document.querySelectorAll('[data-play]').forEach((b) => {
+  document.querySelectorAll('.play[data-play]').forEach((b) => {
     const it = itemById(b.dataset.play);
     if (!it) return;
     b.innerHTML = PLAYING.eid === it.eid ? ICON.pause : ICON.play;
   });
+  const nb = $('#pNow'); if (nb) { delete nb.dataset.h; renderDeck(); }
 }
 
 function nightLabel(n) {
@@ -3263,23 +3767,34 @@ function outLink(url) {
   return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
 }
 
-const VIEWS = ['talk', 'sleep', 'room'];
+const VIEWS = ['talk', 'sleep', 'room', 'games'];
+const MIC_BAR = false;      // release 12's mic bar (hold, slide left to cancel, up to lock): kept, switched off for the big talk button
+// Your pages, along the bottom: Talk, Sleep, her phone (by her name) and Games
 function renderTabs() {
-  const i = Math.max(0, VIEWS.indexOf(S.view));
-  document.querySelectorAll('#tabs [data-view]').forEach((b) => { b.setAttribute('aria-selected', String(b.dataset.view === S.view)); b.tabIndex = b.dataset.view === S.view ? 0 : -1; });
-  $('#tabs').style.setProperty('--i', String(i));
+  document.querySelectorAll('#pbar [data-view]').forEach((b) => { if (b.dataset.view === S.view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const k = kidName(), n = $('#pRoomName'), name = !k ? 'Her phone' : k.length <= 7 ? `${k}’s phone` : k;   // a long name on its own, so it fits
+  if (n && n.textContent !== name) n.textContent = name;
+  document.body.classList.toggle('ptalkview', S.view === 'talk');
+  const h = $('#appbar'); if (h) document.documentElement.style.setProperty('--hdr', `${h.offsetHeight}px`);
 }
 function renderView() {
   if (isKid() || !S.me) return;
   renderTabs();
   const v = $('#view');
+  if (!VIEWS.includes(S.view)) S.view = 'talk';
+  $('#pDeck').hidden = S.view !== 'talk';
   if (S.view === 'talk') {
     const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 160;
     v.className = 'thread';
     v.innerHTML = threadHtml(); delete v.dataset.h;
-    $('#composer').hidden = false;
+    $('#composer').hidden = !MIC_BAR;
+    renderDeck();
     if (nearBottom || renderView.first !== false) { renderView.first = false; window.scrollTo(0, document.body.scrollHeight); }
     loadDrawings();
+  } else if (S.view === 'games') {
+    const h = pGamesHtml();
+    if (v.className !== 'pgames' || v.dataset.h !== h) { v.className = 'pgames'; v.innerHTML = h; v.dataset.h = h; }
+    $('#composer').hidden = true;
   } else if (S.view === 'room') {
     const h = roomHtml();                       // only redraw when something changed, so taps and focus aren't lost
     const typing = v.className === 'roomview' && document.activeElement && document.activeElement.tagName === 'INPUT' && v.contains(document.activeElement);
@@ -3303,12 +3818,13 @@ let refreshQueued = false;
 function refresh() {
   if (refreshQueued) return;
   refreshQueued = true;
-  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); renderPMini(); if ((S.view === 'talk' && !REC.on) || (S.view === 'room' && !SR.on && !sheet.open)) renderView(); } });
+  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); renderPMini(); if ((S.view === 'talk' && !REC.on && !SWP.open && !SWP.el && $('#pMenu').hidden) || (S.view === 'room' && !SR.on && !sheet.open)) renderView(); else if (S.view === 'talk') renderDeck(); } });
 }
 
 // Parent hold-to-talk, Signal style: hold, slide left to cancel, slide up to keep recording hands-free
 const mic = $('#mic');
 mic.innerHTML = ICON.mic;
+$('#ptalk').innerHTML = ICON.mic;
 const PR = { on: false, locked: false, x0: 0, y0: 0, timer: 0, pid: null, starting: false };
 mic.addEventListener('pointerdown', async (e) => {
   e.preventDefault();
@@ -3363,8 +3879,157 @@ async function parentRecEnd(send) {
 }
 $('#recCancel').addEventListener('click', () => parentRecEnd(false));
 function renderQuickRow() {
-  $('#quickRow').innerHTML = Object.entries(QUICK).map(([k, q]) => `<button class="chip" type="button" data-quick="${k}"><span aria-hidden="true">${quickEmoji(k, S.me.id)}</span>${esc(q.t)}</button>`).join('');
+  $(MIC_BAR ? '#quickRow' : '#pQuick').innerHTML = Object.entries(QUICK).map(([k, q]) => `<button class="chip" type="button" data-quick="${k}"><span aria-hidden="true">${quickEmoji(k, S.me.id)}</span>${esc(q.t)}</button>`).join('');
 }
+
+// Your talk button, exactly like hers: hold it and talk, let go to send (it keeps listening half a second more).
+// A quick tap sends nothing. It's on every page, and on your games.
+const PT = { press: null, rec: false, timer: 0 };
+async function ptDown(e, btn) {
+  e.preventDefault();
+  if (PT.press || PT.rec || PR.on || PR.starting) return;
+  try { btn.setPointerCapture(e.pointerId); } catch {}
+  PT.press = { up: false, pid: e.pointerId, btn };
+  stopPlayback(); renderPlayButtons();
+  const ok = await micReady();
+  if (!PT.press) return;
+  if (!ok) { PT.press = null; toast('Walkie needs the microphone. Allow it when Chrome asks.'); return; }
+  if (PT.press.up || !recStart()) { PT.press = null; ptWiggle(btn); return; }
+  PT.rec = true;
+  document.body.classList.add('prec'); $('#pRecBar').hidden = false; $('#pRecTime').textContent = '0:00';
+  if (navigator.vibrate) try { navigator.vibrate(12); } catch {}
+  PT.timer = setInterval(() => {
+    const el = Date.now() - REC.t0;
+    document.body.style.setProperty('--plvl', REC.lvl.toFixed(2));
+    document.querySelectorAll('.ptalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = String(100 - Math.min(100, el / PARENT_MAX * 100)); });
+    $('#pRecTime').textContent = durTxt(el / 1000);
+    if (el >= PARENT_MAX) ptUp(null);
+  }, 90);
+}
+async function ptUp(e) {
+  if (!PT.press) return;
+  if (e && e.pointerId != null && PT.press.pid != null && e.pointerId !== PT.press.pid) return;   // another finger: ignore
+  PT.press.up = true;
+  if (!PT.rec) return;
+  clearInterval(PT.timer);
+  PT.rec = false;
+  const btn = PT.press.btn, held = Date.now() - REC.t0;
+  PT.press = null;
+  document.body.classList.remove('prec'); $('#pRecBar').hidden = true;
+  document.querySelectorAll('.ptalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = '100'; });
+  if (held < MIN_HOLD) { recCancel(); ptWiggle(btn); pumpAuto(); return; }
+  const rec = await recStop(REC_TAIL);     // half a second more, so your last word isn't clipped
+  if (rec && rec.blob.size) sendVoice(rec);
+  pumpAuto();
+}
+function ptWiggle(btn) {
+  if (btn) { btn.classList.remove('wiggle'); void btn.offsetWidth; btn.classList.add('wiggle'); setTimeout(() => btn.classList.remove('wiggle'), 600); }
+  toast('Hold the button while you talk');
+}
+document.addEventListener('pointerdown', (e) => { if (isKid() || !S.me) return; const b = e.target.closest('.ptalk'); if (b) ptDown(e, b); });
+['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => { if (PT.press) ptUp(e); }));
+document.addEventListener('contextmenu', (e) => { if (e.target.closest('.ptalk, .parent-wrap .msg')) e.preventDefault(); });
+
+// Above your talk button on the Talk page: her latest voice message you haven't heard, to play without scrolling
+function renderDeck() {
+  const box = $('#pNow');
+  if (!box || isKid()) return;
+  const live = (x) => x.kind === 'voice' && x.from === 'child' && !expired(x) && (x.att || CLIPS.has(x.eid));
+  const it = (PLAYING.eid && itemById(PLAYING.eid) && itemById(PLAYING.eid).from === 'child' ? itemById(PLAYING.eid) : null)
+    || [...S.items].reverse().find((x) => live(x) && !S.played[x.eid] && Date.now() - x.ts < 12 * HOUR);
+  const h = it ? `<button class="pnow" type="button" data-play="${esc(it.eid)}" aria-label="${PLAYING.eid === it.eid ? 'Pause' : 'Play'} ${esc(senderName('child'))}’s voice message">
+    <span class="pi">${PLAYING.eid === it.eid ? ICON.pause : ICON.play}</span>${esc(senderName('child'))} <small class="num">· ${durTxt(it.dur || 0)} · ${PLAYING.eid === it.eid ? 'playing' : esc(ago(it.ts))}</small></button>` : '';
+  setHtml(box, h);
+}
+// Swipe her message to the right: the quick replies come out from under it, to answer that message. Hold any message for more.
+const SWP = { el: null, x0: 0, y0: 0, pid: null, dx: 0, on: false, open: null, hold: 0 };
+function swClose() { if (SWP.open) { SWP.open.classList.remove('swiped'); SWP.open.style.setProperty('--sx', '0px'); SWP.open.style.setProperty('--so', '0'); SWP.open = null; setTimeout(refresh, 350); } }   // then catch up on anything that arrived meanwhile
+function swActs(m) {
+  let a = m.querySelector('.sw-acts');
+  if (!a) {
+    m.insertAdjacentHTML('beforeend', `<div class="sw-acts" role="group" aria-label="Answer this">${Object.keys(QUICK).map((k) => `<button type="button" data-qre="${k}" data-re="${esc(m.dataset.eid)}" aria-label="${esc(QUICK[k].t)}">${quickEmoji(k, S.me.id)}</button>`).join('')}</div>`);
+    a = m.querySelector('.sw-acts');
+  }
+  return a;
+}
+document.addEventListener('pointerdown', (e) => {
+  if (isKid() || !S.me || S.view !== 'talk' || e.target.closest('.ptalk, #pMenu, #pbar, .pdeck')) return;
+  if (SWP.open && !e.target.closest('.sw-acts')) { swClose(); SW.pid = e.pointerId; swallow(e); return; }   // a tap elsewhere just puts them back
+  const m = e.target.closest('#view .msg[data-eid]');
+  if (!m) return;
+  Object.assign(SWP, { el: m, x0: e.clientX, y0: e.clientY, pid: e.pointerId, dx: 0, on: false });
+  clearTimeout(SWP.hold);
+  SWP.hold = setTimeout(() => { if (SWP.el === m && !SWP.on) { const el = m; SWP.el = null; SW.pid = e.pointerId; openMsgMenu(el); } }, 480);
+}, true);
+document.addEventListener('pointermove', (e) => {
+  if (!SWP.el || e.pointerId !== SWP.pid) return;
+  const dx = e.clientX - SWP.x0, dy = e.clientY - SWP.y0;
+  if (!SWP.on) {
+    if (Math.abs(dx) > 8 || Math.abs(dy) > 8) clearTimeout(SWP.hold);
+    if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { SWP.el = null; return; }               // scrolling
+    if (dx > 12 && dx > Math.abs(dy) * 1.4 && SWP.el.classList.contains('kid')) { SWP.on = true; SWP.el.classList.add('dragging'); swActs(SWP.el); }
+    else return;
+  }
+  SWP.dx = Math.max(0, dx);
+  const x = SWP.dx < 150 ? SWP.dx : 150 + (SWP.dx - 150) * 0.25;
+  SWP.el.style.setProperty('--sx', `${x}px`); SWP.el.style.setProperty('--so', Math.min(1, SWP.dx / 110).toFixed(2));
+}, { passive: true });
+['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => {
+  if (!SWP.el || e.pointerId !== SWP.pid) return;
+  clearTimeout(SWP.hold);
+  const m = SWP.el; SWP.el = null;
+  if (!SWP.on) return;
+  m.classList.remove('dragging');
+  SW.clickUntil = Date.now() + 400;             // the swipe doesn't also press the play button under it
+  if (SWP.dx > 70) { SWP.open = m; m.classList.add('swiped'); m.style.setProperty('--sx', '156px'); m.style.setProperty('--so', '1'); if (navigator.vibrate) try { navigator.vibrate(8); } catch {} }
+  else { m.style.setProperty('--sx', '0px'); m.style.setProperty('--so', '0'); }
+}));
+// Holding a message: answer it, play it again, or see her drawing big
+function openMsgMenu(m) {
+  const it = itemById(m.dataset.eid);
+  if (!it || isLine(it)) return;
+  if (navigator.vibrate) try { navigator.vibrate(10); } catch {}
+  SW.clickUntil = Date.now() + 700;
+  const kid = it.from === 'child';
+  const reacts = kid ? `<div class="reacts" role="group" aria-label="Answer this">${Object.entries(QUICK).map(([k, q]) => `<button type="button" data-qre="${k}" data-re="${esc(it.eid)}"><span aria-hidden="true">${quickEmoji(k, S.me.id)}</span>${esc(q.t)}</button>`).join('')}</div>` : '';
+  const acts = [];
+  if (it.kind === 'voice' && !expired(it) && (it.att || CLIPS.has(it.eid))) acts.push(`<button type="button" data-play="${esc(it.eid)}" data-menu="1">${ICON.play}Play again</button>`);
+  if (it.kind === 'draw' && CLIPS.has(it.eid)) acts.push(`<button type="button" data-draw="${esc(it.eid)}" data-menu="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12s3.5-6.5 9-6.5S21 12 21 12s-3.5 6.5-9 6.5S3 12 3 12Z"/><circle cx="12" cy="12" r="2.8"/></svg>See it big, and save it</button>`);
+  if (!reacts && !acts.length) return;
+  const r = m.getBoundingClientRect(), menu = $('#pMenu');
+  m.classList.add('held');
+  menu.innerHTML = `<div class="card2" role="dialog" aria-label="${kid ? 'Answer her' : 'Message'}">${reacts}${acts.length ? `<div class="acts">${acts.join('')}</div>` : ''}</div>`;
+  menu.hidden = false;
+  const c = menu.querySelector('.card2'), h = c.offsetHeight, below = r.bottom + 10 + h < window.innerHeight - 110;
+  c.style.top = `${Math.max(12 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hdr')) || 0), below ? r.bottom + 10 : r.top - 10 - h)}px`;
+}
+function closeMsgMenu() { const menu = $('#pMenu'); if (menu.hidden) return; menu.hidden = true; menu.innerHTML = ''; document.querySelectorAll('.msg.held').forEach((x) => x.classList.remove('held')); setTimeout(refresh, 50); }
+$('#pMenu').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeMsgMenu(); });
+
+// Your games: the same as hers, full screen, as long as you like (nothing goes to her phone or the sleep log)
+function pGamesHtml() {
+  const cards = S.games.map((g) => (g.ready
+    ? `<button class="game-card" type="button" data-pgame="${esc(g.id)}" aria-label="${esc(g.name)}">${g.icon ? `<img src="${esc(g.icon)}" alt="">` : `<span class="emo" aria-hidden="true">${esc(g.emoji)}</span>`}<span class="nm">${esc(g.name)}</span></button>`
+    : `<div class="game-card soon" role="img" aria-label="${esc(g.name)}, coming soon"><span class="emo" aria-hidden="true">${esc(g.emoji)}</span><span class="nm">${esc(g.name)}</span><span class="glock" aria-hidden="true">🔒</span></div>`)).join('');
+  return `<h2>Games</h2><p class="small">Yours to play, for as long as you like. Nothing goes to her phone.</p><div class="games">${cards}</div>`;
+}
+function openPGame(id) {
+  const g = S.games.find((x) => x.id === id && x.ready);
+  if (!g) return;
+  const el = $('#pGame');
+  el.innerHTML = `<div class="pgame-top"><button class="icon-btn" type="button" data-act="pgame-close" aria-label="Close the game">${ICON.x}</button><b>${esc(g.name)}</b>
+    <div class="ptalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="ptalk" type="button" aria-label="Hold to talk to her, let go to send">${ICON.mic}</button></div></div>
+    <iframe src="${esc(g.url)}" title="${esc(g.name)}" sandbox="allow-scripts allow-same-origin allow-forms" allow="autoplay"></iframe>`;
+  el.hidden = false;
+  try { history.pushState({ pgame: 1 }, ''); } catch {}
+}
+function closePGame(fromHistory) {
+  const el = $('#pGame');
+  if (el.hidden) return;
+  el.hidden = true; el.innerHTML = '';
+  if (!fromHistory && history.state && history.state.pgame) try { history.back(); } catch {}
+}
+window.addEventListener('popstate', () => { if (!isKid()) closePGame(true); });
 
 /* ---------- Her phone, from yours: sounds, stories, countdown, routine ---------- */
 const SOUNDS = [
@@ -3491,26 +4156,51 @@ function nowMusic() {
     const c = ctxOf(st.context && st.context.uri), m = c ? meta(c.id) : {}, it = st.item;
     if (!it && !c) return null;
     const dev = (st.device && st.device.name) || '';
-    return { id: c ? c.id : '', n: m.n || '', song: it ? String(it.name || '') : '', art: (it && muArt(it)) || m.img || '', p: !st.is_playing, on: dev && dev !== 'Walkie' ? dev : '' };
+    return { id: c ? c.id : '', n: m.n || '', song: it ? String(it.name || '') : '', art: (it && muArt(it)) || m.img || '', p: !st.is_playing, on: dev && dev !== 'Walkie' ? dev : '', onType: (st.device && st.device.type) || '' };
   }
   const k = kidMusic();
   return k ? { id: k.id, n: k.n, song: '', art: k.art || meta(k.id).img || '', p: !!k.p, on: k.on || '' } : null;
 }
-// Your small player, under the header on every page: like hers, a turning record of the song playing
+// Your small record, exactly like hers: before the Walkie name at the top of every page, turning while her music plays,
+// with a pause mark when paused. Tap it for her buttons (cover, back, pause, next, stop); they tuck away after 8 seconds.
+const PM = { open: false, t: 0 };
 function renderPMini() {
-  const el = $('#pMini');
-  if (!el) return;
+  const el = $('#pRec'), pn = $('#pMiniPanel');
+  if (!el || !pn) return;
   const m = isKid() ? null : nowMusic();
-  if (!m) { el.hidden = true; return; }
-  const sub = m.song ? [m.n, m.p && 'Paused', m.on && `on ${m.on}`].filter(Boolean).join(' · ') : `${m.p ? 'Paused' : 'Playing'} ${m.on ? `on ${m.on}` : 'on her phone'}`;
-  setHtml(el, `<span class="rec${m.p ? '' : ' spin on'}" aria-hidden="true"><span class="disc">${m.art ? `<img src="${esc(m.art)}" alt="">` : '🎵'}</span>${m.p ? `<span class="badge">${ICON.pause}</span>` : ''}</span>
-    <div class="t"><b>${esc(m.song || m.n || 'Music')}</b><small>${esc(sub)}</small></div>
-    <button class="round" type="button" data-pm="prev" aria-label="Back a song" title="Back a song">${ICON.prev}</button>
-    <button class="round${m.p ? ' go' : ''}" type="button" data-pm="${m.p ? 'resume' : 'pause'}" aria-label="${m.p ? 'Play' : 'Pause'} her music" title="${m.p ? 'Play' : 'Pause'}">${m.p ? ICON.play : ICON.pause}</button>
-    <button class="round" type="button" data-pm="next" aria-label="Next song" title="Next song">${ICON.next}</button>
-    <button class="round" type="button" data-pm="stop" aria-label="Stop her music" title="Stop">${ICON.stop}</button>`);
+  if (!m) { el.hidden = true; pn.hidden = true; PM.open = false; clearTimeout(PM.t); return; }
+  const pic = m.art ? `<img src="${esc(m.art)}" alt="">` : '<span aria-hidden="true">🎵</span>';
+  setHtml(el, `<span class="disc">${pic}</span>${m.p ? `<span class="badge" aria-hidden="true">${ICON.pause}</span>` : ''}`);
+  el.classList.toggle('spin', !m.p);
+  el.classList.toggle('on', !m.p);
+  const what = [m.song, m.n].filter(Boolean).join(', ') || 'Her music';
+  el.setAttribute('aria-label', `${what}: ${m.p ? 'paused' : 'playing'} ${m.on ? `on ${m.on}` : 'on her phone'}. Tap for the music buttons.`);
+  el.setAttribute('aria-expanded', String(PM.open));
   el.hidden = false;
+  pn.hidden = !PM.open;
+  if (PM.open) {
+    pn.style.top = `${Math.round($('#appbar').getBoundingClientRect().bottom + 10)}px`;
+    setHtml(pn, `<span class="art">${pic}${m.on ? `<i>${devIcon(m.onType)}</i>` : ''}</span>
+      <button type="button" data-pm="prev" aria-label="Back a song">⏮</button>
+      <button type="button" class="go" data-pm="${m.p ? 'resume' : 'pause'}" aria-label="${m.p ? 'Play' : 'Pause'} her music">${m.p ? ICON.play : ICON.pause}</button>
+      <button type="button" data-pm="next" aria-label="Next song">⏭</button>
+      <button type="button" data-pm="stop" aria-label="Stop her music">${ICON.stop}</button>`);
+  }
 }
+function pmOpen(on) {
+  PM.open = on;
+  clearTimeout(PM.t);
+  if (on) PM.t = setTimeout(() => pmOpen(false), 8000);      // tucks itself away after 8 seconds
+  renderPMini();
+}
+$('#pRec').addEventListener('click', () => { pmOpen(!PM.open); if (PM.open && lvOn() && !LV.busy) lvPoll(); });
+// with the buttons out, a tap anywhere else only tucks them away (it doesn't also press what's underneath)
+document.addEventListener('pointerdown', (e) => {
+  if (isKid() || !PM.open || SW.pid === e.pointerId || e.target.closest('#pRec, #pMiniPanel')) return;
+  SW.pid = e.pointerId;
+  pmOpen(false);
+  swallow(e);
+}, true);
 setInterval(() => { if (S.me && !isKid() && document.visibilityState === 'visible') renderPMini(); }, 5000);
 // What you started from here, when this phone isn't signed in to her Spotify: applied to what your phone shows
 function pmApply(a, when) {
@@ -3722,7 +4412,7 @@ function openDrawing(eid) {
   if (!u) return;
   const it = itemById(eid);
   openSheet(head('Her drawing') + `<img src="${u}" alt="Her drawing" style="display:block;width:100%;border-radius:18px;margin-top:12px;background:#fff">
-    <div class="actions"><a class="btn primary" href="${u}" download="walkie-drawing-${new Date(it ? it.ts : Date.now()).toISOString().slice(0, 10)}.png">Save picture</a></div>`);
+    <div class="actions"><a class="btn primary" href="${u}" download="walkie-drawing-${new Date(it ? it.ts : Date.now()).toISOString().slice(0, 10)}.${it && it.mime === 'image/jpeg' ? 'jpg' : 'png'}">Save picture</a></div>`);
 }
 
 /* ---------- Themes ---------- */
@@ -4024,12 +4714,12 @@ document.addEventListener('click', async (e) => {
   if (d.trk) { muPlayAt(d.trk); return; }
   if (d.mini) {
     if (MU.player && !MU.out) MU.player.activateElement().catch(() => {});
-    muCtl(d.mini);
-    if (d.mini === 'stop') miniOpen(false); else miniOpen(true);    // the buttons stay out a little longer while she uses them
+    if (d.mini === 'stop') { muStopMine(); miniOpen(false); return; }
+    muCtl(d.mini); miniOpen(true);    // the buttons stay out a little longer while she uses them
     return;
   }
   // yours: pause, play, next and stop for her music
-  if (d.pm) { pmCtl(d.pm, t); return; }
+  if (d.pm) { if (t.closest('#pMiniPanel')) pmOpen(d.pm !== 'stop'); pmCtl(d.pm, t); return; }
   if (d.mplay) {
     const x = muList().find((y) => y.id === d.mplay);
     if (!x) return;
@@ -4058,7 +4748,7 @@ document.addEventListener('click', async (e) => {
   if (d.ksound) { K.ksound = d.ksound; S.set.lastSound = d.ksound; saveSet(); if (NZ.on && !NZ.silent) startNoise(d.ksound, K.kmins != null ? K.kmins : S.set.lastMins != null ? S.set.lastMins : 30); else renderRoom(); return; }
   if (d.kmins != null) { K.kmins = +d.kmins; S.set.lastMins = +d.kmins; saveSet(); if (NZ.on && !NZ.silent) startNoise(NZ.kind, +d.kmins); else renderRoom(); return; }
   if (d.klevel != null) { setLevel(+d.klevel); renderRoom(); return; }
-  if (d.colour) { DRAW.colour = d.colour; t.parentElement.querySelectorAll('[data-colour]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
+  if (d.colour || d.tool || d.size != null) { drawPick(d); return; }
   // her phone, from yours
   if (d.ssel) { S.ui.sound = d.ssel; put('ui', { sound: S.ui.sound, mins: S.ui.mins }); t.parentElement.querySelectorAll('[data-ssel]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
   if (d.smins != null) { S.ui.mins = +d.smins; put('ui', { sound: S.ui.sound, mins: S.ui.mins }); t.parentElement.querySelectorAll('[data-smins]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
@@ -4080,7 +4770,7 @@ document.addEventListener('click', async (e) => {
     t.parentElement.querySelectorAll('[data-rtpick]').forEach((b) => b.setAttribute('aria-pressed', String(cur.includes(b.dataset.rtpick))));
     return;
   }
-  if (d.draw) { openDrawing(d.draw); return; }
+  if (d.draw) { if (d.menu) closeMsgMenu(); openDrawing(d.draw); return; }
   if (d.tile) {
     if (d.tile === 'sleep' || d.tile === 'wake') kidSleepTile(d.tile, t); else sendTile(d.tile, t);
     return;
@@ -4093,20 +4783,25 @@ document.addEventListener('click', async (e) => {
   }
   if (d.view) {
     if (REC.on || SR.on) { toast('Finish recording first'); return; }
+    swClose(); closeMsgMenu();
     S.view = d.view; renderView.first = true; renderView();
     if (d.view === 'sleep' && S.fam.s) loadLog();
+    if (d.view === 'games') loadGames();
     if (d.view !== 'talk') window.scrollTo(0, 0);
     return;
   }
   if (d.quick) { sendQuickParent(d.quick, t); return; }
+  if (d.qre) { const re = d.re; closeMsgMenu(); swClose(); sendQuickParent(d.qre, null, re); return; }
+  if (d.pgame) { openPGame(d.pgame); return; }
   if (d.play) {
     const it = itemById(d.play);
+    if (d.menu) closeMsgMenu();
     if (!it) return;
     if (PLAYING.eid === it.eid) { stopPlayback(); renderPlayButtons(); return; }
     try {
-      t.innerHTML = '<span class="spinner"></span>';
+      (t.querySelector('.pi') || t).innerHTML = '<span class="spinner"></span>';
       await playItem(it);
-      if (it.from === 'child' && !S.played[it.eid]) { S.played[it.eid] = 1; put('played', S.played); queueHeard(it.eid); t.closest('.voice').classList.remove('new'); }
+      if (it.from === 'child' && !S.played[it.eid]) { S.played[it.eid] = 1; put('played', S.played); queueHeard(it.eid); const vb = document.querySelector(`.msg[data-eid="${CSS.escape(it.eid)}"] .voice`); if (vb) vb.classList.remove('new'); }
     } catch (err) { toast(err.message === 'expired' ? 'This voice message has expired. ntfy keeps them for 3 hours.' : 'Couldn’t play it. Check your connection.'); }
     renderPlayButtons();
     return;
@@ -4150,6 +4845,9 @@ document.addEventListener('click', async (e) => {
       break;
     case 'mu-next': muCtl('next'); break;
     case 'mu-prev': muCtl('prev'); break;
+    case 'mu-stop': muStopMine(); break;
+    case 'mu-shuffle': muMode('shuffle'); break;
+    case 'mu-repeat': muMode('repeat'); break;
     case 'mu-pick':
       K.pickOpen = !K.pickOpen;
       if (K.pickOpen) muLoadDevs(); else muChanged();
@@ -4191,6 +4889,8 @@ document.addEventListener('click', async (e) => {
       else { K.binArmed = Date.now(); t.classList.add('armed'); setTimeout(() => t.classList.remove('armed'), 2500); }
       break;
     case 'k-send': sendDrawing(t); break;
+    case 'pgame-close': closePGame(); break;
+    case 'k-undo': drawUndo(); break;
     case 'remote-noise': remote({ t: 'noise', kind: soundSel(), mins: S.ui.mins }, t, `${soundName(soundSel())} playing on her phone`); break;
     case 'remote-stop': {     // stories, sounds and music; music straight away through Spotify too, when this phone is signed in to hers
       const dev = lvOn() && LV.st && LV.st.is_playing && LV.st.device && LV.st.device.id;
