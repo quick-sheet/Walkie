@@ -435,14 +435,17 @@
 
   /* ---------- Daily send budget ---------- */
   // ntfy.sh allows 250 messages a day per home connection, shared by every phone on the Wi-Fi.
-  // Her phone keeps to CAP_DAY by day, so the evening and night always have room. At night nothing is held back.
-  const CAP_DAY = 70;
-  function budget(state, now, cost, night, essential) {
+  // Her phone keeps to its daytime limit (70 unless a grown-up raises it), so the evening and night always have room.
+  // At night nothing is held back. Reports about what's on (`bg`) stop KEEP short of the limit, so her talking always has room.
+  const CAP_DAY = 70, CAPS = [70, 100, 150, 200], KEEP = 30;
+  const msgCap = (v) => (CAPS.includes(+v) ? +v : CAP_DAY);
+  function budget(state, now, cost, night, essential, cap, bg) {
     const day = new Date(now).toISOString().slice(0, 10);   // ntfy resets at midnight UTC
     const s = state && state.day === day ? { day, n: state.n } : { day, n: 0 };
-    const ok = !!(essential || night || s.n + cost <= CAP_DAY);
+    const c = msgCap(cap), lim = c - (bg ? KEEP : 0);
+    const ok = !!(essential || night || s.n + cost <= lim);
     if (ok) s.n += cost;
-    return { ok, state: s, left: Math.max(0, CAP_DAY - s.n) };
+    return { ok, state: s, left: Math.max(0, c - s.n), cap: c };
   }
 
   /* ---------- Burn-in drift ---------- */
@@ -617,7 +620,7 @@
     MIN, HOUR, DAY, DEFAULT_TIMES, hm, minsOf, at, startOfDay, addDays, isWeekend,
     phase, nextWake, bedAt, wakeMins, bedMins,
     clean, clusters, night, nights, headline, averages, sentence, avgSentence, dur, axisPos, AX_FROM, AX_SPAN, WORD, RANK,
-    peaks, joinHash, parseJoin, clickInfo, budget, CAP_DAY, drift, QR, B64,
+    peaks, joinHash, parseJoin, clickInfo, budget, CAP_DAY, CAPS, KEEP, msgCap, drift, QR, B64,
     star, stars, sunFor, sleepsUntil, ROUTINE, ROUTINE_DEFAULT, routineItems, routineOn,
     GM_MINS, gmCfg, gameList,
     hexRgb, contrast, palette, KID_COLOURS, buttonOk,
