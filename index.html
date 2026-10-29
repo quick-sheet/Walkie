@@ -413,14 +413,22 @@ body.sleeping .k-room { background: #000; }
 .k-minipanel button svg { width: 24px; height: 24px; }
 .k-minipanel button:active { transform: scale(.92); }
 body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-38deg) brightness(.62); }
-/* Play on: her phone, or a speaker, TV or computer signed in to her Spotify */
-.playon { display: grid; justify-items: center; gap: 12px; margin: 22px auto 0; max-width: 560px; }
-.playon-btn { height: 52px; max-width: 100%; padding: 0 18px 0 14px; border-radius: 26px; background: var(--raise); display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 600; color: var(--ink-2); }
-.playon-btn .e { font-size: 24px; line-height: 1; }
-.playon-btn .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.playon-btn svg { width: 20px; height: 20px; flex: none; color: var(--ink-3); }
-.playon-btn.away { box-shadow: 0 0 0 3px var(--sun-soft); color: var(--ink); }
-.playon-btn[aria-expanded="true"] { box-shadow: 0 0 0 3px var(--sun); }
+/* Her music page fits her screen: playlists in one row to swipe, then the buttons, her songs, how loud */
+.shelf.mu-covers { display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; margin: -4px -18px 0; padding: 12px 18px 10px; scrollbar-width: none; }
+.mu-covers::-webkit-scrollbar { display: none; }
+.mu-covers .music-card { flex: none; width: 124px; height: 124px; scroll-snap-align: start; border-radius: 26px; }
+.mu-covers .music-card .pic { font-size: 48px; }
+.mubar { margin-top: 10px; }
+/* Play on: a round button at the top right of her music page; the speakers drop down under it */
+.playon-btn { position: relative; }
+.playon-btn .e { font-size: 26px; line-height: 1; }
+.playon-btn .cast { position: absolute; right: -3px; bottom: -3px; width: 24px; height: 24px; border-radius: 50%; background: var(--raise-2); color: var(--ink-2); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--bg); }
+.k-home.playon-btn .cast svg { width: 14px; height: 14px; }
+.playon-btn.away, .playon-btn[aria-expanded="true"] { box-shadow: 0 0 0 3px var(--sun); }
+#muDevs:not(:empty) { position: absolute; z-index: 3; left: 12px; right: 12px; top: calc(env(safe-area-inset-top) + 76px); padding: 12px; border-radius: 28px; background: var(--raise);
+  box-shadow: 0 0 0 1px var(--line-2), 0 22px 48px rgba(0, 0, 0, .42); animation: drop2 .22s ease-out; }
+#muDevs .dev { background: var(--raise-2); }
+@keyframes drop2 { from { opacity: 0; transform: translateY(-10px); } }
 .devs { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; width: 100%; }
 .dev { min-height: 96px; border-radius: 22px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 6px; padding: 10px 8px; position: relative; transition: transform .12s; }
 .dev:active { transform: scale(.94); }
@@ -458,18 +466,22 @@ body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1
 .trk-wait { display: grid; place-items: center; height: 104px; color: var(--ink-3); }
 /* Your small player: what she's listening to, under the header on every page */
 .pmini { display: flex; align-items: center; gap: 7px; margin-top: 10px; padding: 6px; border-radius: 16px; background: var(--raise); }
-.pmini .art { margin-right: 3px; }
-.pmini .art { width: 44px; height: 44px; border-radius: 11px; overflow: hidden; flex: none; background: var(--raise-2); display: grid; place-items: center; font-size: 20px; position: relative; }
-.pmini .art img { width: 100%; height: 100%; object-fit: cover; }
+
+.pmini .rec { position: relative; width: 44px; height: 44px; border-radius: 50%; flex: none; margin-right: 3px; background: var(--raise-2); display: grid; place-items: center; font-size: 20px;
+  box-shadow: 0 0 0 2px var(--raise), 0 0 0 4px var(--line-2); }
+.pmini .rec.on { box-shadow: 0 0 0 2px var(--raise), 0 0 0 4px var(--sun); }
+.pmini .rec .disc { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: grid; place-items: center; }
+.pmini .rec .disc img { width: 100%; height: 100%; object-fit: cover; }
+.pmini .rec .disc::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, var(--raise) 0 9%, rgba(0, 0, 0, .4) 10% 14%, transparent 15% 60%, rgba(0, 0, 0, .16) 61% 63%, transparent 64%); }
+.pmini .rec.spin .disc { animation: spin 7s linear infinite; }
+.pmini .rec .badge { position: absolute; right: -5px; bottom: -5px; width: 20px; height: 20px; border-radius: 50%; background: var(--raise-2); color: var(--ink); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--raise); }
+.pmini .rec .badge svg { width: 10px; height: 10px; }
 .pmini .t { flex: 1; min-width: 0; }
 .pmini .t b { display: block; font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pmini .t small { display: block; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pmini .round { width: 40px; height: 40px; }
-.pmini .round svg { width: 17px; height: 17px; }
-.pmini .eq { position: absolute; left: 4px; bottom: 4px; display: flex; align-items: flex-end; gap: 2px; height: 12px; }
-.pmini .eq i { width: 3px; border-radius: 1px; background: #fff; box-shadow: 0 0 2px rgba(0, 0, 0, .6); animation: eq 1s ease-in-out infinite; }
-.pmini .eq i:nth-child(2) { animation-delay: -.4s; } .pmini .eq i:nth-child(3) { animation-delay: -.7s; }
-@keyframes eq { 0%, 100% { height: 4px; } 50% { height: 12px; } }
+.pmini .round { width: 37px; height: 37px; }
+.pmini .round svg { width: 16px; height: 16px; }
+.pmini { gap: 5px; }
 .round.busy { position: relative; }
 .round.busy > svg { opacity: 0; }
 .round.busy::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: conic-gradient(from 90deg, transparent 10%, currentColor 95%);
@@ -672,7 +684,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=9"></script>
+<script src="core.js?v=10"></script>
 <script>
 (() => {
 'use strict';
@@ -684,7 +696,7 @@ if (C && typeof C.msgCap !== 'function') { try { if (!sessionStorage.getItem('wl
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 9;           // shown at the top of Settings, so you can see an update has arrived
+const RELEASE = 10;          // shown at the top of Settings, so you can see an update has arrived
 const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
@@ -1125,7 +1137,8 @@ async function onData(m, live) {
       S.kstate = { at: o.at || ts, noise: o.noise || null, story: o.story || null,
         game: o.game && typeof o.game === 'object' ? { n: String(o.game.n || '').slice(0, 30), since: +o.game.since || 0 } : null, gu: Math.max(0, +o.gu || 0), gd: String(o.gd || ''),
         music: o.music && typeof o.music === 'object' ? { id: /^[A-Za-z0-9]{22}$/.test(String(o.music.id || '')) ? o.music.id : '', n: String(o.music.n || '').slice(0, 40), tr: String(o.music.tr || '').slice(0, 60),
-          art: okImg(o.music.art), p: o.music.p ? 1 : 0, on: String(o.music.on || '').slice(0, 30) } : null };
+          art: okImg(o.music.art), p: o.music.p ? 1 : 0, on: String(o.music.on || '').slice(0, 30), pos: Math.max(0, +o.music.pos || 0),
+          q: Array.isArray(o.music.q) ? o.music.q.slice(0, 10).filter((x) => x && typeof x === 'object').map((x) => ({ n: String(x.n || '').slice(0, 60), a: okImg(x.a), d: Math.max(0, +x.d || 0) })) : [] } : null };
       put('kstate', S.kstate); refresh();
     }
     return;
@@ -1688,6 +1701,7 @@ function kidTick() {
   if (K.room === 'colours' && S.sleep.on) closeRoom();
   if (K.room === 'music' && !musicOn()) closeRoom();
   if (K.room === 'music') renderTracks();     // her songs: a failed fetch tries again
+  if ((K.shelfOwed || shelfKey() !== get('shelfSent', '')) && canSpend(1)) sendShelfSoon();   // a shelf your phones haven't had yet
   // music switched off, or its playlist taken off her phone: it stops too (she'd have no button to stop it)
   if (MU.ctx && (!musicOn() || (!MU.adopted && !muList().some((x) => x.id === MU.ctx)))) muStop();
   // music at night fades out after half an hour, however it was started, wherever it plays
@@ -1910,9 +1924,14 @@ async function removeStory(sid) {
 }
 let shelfTimer = 0, stateTimer = 0;
 function sendShelfSoon() { if (!isKid()) return; clearTimeout(shelfTimer); shelfTimer = setTimeout(sendShelf, 2500); }
+// Her shelf, sent to your phones whenever it changes. One that couldn't go (her messages used up, or offline) is owed,
+// and goes as soon as it can, so your "Sending to her phone…" always clears
+const shelfKey = () => JSON.stringify(S.shelf.map((x) => x.sid));
 async function sendShelf() {
-  if (!spend(1)) return;      // a story arriving is worth telling you, even on a busy day
-  try { await ntfy(TD(), {}, await sealText({ t: 'shelf', at: S.shelfAt || Date.now(), items: S.shelf })); } catch { refund(1); }
+  const key = shelfKey();
+  if (!spend(1)) { K.shelfOwed = true; return; }      // a story arriving is worth telling you, even on a busy day
+  try { await ntfy(TD(), {}, await sealText({ t: 'shelf', at: S.shelfAt || Date.now(), items: S.shelf })); put('shelfSent', key); K.shelfOwed = false; }
+  catch { refund(1); K.shelfOwed = true; }
 }
 // What's playing, for the grown-ups' page. While a grown-up is controlling her phone it reports within seconds;
 // otherwise at most once a minute (the latest wins), with a daily cap, so an evening of tapping can't use up ntfy's messages
@@ -1926,8 +1945,54 @@ function extraOk() {
 function sendStateSoon() {
   if (!isKid()) return;
   clearTimeout(stateTimer);
-  const gap = Date.now() - (K.cmdAt || 0) < 2 * MIN ? 4000 : MIN;
+  if (muQueueStale()) { K.mqSeq = (K.mqSeq || 0) + 1; K.mq = null; }     // a skip, a song tapped, or the list running out
+  // music starting, pausing, stopping or skipping reaches you within seconds; other changes at most once a minute
+  const gap = Date.now() - (K.cmdAt || 0) < 2 * MIN || muKey() !== K.mKeySent ? 3000 : MIN;
   stateTimer = setTimeout(sendState, Math.max(2000, (K.stateAt || 0) + gap - Date.now()));
+}
+// Music reports have their own daily allowance (40), so they still go when routine reports have stopped for the day
+const MUSIC_CAP = 40;
+function musicOk() {
+  const day = new Date().toISOString().slice(0, 10), x = get('mreports', null), n = x && x.day === day ? x.n : 0;
+  if (n >= MUSIC_CAP) return false;
+  put('mreports', { day, n: n + 1 });
+  return true;
+}
+// What decides a music report: the playlist, playing or paused, where, and whether your phone's list of songs still holds
+const muKey = () => (MU.ctx && musicOn() ? JSON.stringify([MU.ctx, !muPlaying() && !MU.held ? 1 : 0, MU.out ? MU.out.name : '', K.mqSeq || 0]) : 'none');
+// How far into the song she is, in milliseconds
+function muPos() {
+  if (MU.out) { const r = MU.rstate; return r ? (r.pos || 0) + (r.is_playing ? Math.max(0, Date.now() - (r.posAt || Date.now())) : 0) : 0; }
+  const st = MU.state;
+  return st ? (st.position || 0) + (!st.paused ? Math.max(0, Date.now() - (MU.stateAt || Date.now())) : 0) : 0;
+}
+// The song playing and the next few, with their lengths: your phone works out each new song from these by itself,
+// so a song ending and the next starting costs no message
+async function muUpcoming() {
+  const t = muTrack();
+  if (!t || !t.uri) return [];
+  const one = (x) => ({ uri: x.uri, n: String(x.name || '').replace(/[<>]/g, '').slice(0, 40), a: muArt(x), d: +x.duration_ms || 0 });
+  const out = [one(t)];
+  try {
+    const j = await Promise.race([spApi('GET', '/me/player/queue'), sleepMs(5000).then(() => ({}))]);
+    for (const x of (j && j.queue) || []) {
+      if (!trkOk(x) || out.some((y) => y.uri === x.uri)) continue;
+      out.push(one(x));
+      if (out.length >= 8) break;
+    }
+  } catch {}
+  return out;
+}
+// Your phone's list no longer holds when the song playing isn't the one it expects: she skipped, went back or tapped a
+// song, or it's nearly at the end of the list. Then her phone sends a fresh one.
+function muQueueStale() {
+  const q = K.mq, cur = muCurUri()[0];
+  if (!q || !cur || q.p || !muPlaying() || cur === (q.list[0] || {}).uri) return false;
+  const i = q.list.findIndex((x) => x.uri === cur);
+  if (i < 0 || i >= q.list.length - 2) return true;
+  let start = q.at - q.pos;
+  for (let k = 0; k < i; k++) start += q.list[k].d || 0;
+  return Math.abs((Date.now() - muPos()) - start) > 20e3;
 }
 async function sendState() {
   const now0 = Date.now(), game = K.room === 'play' && K.game ? S.games.find((x) => x.id === K.game) : null;
@@ -1942,12 +2007,23 @@ async function sendState() {
     const left = isFinite(storyEl.duration) ? (storyEl.duration - storyEl.currentTime) * 1000 : (meta.d || 0) * 1000;
     st.story = { sid: K.story.sid, title: meta.t || '', pic: meta.p || '📖', until: Date.now() + Math.max(0, left) };
   }
-  const m = st.music;
-  const key = JSON.stringify([st.noise && st.noise.kind, st.noise && Math.round(st.noise.until / 6e4), st.story && st.story.sid, st.game && st.game.n, st.game ? 0 : st.gu, m && [m.id, m.n, m.p, m.on]]);
+  const m = st.music, mk = muKey();
+  const key = JSON.stringify([st.noise && st.noise.kind, st.noise && Math.round(st.noise.until / 6e4), st.story && st.story.sid, st.game && st.game.n, st.game ? 0 : st.gu, mk]);
   if (key === K.stateKey) return;
-  if (!extraOk() || !spend(1, false, true)) return;
+  const musicNews = mk !== K.mKeySent;
+  if (!(musicNews ? musicOk() : extraOk()) || !spend(1, false, !musicNews)) return;
   K.stateAt = Date.now();
-  try { await ntfy(TD(), {}, await sealText(st)); K.stateKey = key; } catch { refund(1); }
+  let list = [];
+  if (m) {
+    list = await muUpcoming();
+    m.q = list.map((x) => ({ n: x.n, a: x.a, d: x.d }));
+    m.pos = Math.round(muPos()); st.at = Date.now();
+  }
+  try {
+    await ntfy(TD(), {}, await sealText(st));
+    K.stateKey = key; K.mKeySent = mk;
+    K.mq = m ? { at: st.at, pos: m.pos, p: m.p, list: list.map((x) => ({ uri: x.uri, d: x.d })) } : null;
+  } catch { refund(1); }
 }
 
 // Story player
@@ -2119,7 +2195,7 @@ function renderRoom() {
   if (K.room === 'calm') body = `<div class="calm">${STAR_SVG}</div>`;
   if (K.room === 'games') { body = gamesHtml(); right = pieHtml(); }
   if (K.room === 'colours') body = coloursHtml();
-  if (K.room === 'music') body = `<div id="muTop">${musicHtml()}</div><div class="tracks" id="muTracks"></div><div id="muLow">${musicLowerHtml()}</div>`;   // her songs keep their own box, so they don't redraw with every change
+  if (K.room === 'music') { body = `<div id="muDevs">${devsHtml()}</div><div id="muTop">${musicHtml()}</div><div class="tracks" id="muTracks"></div><div id="muLow">${musicLowerHtml()}</div>`; right = `<div id="muPickTop">${playOnHtml()}</div>`; }   // her songs keep their own box, so they don't redraw with every change
   let title = ROOMS[K.room] || '';
   if (K.room === 'play') {
     const g = S.games.find((x) => x.id === K.game) || {};
@@ -2494,7 +2570,7 @@ function muReady() {
         MU.activated = false;
         p.addListener('ready', ({ device_id }) => { MU.device = device_id; MU.ready = true; if (MU.err !== 'premium') MU.err = ''; });
         p.addListener('not_ready', () => { MU.ready = false; MU.state = null; muChanged(); });   // off the Wi-Fi: Spotify forgets this player until it's back
-        p.addListener('player_state_changed', (st) => { MU.state = st || null; muChanged(); });
+        p.addListener('player_state_changed', (st) => { MU.state = st || null; MU.stateAt = Date.now(); muChanged(); });
         p.addListener('account_error', () => { MU.err = 'premium'; muChanged(); sendMusicSoon(); });
         p.addListener('authentication_error', () => { MU.err = 'auth'; muChanged(); sendMusicSoon(); });
         p.addListener('initialization_error', ({ message }) => { MU.err = 'browser'; MU.errMsg = String(message || '').slice(0, 80); muChanged(); sendMusicSoon(); });
@@ -2628,7 +2704,12 @@ async function muFade() {
   } finally { MU.fading = false; MU.until = 0; }
 }
 function muChanged() {
-  if (K.room === 'music') { setHtml($('#muTop'), musicHtml()); setHtml($('#muLow'), musicLowerHtml()); renderTracks(); }
+  if (K.room === 'music') {
+    const row = $('#muTop .mu-covers'), x = row ? row.scrollLeft : 0;     // her row of playlists keeps its place
+    setHtml($('#muPickTop'), playOnHtml()); setHtml($('#muDevs'), devsHtml()); setHtml($('#muTop'), musicHtml()); setHtml($('#muLow'), musicLowerHtml());
+    const row2 = $('#muTop .mu-covers'); if (row2 && row2 !== row) row2.scrollLeft = x;
+    renderTracks();
+  }
   renderKid(); sendStateSoon();
 }
 function muTrack() {
@@ -2665,8 +2746,8 @@ async function muPoll() {
   }
   MU.out.vol = !!dev.supports_volume; MU.out.v = +dev.volume_percent || MU.out.v;
   const it = j.item || null;
-  MU.rstate = { is_playing: !!j.is_playing, vol: +dev.volume_percent || 0,
-    item: it ? { uri: String(it.uri || ''), linked_from: it.linked_from ? { uri: String(it.linked_from.uri || '') } : null, name: String(it.name || '').slice(0, 80), album: { images: ((it.album && it.album.images) || []).slice(0, 4) } } : null };
+  MU.rstate = { is_playing: !!j.is_playing, vol: +dev.volume_percent || 0, pos: +j.progress_ms || 0, posAt: Date.now(),
+    item: it ? { uri: String(it.uri || ''), linked_from: it.linked_from ? { uri: String(it.linked_from.uri || '') } : null, name: String(it.name || '').slice(0, 80), duration_ms: +it.duration_ms || 0, album: { images: ((it.album && it.album.images) || []).slice(0, 4) } } : null };
   const c = ctxOf(j.context && j.context.uri);
   if (!fresh && c && c.id !== MU.ctx) { MU.ctx = c.id; MU.ctxK = c.k; MU.adopted = !muList().some((y) => y.id === c.id); }
   else if (!c && !MU.ctx && j.is_playing) { MU.ctx = 'other'; MU.adopted = true; }
@@ -2709,18 +2790,19 @@ async function muPickOut(id) {
 }
 function playOnHtml() {
   if (S.sleep.on) return '';     // the daytime only: at night her music stays on her phone
-  const o = MU.out, open = !!K.pickOpen;
+  const o = MU.out;
+  return `<button class="k-home playon-btn${o ? ' away' : ''}" type="button" data-act="mu-pick" aria-expanded="${!!K.pickOpen}" aria-label="Play on: ${esc(o ? o.name : 'This phone')}" title="Play on">
+    <span class="e" aria-hidden="true">${o ? devIcon(o.type) : '📱'}</span><span class="cast" aria-hidden="true">${ICON.cast}</span></button>`;
+}
+function devsHtml() {
+  if (S.sleep.on || !K.pickOpen) return '';
+  const o = MU.out;
   const tile = (id, e, nm, on) => `<button class="dev${MU.picking && MU.picking !== id ? ' look' : ''}" type="button" data-dev="${esc(id)}" aria-pressed="${on}"><span class="e" aria-hidden="true">${e}</span><span class="nm">${esc(nm)}</span>${MU.picking === id ? '<span class="spinner"></span>' : ''}</button>`;
-  let tiles = '';
-  if (open) {
-    tiles = tile('here', '📱', 'This phone', !o) + (MU.devs ? MU.devs.map((d) => tile(d.id, devIcon(d.type), d.name, !!(o && o.id === d.id))).join('')
-      : '<div class="dev look" aria-hidden="true"><span class="spinner"></span></div>');
-    if (o && MU.devs && !MU.devs.some((d) => d.id === o.id)) tiles += tile(o.id, devIcon(o.type), o.name, true);
-    if (MU.devs && !MU.devs.length && !o) tiles += '<p class="devs-none">Nothing else found. Speakers, TVs and computers show here while they’re signed in to her Spotify. A Chromecast shows only while it’s already playing her Spotify.</p>';
-  }
-  return `<div class="playon"><button class="playon-btn${o ? ' away' : ''}" type="button" data-act="mu-pick" aria-expanded="${open}" aria-label="Play on: ${esc(o ? o.name : 'this phone')}">
-    <span class="e" aria-hidden="true">${o ? devIcon(o.type) : '📱'}</span><span class="nm">${esc(o ? o.name : 'This phone')}</span>${ICON.cast}</button>
-    ${open ? `<div class="devs" role="group" aria-label="Play on">${tiles}</div>` : ''}</div>`;
+  let tiles = tile('here', '📱', 'This phone', !o) + (MU.devs ? MU.devs.map((d) => tile(d.id, devIcon(d.type), d.name, !!(o && o.id === d.id))).join('')
+    : '<div class="dev look" aria-hidden="true"><span class="spinner"></span></div>');
+  if (o && MU.devs && !MU.devs.some((d) => d.id === o.id)) tiles += tile(o.id, devIcon(o.type), o.name, true);
+  if (MU.devs && !MU.devs.length && !o) tiles += '<p class="devs-none">Nothing else found. Speakers, TVs and computers show here while they’re signed in to her Spotify. A Chromecast shows only while it’s already playing her Spotify.</p>';
+  return `<div class="devs" role="group" aria-label="Play on">${tiles}</div>`;
 }
 function musicHtml() {
   const playing = muPlaying(), tr = muTrack();
@@ -2734,13 +2816,12 @@ function musicHtml() {
     <button type="button" data-act="mu-prev" aria-label="Back a song">⏮</button>
     <button type="button" class="big-go" data-act="mu-toggle" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
     <button type="button" data-act="mu-next" aria-label="Next song">⏭</button></div>` : '';
-  return `<div class="shelf">${cards}</div>${bar}`;
+  return `<div class="shelf mu-covers" role="group" aria-label="Her music">${cards}</div>${bar}`;
 }
 // Under her songs: how loud, Play on, and a warning if Spotify isn't working
 function musicLowerHtml() {
   const lvl = muLevel(), vol = !MU.out || MU.out.vol;
   return `${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : ''}
-    ${playOnHtml()}
     ${MU.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}`;
 }
 
@@ -2896,6 +2977,12 @@ document.addEventListener('pointerdown', (e) => {
   swallow(e);
 }, true);
 window.addEventListener('resize', () => { if (isKid() && !$('#kMini').hidden) renderMini(); });
+document.addEventListener('pointerdown', (e) => {
+  if (!isKid() || !K.pickOpen || K.room !== 'music' || SW.pid === e.pointerId || e.target.closest('#muDevs, .playon-btn')) return;
+  SW.pid = e.pointerId;
+  K.pickOpen = false; muChanged();
+  swallow(e);
+}, true);
 const MU_ERRS = { premium: 'Spotify says this account needs Premium (not a mobile-only plan).', auth: 'Spotify sign-in needs doing again (or her phone is offline).',
   access: 'Spotify refused: check her account is added under User Management in your Spotify developer dashboard (up to 5 people).',
   browser: 'Chrome on her phone couldn’t start Spotify’s player. In Chrome: Settings, Site settings, Protected content: allowed.',
@@ -3317,7 +3404,7 @@ function nowHtml() {
   const music = kidMusic();
   if (game && !noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🎮</span><p><strong>Playing ${esc(game.n)}</strong>Since ${esc(time(game.since || st.at))}${gmc().m ? `, ${gmc().m} minutes a day` : ''}.</p></div>`;
   if (!noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🌙</span><p><strong>Nothing playing</strong>${st && st.at ? `Checked ${ago(st.at)}.` : 'Her phone tells you here when a story or sound is playing.'}</p></div>`;
-  const what = [music && `🎵 ${esc(music.n)}${music.on ? `, on ${esc(music.on)}` : ''}${music.p ? ' (paused)' : ''}`, story && `📖 ${esc(story.title || 'A story')}`, noise && `🎧 ${esc(soundName(noise.kind))}, ${esc(leftTxt(noise.until))}`].filter(Boolean).join('<br>');
+  const what = [music && `🎵 ${esc(music.n)}${kidSong(music) ? ` · ${esc(kidSong(music).n)}` : ''}${music.on ? `, on ${esc(music.on)}` : ''}${music.p ? ' (paused)' : ''}`, story && `📖 ${esc(story.title || 'A story')}`, noise && `🎧 ${esc(soundName(noise.kind))}, ${esc(leftTxt(noise.until))}`].filter(Boolean).join('<br>');
   return `<div class="now"><span class="e" aria-hidden="true">${music ? '🎵' : story ? esc(story.pic || '📖') : '🎧'}</span><p><strong>Playing on her phone</strong>${what}</p>
     <button class="btn" type="button" data-act="remote-stop">Stop</button></div>`;
 }
@@ -3384,27 +3471,47 @@ function pmAssume(x) {
   S.kstate = Object.assign({ at: 0 }, S.kstate, { music: { id: x.id, n: meta.n || 'Music', art: meta.img || '', p: 0, on: (cur && cur.on) || '', assumed: 1 }, mAt: Date.now() });
   put('kstate', S.kstate); renderPMini(); refresh();
 }
-// Your small player, under the header on every page
+// The song playing now, worked out on your phone from the songs and lengths her phone last sent (no message per song)
+function kidSong(m) {
+  const st = S.kstate;
+  if (!m || !st || !Array.isArray(m.q) || !m.q.length) return null;
+  const base = m.rAt || st.at, until = m.p ? (m.pAt || base) : Date.now();
+  let t = (m.pos || 0) + Math.max(0, until - base);
+  for (const x of m.q) { if (!x.d || t < x.d) return x; t -= x.d; }
+  return null;      // past the songs it sent: the playlist shows until her phone sends more
+}
+// Your small player, under the header on every page: like hers, a turning record of the song playing
 function renderPMini() {
   const el = $('#pMini');
   if (!el) return;
   const m = isKid() ? null : kidMusic();
   if (!m) { el.hidden = true; return; }
-  // the playlist rather than the song: songs aren't sent, to save messages
-  const art = m.art || (((S.kmusic && S.kmusic.items) || []).find((x) => x.id === m.id) || {}).img || '';
-  const sub = [m.p ? 'Paused' : 'Playing', m.on ? `on ${m.on}` : 'on her phone'].join(' ');
-  setHtml(el, `<span class="art" aria-hidden="true">${art ? `<img src="${esc(art)}" alt="">` : '🎵'}${m.p ? '' : '<span class="eq"><i></i><i></i><i></i></span>'}</span>
-    <div class="t"><b>${esc(m.n || 'Music')}</b><small>${esc(sub)}</small></div>
+  const song = kidSong(m);
+  const art = (song && song.a) || m.art || (((S.kmusic && S.kmusic.items) || []).find((x) => x.id === m.id) || {}).img || '';
+  const sub = song ? [m.n, m.p && 'Paused', m.on && `on ${m.on}`].filter(Boolean).join(' · ') : `${m.p ? 'Paused' : 'Playing'} ${m.on ? `on ${m.on}` : 'on her phone'}`;
+  setHtml(el, `<span class="rec${m.p ? '' : ' spin on'}" aria-hidden="true"><span class="disc">${art ? `<img src="${esc(art)}" alt="">` : '🎵'}</span>${m.p ? `<span class="badge">${ICON.pause}</span>` : ''}</span>
+    <div class="t"><b>${esc((song && song.n) || m.n || 'Music')}</b><small>${esc(sub)}</small></div>
+    <button class="round" type="button" data-pm="prev" aria-label="Back a song" title="Back a song">${ICON.prev}</button>
     <button class="round${m.p ? ' go' : ''}" type="button" data-pm="${m.p ? 'resume' : 'pause'}" aria-label="${m.p ? 'Play' : 'Pause'} her music" title="${m.p ? 'Play' : 'Pause'}">${m.p ? ICON.play : ICON.pause}</button>
     <button class="round" type="button" data-pm="next" aria-label="Next song" title="Next song">${ICON.next}</button>
     <button class="round" type="button" data-pm="stop" aria-label="Stop her music" title="Stop">${ICON.stop}</button>`);
   el.hidden = false;
 }
+setInterval(() => { if (S.me && !isKid() && document.visibilityState === 'visible') renderPMini(); }, 5000);   // the next song comes round by itself
 async function pmCtl(a, btn) {
-  const said = { pause: 'Paused on her phone', resume: 'Playing on her phone', next: 'Next song on her phone', stop: 'Her music stopped' }[a];
+  const said = { pause: 'Paused on her phone', resume: 'Playing on her phone', next: 'Next song on her phone', prev: 'Back a song on her phone', stop: 'Her music stopped' }[a];
   if (!said || !(await remote({ t: 'mctl', a }, btn, said))) return;
   const m = S.kstate && S.kstate.music;
-  if (m) { if (a === 'stop') S.kstate.music = null; else if (a === 'pause') m.p = 1; else if (a === 'resume') m.p = 0; put('kstate', S.kstate); }
+  // shown at once; her phone's report follows with the songs as they now are
+  if (m) {
+    if (a === 'stop') S.kstate.music = null;
+    else if (a === 'pause' && !m.p) { m.p = 1; m.pAt = Date.now(); }
+    else if (a === 'resume' && m.p) {   // carry on from where it paused
+      const base = m.rAt || S.kstate.at;
+      m.pos = (m.pos || 0) + Math.max(0, (m.pAt || base) - base); m.p = 0; m.rAt = Date.now(); m.pAt = 0;
+    }
+    put('kstate', S.kstate);
+  }
   renderPMini(); refresh();
 }
 function musicCardHtml() {
@@ -3826,7 +3933,7 @@ function leave() {
   K.reloading = true;
   stopBeat();
   ['fam', 'me', 'beat', 'items', 'since', 'seen', 'heard', 'played', 'outbox', 'sleep', 'photos', 'log', 'sheetInfo', 'quiet', 'connected', 'budget',
-    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away', 'sp', 'spAuth', 'muMeta', 'musicSent', 'kmusic'].forEach(drop);
+    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away', 'sp', 'spAuth', 'muMeta', 'musicSent', 'kmusic', 'shelfSent', 'mreports'].forEach(drop);
   try { indexedDB.deleteDatabase('walkie'); } catch {}
   location.replace(APP);
 }
