@@ -113,7 +113,8 @@ a { color: inherit; }
 .day { margin: 20px 0 8px; font-size: 13px; font-weight: 500; color: var(--ink-3); text-align: center; }
 .msg { display: flex; flex-direction: column; align-items: flex-start; margin: 10px 0; scroll-margin: 150px 0 180px; }
 .msg.mine, .msg.parent { align-items: flex-end; }
-.msg .who { font-size: 12.5px; color: var(--ink-3); margin: 0 12px 3px; }
+.msg .who { font-size: 12.5px; font-weight: 500; color: var(--ink-2); margin: 0 12px 3px; }
+.msg .who.kid { color: var(--sun); }
 .msg .meta { font-size: 12.5px; color: var(--ink-3); margin: 4px 12px 0; }
 .msg .meta.warn { color: var(--sun); }
 .voice { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 22px; background: var(--raise-2); max-width: 300px; }
@@ -322,9 +323,19 @@ body.sleeping .tile .w { color: #6A2418; }
 .btn svg { width: 18px; height: 18px; flex: none; }
 .k-palette { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
 .k-palette i { width: 24px; height: 24px; border-radius: 50%; background: conic-gradient(#F2A7C8 0 25%, #6FD9D0 0 50%, #FFB04A 0 75%, #86E3A8 0); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--line-2); }
-.k-swatches { position: fixed; z-index: 12; top: calc(env(safe-area-inset-top) + 58px); right: 12px; display: flex; gap: 12px; padding: 14px; border-radius: 26px; background: var(--raise); border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); }
-.k-swatches button { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, var(--b) 0 34%, var(--a) 36%); box-shadow: 0 0 0 1px var(--line-2); }
-.k-swatches button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); }
+/* Her colour page */
+.cpage { max-width: 460px; margin: 0 auto; display: grid; gap: 20px; padding-bottom: 8px; }
+.crow .ch { display: block; font-size: 24px; line-height: 1; margin: 0 0 10px 2px; }
+.cdots { display: flex; flex-wrap: wrap; gap: 11px; max-width: 343px; }
+.cdots + .cdots { margin-top: 12px; }
+.cdot { width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, var(--b) 0 35%, var(--a) 37%); box-shadow: 0 0 0 1px var(--line-2); transition: transform .12s; }
+.cdot.plain { background: var(--a); }
+.cdot.sq { border-radius: 14px; background: var(--a); }
+.cdot:active { transform: scale(.9); }
+.cdot[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--ink); }
+.cdot:disabled { opacity: .15; }
+.crow .ch2 { display: block; font-size: 18px; line-height: 1; margin: 14px 0 8px 4px; }
+.draw-pad { box-shadow: 0 0 0 1px var(--line-2); }
 .k-routine { display: flex; justify-content: center; gap: 10px; padding: 2px 16px 6px; }
 .k-routine button { width: 58px; height: 58px; border-radius: 50%; background: var(--raise); font-size: 28px; display: grid; place-items: center; position: relative; transition: transform .15s; }
 .k-routine button.done { background: var(--sun-soft); }
@@ -548,7 +559,6 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
     <nav class="k-dock" id="dock" aria-label="Things to do"></nav>
   </div>
 </div>
-<div class="k-swatches" id="swatches" hidden role="group" aria-label="Colours"></div>
 <div class="k-room" id="kRoom" hidden></div>
 <input type="file" accept="audio/*" id="storyFile" hidden>
 <div class="k-popwrap" id="kPopWrap" hidden><div class="k-in" id="kPop"></div></div>
@@ -561,19 +571,19 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=3"></script>
+<script src="core.js?v=4"></script>
 <script>
 (() => {
 'use strict';
 const C = window.Core;
 // While an update is landing, this page could meet the previous core.js: try once more for the matching one
-if (C && typeof C.gameList !== 'function') { try { if (!sessionStorage.getItem('wlk.coreRetry')) { sessionStorage.setItem('wlk.coreRetry', '1'); setTimeout(() => { K.reloading = true; location.reload(); }, 4000); } } catch {} }
+if (C && typeof C.palette !== 'function') { try { if (!sessionStorage.getItem('wlk.coreRetry')) { sessionStorage.setItem('wlk.coreRetry', '1'); setTimeout(() => { K.reloading = true; location.reload(); }, 4000); } } catch {} }
 
 /* ---------- Constants ---------- */
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 3;           // shown at the top of Settings, so you can see an update has arrived
+const RELEASE = 4;           // shown at the top of Settings, so you can see an update has arrived
 const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
@@ -1268,11 +1278,26 @@ function avatarHtml(id, cls = '') {
 }
 function kidTouch() { K.lastTouch = Date.now(); keepAwake(); }
 
+// Pastel, cartoon and her own mix are worked out from two colours (Core.palette); classic ones are the app's own themes
+const PAL_KEYS = ['bg', 'raise', 'raise-2', 'line', 'line-2', 'ink', 'ink-2', 'ink-3', 'sun', 'sun-soft', 'on-sun'];
+function kidPal() {
+  const id = S.set.kidTheme || 'dusk', KC = C.KID_COLOURS;
+  if (!KC || !C.palette) return null;
+  if (id === 'mine') { const m = mineColours(); return C.palette(m.bg, m.ac); }
+  const t = KC.pastel.concat(KC.cartoon).find((x) => x.id === id);
+  return t ? C.palette(t.bg, t.ac) : null;
+}
 function setKidTheme() {
-  const t = S.sleep.on ? 'red' : (S.set.kidTheme || 'dusk');
+  const root = document.documentElement, pal = S.sleep.on ? null : kidPal(), key = pal ? JSON.stringify(pal) : '';
+  if (key !== K.palKey) {
+    PAL_KEYS.forEach((k) => { if (pal) root.style.setProperty('--' + k, pal[k]); else root.style.removeProperty('--' + k); });
+    root.style.colorScheme = pal ? (pal.light ? 'light' : 'dark') : '';
+    K.palKey = key;
+  }
+  const t = S.sleep.on ? 'red' : pal ? 'twilight' : (THEMES.some((x) => x.id === S.set.kidTheme && x.id !== 'red') ? S.set.kidTheme : 'dusk');
   applyTheme(t);
   document.body.classList.toggle('sleeping', !!S.sleep.on);
-  document.querySelector('meta[name=theme-color]').setAttribute('content', S.sleep.on || K.idle ? '#000000' : (THEMES.find((x) => x.id === t) || THEMES[0]).bg);
+  document.querySelector('meta[name=theme-color]').setAttribute('content', S.sleep.on || K.idle ? '#000000' : pal ? pal.bg : (THEMES.find((x) => x.id === t) || THEMES[0]).bg);
 }
 function renderTiles() {
   K.tileKind = sleepTileKind();
@@ -1286,7 +1311,6 @@ function renderKid() {
   $('#kClock').textContent = time(now);
   $('#kidApp').classList.toggle('resting', K.restUntil > now);
   try { renderExtras(now); } catch {}      // stars, countdown, routine and dock never take her talk button down
-  if (S.sleep.on && !$('#swatches').hidden) toggleSwatches(false);
   // the talk button, or who's talking to her
   const above = !!(K.room || K.light), inEl = $(above ? '#kPop' : '#kIn');   // above her rooms and the night light
   const showIn = (el, on) => { (el.id === 'kPop' ? $('#kPopWrap') : el).hidden = !on; };
@@ -1516,7 +1540,7 @@ function kidTick() {
   if (!S.sleep.on && bed >= 720 && m >= bed && S.sleep.auto !== evening) {
     S.sleep.on = true; S.sleep.auto = evening; S.sleep.since = now; saveSleep();
     K.idle = true; sendCfgSoon(); sendShelfSoon();
-    if (['draw', 'games', 'play'].includes(K.room)) closeRoom();
+    if (['draw', 'games', 'play', 'colours'].includes(K.room)) closeRoom();
   }
   // midday: a night that nobody ended with "I'm awake" ends by itself
   if (S.sleep.on && now >= noon && (S.sleep.since || 0) < noon && m < bed) {
@@ -1525,6 +1549,7 @@ function kidTick() {
   beat(false);
   if (K.tileKind !== sleepTileKind()) renderTiles();
   const quietFor = S.sleep.on ? 60e3 : 180e3;
+  if (K.room === 'colours' && S.sleep.on) closeRoom();
   if (K.room === 'games' || K.room === 'play') {
     if (S.sleep.on || !gamesOn()) closeRoom();
     else if (K.room === 'play') {
@@ -1536,7 +1561,7 @@ function kidTick() {
   paintPie(now);
   if (now - (K.gamesAt || 0) > 6 * HOUR) { K.gamesAt = now; loadGames(); recache(); }
   const busyRoom = K.light || K.room === 'calm' || K.room === 'draw' || K.room === 'play';
-  if (!K.idle && !busyRoom && !REC.on && !K.press && !PLAYING.eid && !K.overlay && now - K.lastTouch > quietFor && !$('#sheet').open) { K.idle = true; toggleSwatches(false); }
+  if (!K.idle && !busyRoom && !REC.on && !K.press && !PLAYING.eid && !K.overlay && now - K.lastTouch > quietFor && !$('#sheet').open) K.idle = true;
   if (LIVE.es && now - LIVE.at > 120e3) connect();
   starsSoon(now);
   if (S.fetchQ.length && now - (K.retryAt || 0) > 3 * MIN) { K.retryAt = now; retryStories(); }
@@ -1877,7 +1902,7 @@ function setLevel(i) {
 }
 
 // Rooms: full-screen pages with a big home button
-const ROOMS = { stories: '📖', sounds: '🎧', calm: '⭐', draw: '🎨', games: '🎮' };
+const ROOMS = { stories: '📖', sounds: '🎧', calm: '⭐', draw: '🎨', games: '🎮', colours: '🌈' };
 ICON.home = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></svg>';
 ICON.stop = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
 ICON.plane = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 3 3 10.5l7 2.5 2.5 7L21 3Z"/><path d="m10 13 4.5-4.5"/></svg>';
@@ -1886,6 +1911,7 @@ function openRoom(name) {
   if (name === 'light') { openLight(); return; }
   if (!ROOMS[name]) return;
   if (name === 'games' && (S.sleep.on || !gamesOn())) return;
+  if (name === 'colours' && S.sleep.on) return;
   if (K.room === 'play') closeRoom();
   K.room = name;
   if (name === 'stories') K.newStory = false;
@@ -1931,6 +1957,7 @@ function renderRoom() {
   if (K.room === 'sounds') body = soundsHtml();
   if (K.room === 'calm') body = `<div class="calm">${STAR_SVG}</div>`;
   if (K.room === 'games') { body = gamesHtml(); right = pieHtml(); }
+  if (K.room === 'colours') body = coloursHtml();
   let title = ROOMS[K.room] || '';
   if (K.room === 'play') {
     const g = S.games.find((x) => x.id === K.game) || {};
@@ -2198,13 +2225,35 @@ function renderExtras(now) {
   setHtml($('#dock'), dockHtml());
 }
 
-// Her colours, one tap away in the daytime
-function toggleSwatches(open) {
-  const el = $('#swatches'), show = open == null ? el.hidden : open;
-  if (show) el.innerHTML = THEMES.filter((t) => t.id !== 'red').map((t) => `<button type="button" data-kidtheme="${t.id}" aria-label="${t.name}" aria-pressed="${S.set.kidTheme === t.id}" style="--a:${t.bg};--b:${t.accent}"></button>`).join('');
-  el.hidden = !show;
+// Her colours, one tap away in the daytime: pastel, cartoon, classic, or her own background and button
+$('#palette').addEventListener('click', () => openRoom('colours'));
+function coloursHtml() {
+  const KC = C.KID_COLOURS, cur = S.set.kidTheme || 'dusk', m = mineColours();
+  const dot = (id, bg, ac, name) => `<button class="cdot" type="button" data-kidtheme="${id}" aria-pressed="${cur === id}" aria-label="${esc(name)}" style="--a:${bg};--b:${ac}"></button>`;
+  const row = (e, label, dots) => `<div class="crow"><span class="ch" aria-hidden="true">${e}</span><div class="cdots" role="group" aria-label="${label}">${dots}</div></div>`;
+  const classic = KC.classic.map((id) => THEMES.find((t) => t.id === id)).filter(Boolean);
+  return `<div class="cpage">
+    ${row('🍦', 'Pastel', KC.pastel.map((t) => dot(t.id, t.bg, t.ac, t.name)).join(''))}
+    ${row('🎈', 'Cartoon', KC.cartoon.map((t) => dot(t.id, t.bg, t.ac, t.name)).join(''))}
+    ${row('🌙', 'Classic', classic.map((t) => dot(t.id, t.bg, t.accent, t.name)).join(''))}
+    <div class="crow"><span class="ch" aria-hidden="true">✏️</span>
+      <span class="ch2" aria-hidden="true">🟪</span><div class="cdots" role="group" aria-label="Make your own: background">${KC.bgs.map((c) => `<button class="cdot sq" type="button" data-minebg="${c}" aria-pressed="${cur === 'mine' && m.bg === c}" aria-label="Background" style="--a:${c}"></button>`).join('')}</div>
+      <span class="ch2" aria-hidden="true">🎙️</span><div class="cdots" role="group" aria-label="Make your own: talk button">${KC.buttons.map((c) => `<button class="cdot plain" type="button" data-mineac="${c}" aria-pressed="${cur === 'mine' && m.ac === c}" aria-label="Button" style="--a:${c}" ${C.buttonOk(m.bg, c) ? '' : 'disabled'}></button>`).join('')}</div>
+    </div>
+  </div>`;
 }
-$('#palette').addEventListener('click', () => toggleSwatches());
+function mineColours() {
+  const m = Object.assign({ bg: '#FCE4EC', ac: '#E05A8E' }, S.set.kidMine || {});
+  if (!C.buttonOk(m.bg, m.ac)) m.ac = C.KID_COLOURS.buttons.find((a) => C.buttonOk(m.bg, a)) || '#1B1B1F';
+  return m;
+}
+function pickColours(theme, mine) {
+  if (mine) S.set.kidMine = mine;
+  S.set.kidTheme = theme; saveSet();
+  K.lastTouch = Date.now();
+  renderKid();
+  if (K.room === 'colours') renderRoom();
+}
 
 /* ---------- Parents' phones ---------- */
 function renderSub() {
@@ -2248,15 +2297,18 @@ function heardTxt(eid) {
   return ' · Heard by ' + (list.length > 1 ? list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1] : list[0]);
 }
 function expired(it) { return !CLIPS.has(it.eid) && it.att && it.att.expires && it.att.expires * 1000 < Date.now(); }
-function msgHtml(it) {
+const isLine = (it) => it.from === 'sys' || ['sleep', 'wake', 'early', 'quiet', 'back', 'rest', 'routine', 'away'].includes(it.kind);
+// Who sent it: her name (from Settings), "Me", or what the other grown-up calls themselves
+function senderName(from) { return from === 'child' ? (kidName() || 'Child') : from === S.me.id ? 'Me' : whoTxt(from); }
+function msgHtml(it, showWho) {
   const t = time(it.ts);
-  if (it.from === 'sys' || ['sleep', 'wake', 'early', 'quiet', 'back', 'rest', 'routine'].includes(it.kind)) {
+  if (isLine(it)) {
     const L = LINES[it.kind] || { e: '', t: it.kind };
-    return `<p class="line num${it.kind === 'quiet' ? ' warn' : ''}" data-eid="${esc(it.eid)}">${L.e} ${esc(L.t)} · ${t}</p>`;
+    return `<p class="line num${it.kind === 'quiet' || it.kind === 'away' ? ' warn' : ''}" data-eid="${esc(it.eid)}">${L.e} ${esc(L.t)} · ${t}</p>`;
   }
   const kid = it.from === 'child', mine = it.from === S.me.id;
   const side = kid ? '' : mine ? ' mine' : ' parent';
-  const who = !kid && !mine ? `<span class="who">${esc(whoTxt(it.from))}</span>` : '';
+  const who = showWho ? `<span class="who${kid ? ' kid' : ''}">${esc(senderName(it.from))}</span>` : '';
   let st = '';
   if (it.st === 'sending') st = ' · Sending…';
   else if (it.st === 'failed') st = it.err === 'limit' ? ' · Not sent: daily limit reached' : ' · Not sent';
@@ -2265,7 +2317,7 @@ function msgHtml(it) {
     const u = CLIPS.get(it.eid);
     const pic = exp || (!it.att && !u) ? `<span class="tap"><span class="e" aria-hidden="true">🎨</span>${exp ? 'Drawing expired after 3 hours' : 'A drawing is on its way'}</span>`
       : `<button class="drawing${u ? '' : ' loading'}" type="button" data-draw="${esc(it.eid)}" aria-label="Her drawing. Tap to see it big"><img alt=""${u ? ` src="${u}"` : ''}></button>`;
-    return `<div class="msg" data-eid="${esc(it.eid)}">${pic}<span class="meta num">${t}</span></div>`;
+    return `<div class="msg${side}" data-eid="${esc(it.eid)}">${who}${pic}<span class="meta num">${t}</span></div>`;
   }
   if (it.kind === 'voice') {
     const isNew = kid && !S.played[it.eid];
@@ -2288,11 +2340,14 @@ function threadHtml() {
   if (!list.length) {
     return `<div class="empty"><h2>All quiet</h2><p>When she talks or taps a picture, it appears here and on your ntfy notifications. Messages stay for 12 hours, voice for 3.</p></div>`;
   }
-  let html = '', lastDay = null;
+  let html = '', lastDay = null, prev = null, prevTs = 0;
   for (const it of list) {
     const d = dayKey(it.ts);
-    if (d !== lastDay) { html += `<h2 class="day">${esc(dayWord(it.ts))}</h2>`; lastDay = d; }
-    html += msgHtml(it);
+    if (d !== lastDay) { html += `<h2 class="day">${esc(dayWord(it.ts))}</h2>`; lastDay = d; prev = null; }
+    // the name goes on the first message of each run from the same person, like a group chat
+    const line = isLine(it), showWho = !line && (it.from !== prev || it.ts - prevTs > 5 * MIN);
+    html += msgHtml(it, showWho);
+    prev = line ? null : it.from; prevTs = it.ts;
   }
   return html;
 }
@@ -2706,11 +2761,6 @@ function themeGridHtml(key) {
   return `<div class="theme-grid">${THEMES.map((t) => `<button class="theme-opt" type="button" data-theme="${t.id}" data-key="${key}" aria-pressed="${cur === t.id}">
     <span class="sw" style="--a:${t.bg};--c:${t.dome};--b:${t.accent}"></span>${t.name}</button>`).join('')}</div>`;
 }
-document.addEventListener('click', (e) => {
-  const sw = $('#swatches');
-  if (sw.hidden || e.target.closest('#swatches, #palette')) return;
-  e.preventDefault(); e.stopPropagation(); toggleSwatches(false);
-}, true);
 const POPS = { themes: '#themeBtn' };
 function togglePop(id, open) {
   const pop = $('#' + id), show = open == null ? pop.hidden : open;
@@ -2776,8 +2826,8 @@ function pickedName() { const v = cleanLabel(($('#nameIn') || {}).value); if (v)
 function openStart() {
   openSheet(head('Set up Walkie') + `<p>This phone becomes the first parent’s phone. You’ll pair her phone and the other parent’s next.</p>
     <h3>What does she call you?</h3>${nameChipsHtml('')}
-    <h3>Her name <span class="small">(optional, stays on your phones)</span></h3>
-    <div class="field-row"><input class="field" id="kidIn" maxlength="30" placeholder="Shown as “Her phone” if empty" aria-label="Her name"></div>
+    <h3>Child’s name <span class="small">(optional, stays on your phones)</span></h3>
+    <div class="field-row"><input class="field" id="kidIn" maxlength="30" placeholder="Labels her messages in your chat" aria-label="Child’s name"></div>
     <div class="actions"><button class="btn primary" type="button" data-act="create">Create</button></div>
     <p class="result" id="startRes"></p>`);
 }
@@ -2841,8 +2891,8 @@ function openSettings(focus) {
     <h3>Her bedtime and wake-up</h3>
     <p class="small">Her night clock shows the moon from bedtime and the sun from wake-up. Her phone goes to the night clock at bedtime.</p>
     ${timesHtml()}
-    <h3>Her name</h3>
-    <div class="field-row"><input class="field" id="kidIn" maxlength="30" value="${esc(kidName())}" placeholder="Shown as “Her phone” if empty" aria-label="Her name"><button class="btn" type="button" data-act="save-kid">Save</button></div>
+    <h3>Child’s name</h3>
+    <div class="field-row"><input class="field" id="kidIn" maxlength="30" value="${esc(kidName())}" placeholder="Labels her messages in your chat" aria-label="Child’s name"><button class="btn" type="button" data-act="save-kid">Save</button></div>
     <h3 id="sheetHead">Sleep log</h3>
     <p class="small">Paste the web app address from Apps Script (Deploy, then Manage deployments). The README has the steps.</p>
     <div class="field-row"><input class="field" id="apiIn" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(S.fam.s || '')}" aria-label="Web app address"></div>
@@ -2869,7 +2919,7 @@ function openKidSettings() {
       <span><label class="mini" style="cursor:pointer">Take photo<input type="file" accept="image/*" capture="user" data-photo="${esc(p.i)}" hidden></label>
       ${S.photos[p.i] ? `<button class="mini" type="button" data-unphoto="${esc(p.i)}">Remove</button>` : ''}</span></li>`).join('') : '<li><span class="small">No grown-ups have joined yet. Pair a parent’s phone first.</span></li>'}</ul>
     <h3>Bedtime and wake-up</h3>${timesHtml()}
-    <h3>Daytime colours</h3>${themeGridHtml('kidTheme')}
+    <h3>Daytime colours</h3><p class="small">She picks her own with the round colour button at the top, in the daytime: pastel, cartoon, classic, or her own mix.</p>
     <p class="small">At night the screen turns black with a dim red clock.</p>
     <h3>Checks</h3>
     <div class="actions"><button class="btn" type="button" data-act="chime">Play the chime</button><button class="btn" type="button" data-act="kid-setup">Setup steps</button></div>
@@ -2959,7 +3009,9 @@ document.addEventListener('click', async (e) => {
   if (d.game) { openGame(d.game, t); return; }
   if (d.gmmins != null) { saveCfgPart({ gm: { on: true, m: +d.gmmins } }, t, +d.gmmins ? `Games: ${+d.gmmins === 60 ? '1 hour' : d.gmmins + ' minutes'} a day` : 'Games: no daily limit'); return; }
   if (d.rt) { tickRoutine(d.rt); return; }
-  if (d.kidtheme) { S.set.kidTheme = d.kidtheme; saveSet(); toggleSwatches(false); renderKid(); return; }
+  if (d.kidtheme) { pickColours(d.kidtheme); return; }
+  if (d.minebg) { const m = mineColours(); m.bg = d.minebg; if (!C.buttonOk(m.bg, m.ac)) m.ac = C.KID_COLOURS.buttons.find((a) => C.buttonOk(m.bg, a)); pickColours('mine', m); return; }
+  if (d.mineac) { const m = mineColours(); if (!C.buttonOk(m.bg, d.mineac)) return; m.ac = d.mineac; pickColours('mine', m); return; }
   if (d.story) { if (K.story && K.story.sid === d.story) stopStory(); else playStory(d.story); return; }
   if (d.ksound) { K.ksound = d.ksound; S.set.lastSound = d.ksound; saveSet(); if (NZ.on && !NZ.silent) startNoise(d.ksound, K.kmins != null ? K.kmins : S.set.lastMins != null ? S.set.lastMins : 30); else renderRoom(); return; }
   if (d.kmins != null) { K.kmins = +d.kmins; S.set.lastMins = +d.kmins; saveSet(); if (NZ.on && !NZ.silent) startNoise(NZ.kind, +d.kmins); else renderRoom(); return; }
@@ -3134,7 +3186,7 @@ document.addEventListener('click', async (e) => {
       break;
     }
     case 'save-kid':
-      S.fam.n = cleanLabel(($('#kidIn') || {}).value || '').slice(0, 30); S.fam.cfgAt = Date.now(); saveFam(); sendCfg(); renderSub(); toast('Saved');
+      S.fam.n = cleanLabel(($('#kidIn') || {}).value || '').slice(0, 30); S.fam.cfgAt = Date.now(); saveFam(); sendCfg(); renderSub(); renderView(); toast('Saved');
       break;
     case 'save-times': {
       const bed = $('#tBed').value, wd = $('#tWd').value, we = $('#tWe').value;

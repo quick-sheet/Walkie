@@ -301,6 +301,75 @@
     return out;
   }
 
+  /* ---------- Colours ---------- */
+  // Her own colours: from a background and a button colour, work out every shade the screen uses,
+  // with text dark or light, whichever reads better on that background.
+  const hexRgb = (h) => { const m = /^#?([0-9a-f]{6})$/i.exec(String(h || '')); if (!m) return null; const n = parseInt(m[1], 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const rgbHex = (c) => '#' + c.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+  const mixRgb = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  function luminance(c) {
+    const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+  }
+  function contrast(a, b) {
+    const x = luminance(Array.isArray(a) ? a : hexRgb(a) || [0, 0, 0]), y = luminance(Array.isArray(b) ? b : hexRgb(b) || [0, 0, 0]);
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  }
+  const WHITE = [255, 255, 255], INK_DARK = [24, 20, 30];
+  function palette(bgHex, accentHex) {
+    const bg = hexRgb(bgHex), ac = hexRgb(accentHex);
+    if (!bg || !ac) return null;
+    const light = contrast(bg, INK_DARK) >= contrast(bg, WHITE);
+    const ink = light ? mixRgb(INK_DARK, ac, 0.1) : mixRgb(WHITE, ac, 0.06);
+    const rgba = (c, a) => `rgba(${c.map(Math.round).join(',')},${a})`;
+    const onSun = contrast(ac, INK_DARK) >= contrast(ac, WHITE) ? mixRgb(INK_DARK, ac, 0.08) : WHITE;
+    return {
+      light,
+      bg: rgbHex(bg),
+      raise: rgbHex(light ? mixRgb(bg, WHITE, 0.55) : mixRgb(bg, WHITE, 0.07)),
+      'raise-2': rgbHex(light ? mixRgb(bg, INK_DARK, 0.07) : mixRgb(bg, WHITE, 0.12)),
+      line: light ? rgba(INK_DARK, 0.1) : rgba(WHITE, 0.1),
+      'line-2': light ? rgba(INK_DARK, 0.18) : rgba(WHITE, 0.2),
+      ink: rgbHex(ink),
+      'ink-2': rgbHex(mixRgb(ink, bg, 0.3)),
+      'ink-3': rgbHex(mixRgb(ink, bg, 0.48)),
+      sun: rgbHex(ac),
+      'sun-soft': rgba(ac, light ? 0.24 : 0.18),
+      'on-sun': rgbHex(onSun),
+    };
+  }
+
+  // Her colour choices. Classic ones are the app's own dark themes (dusk, sea, aurora, amber, twilight).
+  const KID_COLOURS = {
+    pastel: [
+      { id: 'p-strawberry', name: 'Strawberry milk', bg: '#FCE4EC', ac: '#E05A8E' },
+      { id: 'p-mint', name: 'Mint', bg: '#DDF5EA', ac: '#23A06F' },
+      { id: 'p-lemon', name: 'Lemon', bg: '#FFF6CC', ac: '#F29E00' },
+      { id: 'p-lavender', name: 'Lavender', bg: '#ECE4FB', ac: '#8A63DB' },
+      { id: 'p-sky', name: 'Sky', bg: '#DFF0FC', ac: '#2F8FD8' },
+      { id: 'p-peach', name: 'Peach', bg: '#FFE7D6', ac: '#EE7A3A' },
+    ],
+    cartoon: [
+      { id: 'c-bubblegum', name: 'Bubblegum', bg: '#FF8DC7', ac: '#6A1FD8' },
+      { id: 'c-hero', name: 'Superhero', bg: '#1A43B8', ac: '#FF3B30' },
+      { id: 'c-sunshine', name: 'Sunshine', bg: '#FFD23F', ac: '#E5441A' },
+      { id: 'c-jungle', name: 'Jungle', bg: '#17723F', ac: '#FFD23F' },
+      { id: 'c-ocean', name: 'Ocean', bg: '#005F92', ac: '#FFB703' },
+      { id: 'c-grape', name: 'Grape', bg: '#5B2580', ac: '#FF9F1C' },
+    ],
+    classic: ['dusk', 'sea', 'aurora', 'amber', 'twilight'],
+    // make your own: a background, then a button that stands out from it
+    bgs: ['#FCE4EC', '#DDF5EA', '#FFF6CC', '#DFF0FC', '#FFFFFF', '#FF8DC7', '#FFD23F', '#1A43B8', '#17723F', '#5B2580', '#3A0F2E', '#110D1A'],
+    buttons: ['#E05A8E', '#23A06F', '#F29E00', '#2F8FD8', '#6A1FD8', '#FF3B30', '#FFD23F', '#FF9F1C', '#86E3A8', '#F2A7C8', '#FFFFFF', '#1B1B1F'],
+  };
+  // the button must stand out: clearly lighter or darker, or a clearly different colour
+  function buttonOk(bg, ac) {
+    const a = hexRgb(bg), b = hexRgb(ac);
+    if (!a || !b) return false;
+    const c = contrast(a, b), dist = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    return c >= 1.8 || (c >= 1.25 && dist >= 160);
+  }
+
   /* ---------- Waveform ---------- */
   // Squash a list of 0..1 levels to n bars of 0..9, as a digit string
   function peaks(levels, n) {
@@ -541,6 +610,7 @@
     peaks, joinHash, parseJoin, clickInfo, budget, CAP_DAY, drift, QR, B64,
     star, stars, sunFor, sleepsUntil, ROUTINE, ROUTINE_DEFAULT, routineItems, routineOn,
     GM_MINS, gmCfg, gameList,
+    hexRgb, contrast, palette, KID_COLOURS, buttonOk,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;
   else root.Core = Core;
