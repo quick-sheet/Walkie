@@ -647,7 +647,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=7"></script>
+<script src="core.js?v=8"></script>
 <script>
 (() => {
 'use strict';
@@ -659,7 +659,7 @@ if (C && typeof C.msgCap !== 'function') { try { if (!sessionStorage.getItem('wl
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 7;           // shown at the top of Settings, so you can see an update has arrived
+const RELEASE = 8;           // shown at the top of Settings, so you can see an update has arrived
 const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
@@ -860,7 +860,7 @@ const nightish = () => S.sleep.on || C.phase(Date.now(), cfg()) === 'moon';
 // Her phone's share of ntfy's daily allowance; the night keeps a reserve
 // Her daytime limit: 70 unless a grown-up raises it in Settings, Her messages by day
 const dayCap = () => (C.msgCap ? C.msgCap(cfg().ml) : 70);
-// `bg`: reports about what's on (status, music, stars, settings), which stop 30 short of the limit so her talking always has room
+// `bg`: reports about what's on (what's playing, her music list, stars), which stop 30 short of the limit so her talking always has room
 function spend(cost, essential, bg) {
   const r = C.budget(S.budget, Date.now(), cost, nightish(), essential, dayCap(), bg);
   S.budget = r.state; put('budget', S.budget);
@@ -977,7 +977,7 @@ function allEvents() {
 async function sendCfg() {
   if (!S.fam) return;
   const f = S.fam;
-  if (isKid() && !spend(1, false, true)) return;
+  if (isKid() && !spend(1)) return;
   try { await ntfy(TD(), {}, await sealText({ t: 'cfg', at: f.cfgAt || 0, by: meId(), bed: f.cfg.bed, wd: f.cfg.wd, we: f.cfg.we, cd: f.cfg.cd || null, ri: f.cfg.ri || null, gm: f.cfg.gm || null, ...(f.cfg.sp ? { sp: f.cfg.sp } : {}), ...(Array.isArray(f.cfg.mu) ? { mu: f.cfg.mu } : {}), ...(f.cfg.ml ? { ml: f.cfg.ml } : {}), s: f.s || '', n: f.n || '', r: f.r || [] })); return true; }
   catch { if (isKid()) refund(1); return false; }
 }
@@ -1885,7 +1885,7 @@ async function removeStory(sid) {
 let shelfTimer = 0, stateTimer = 0;
 function sendShelfSoon() { if (!isKid()) return; clearTimeout(shelfTimer); shelfTimer = setTimeout(sendShelf, 2500); }
 async function sendShelf() {
-  if (!spend(1, false, true)) return;
+  if (!spend(1)) return;      // a story arriving is worth telling you, even on a busy day
   try { await ntfy(TD(), {}, await sealText({ t: 'shelf', at: S.shelfAt || Date.now(), items: S.shelf })); } catch { refund(1); }
 }
 // What's playing, for the grown-ups' page. While a grown-up is controlling her phone it reports within seconds;
@@ -3185,9 +3185,9 @@ function nowHtml() {
   const noise = st && st.noise && st.noise.until > now ? st.noise : null;
   const story = st && st.story && (!st.story.until || st.story.until > now) ? st.story : null;
   const game = st && st.game && st.game.n && now - st.at < 2 * HOUR ? st.game : null;
-  const music = st && st.music && now - st.at < 3 * HOUR ? st.music : null;
+  const music = kidMusic();
   if (game && !noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🎮</span><p><strong>Playing ${esc(game.n)}</strong>Since ${esc(time(game.since || st.at))}${gmc().m ? `, ${gmc().m} minutes a day` : ''}.</p></div>`;
-  if (!noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🌙</span><p><strong>Nothing playing</strong>${st ? `Checked ${ago(st.at)}.` : 'Her phone tells you here when a story or sound is playing.'}</p></div>`;
+  if (!noise && !story && !music) return `<div class="now"><span class="e" aria-hidden="true">🌙</span><p><strong>Nothing playing</strong>${st && st.at ? `Checked ${ago(st.at)}.` : 'Her phone tells you here when a story or sound is playing.'}</p></div>`;
   const what = [music && `🎵 ${esc(music.n)}${music.on ? `, on ${esc(music.on)}` : ''}${music.p ? ' (paused)' : ''}`, story && `📖 ${esc(story.title || 'A story')}`, noise && `🎧 ${esc(soundName(noise.kind))}, ${esc(leftTxt(noise.until))}`].filter(Boolean).join('<br>');
   return `<div class="now"><span class="e" aria-hidden="true">${music ? '🎵' : story ? esc(story.pic || '📖') : '🎧'}</span><p><strong>Playing on her phone</strong>${what}</p>
     <button class="btn" type="button" data-act="remote-stop">Stop</button></div>`;
@@ -3241,7 +3241,20 @@ function roomHtml() {
 }
 
 // What she's listening to, as her phone last said (within 3 hours)
-function kidMusic() { const st = S.kstate; return st && st.music && Date.now() - st.at < 3 * HOUR ? st.music : null; }
+function kidMusic() {
+  const st = S.kstate, now = Date.now();
+  if (!st || !st.music) return null;
+  if (st.music.assumed) return now - (st.mAt || 0) < 10 * MIN ? st.music : null;   // you pressed play and her phone hasn't said yet
+  if (st.music.p && now - st.at > 15 * MIN) return null;                              // her phone puts paused music away after 10 minutes
+  return now - st.at < 3 * HOUR ? st.music : null;
+}
+// You pressed play: your phone shows it playing straight away. Her phone's own report replaces this when it arrives
+// (on a busy day it may not send one: then this goes after 10 minutes).
+function pmAssume(x) {
+  const meta = ((S.kmusic && S.kmusic.items) || []).find((y) => y.id === x.id) || {}, cur = kidMusic();
+  S.kstate = Object.assign({ at: 0 }, S.kstate, { music: { id: x.id, n: meta.n || 'Music', art: meta.img || '', p: 0, on: (cur && cur.on) || '', assumed: 1 }, mAt: Date.now() });
+  put('kstate', S.kstate); renderPMini(); refresh();
+}
 // Your small player, under the header on every page
 function renderPMini() {
   const el = $('#pMini');
@@ -3718,7 +3731,7 @@ document.addEventListener('click', async (e) => {
   }
   // yours: pause, play, next and stop for her music
   if (d.pm) { pmCtl(d.pm, t); return; }
-  if (d.mplay) { const x = muList().find((y) => y.id === d.mplay); if (x) remote({ t: 'music', id: x.id, k: x.k }, t, 'Playing on her phone'); return; }
+  if (d.mplay) { const x = muList().find((y) => y.id === d.mplay); if (x && await remote({ t: 'music', id: x.id, k: x.k }, t, 'Playing on her phone')) pmAssume(x); return; }
   if (d.munrm) {
     const n = ((S.kmusic && S.kmusic.items) || []).find((y) => y.id === d.munrm);
     if (!confirm(`Remove ${n && n.n ? `“${n.n}”` : 'this playlist'} from her phone?`)) return;
