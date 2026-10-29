@@ -162,11 +162,11 @@ a { color: inherit; }
 .parent-wrap .thread { padding-bottom: calc(212px + env(safe-area-inset-bottom)); }
 .pfade { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; height: calc(150px + env(safe-area-inset-bottom)); pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent), var(--bg) 64%); }
 body.ptalkview .pfade { height: calc(232px + env(safe-area-inset-bottom)); }
-.pbar { position: fixed; z-index: 7; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); max-width: 32rem; margin: 0 auto; height: 68px; display: grid; grid-template-columns: 1fr 1.12fr 88px 1.12fr 1fr;
+.pbar { position: fixed; z-index: 7; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); max-width: 32rem; margin: 0 auto; height: 68px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 88px minmax(0, 1.75fr) minmax(0, 1.25fr);   /* three and two either side (her phone wider, for her name), the talk button still in the middle */
   border-radius: 26px; background: color-mix(in srgb, var(--raise-2) 82%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 0 0 1px var(--line), 0 16px 40px rgba(0, 0, 0, .45); }
 .pbar > button { display: grid; justify-items: center; align-content: center; gap: 2px; min-width: 0; padding: 0 2px; font-size: 11.5px; font-weight: 600; letter-spacing: .01em; color: var(--ink-3); transition: color .2s; }
-.pbar > button i { display: grid; place-items: center; width: 50px; height: 30px; border-radius: 15px; transition: background .25s, color .25s, transform .3s cubic-bezier(.3, 1.5, .5, 1); }
+.pbar > button i { display: grid; place-items: center; width: min(50px, 100%); height: 30px; border-radius: 15px; transition: background .25s, color .25s, transform .3s cubic-bezier(.3, 1.5, .5, 1); }
 .pbar > button svg { width: 22px; height: 22px; }
 .pbar > button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pbar > button[aria-current="page"] { color: var(--ink); }
@@ -182,9 +182,40 @@ body.prec .ptalk { transform: scale(.93); }
 body.prec .ptalk-wrap .talk-ring .lvl { opacity: .3; transform: scale(calc(.97 + var(--plvl, 0) * .3)); }
 body.prec .ptalk-wrap .talk-ring .prog { opacity: 1; }
 .ptalk.wiggle { animation: wiggle .5s ease; }
-.precbar { position: fixed; z-index: 8; left: 50%; bottom: calc(122px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 20px;
+.precbar { position: fixed; z-index: 12; left: 50%; bottom: calc(194px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 20px;
   border-radius: 23px; background: var(--raise-2); box-shadow: 0 0 0 1px var(--line-2), 0 12px 30px rgba(0, 0, 0, .4); font-size: 14.5px; font-weight: 600; white-space: nowrap; animation: drop .18s ease-out; }
 body.prec #view { opacity: .5; transition: opacity .2s; }
+.precbar .pr-side { color: var(--ink-3); font-weight: 500; font-size: 13px; }
+.precbar .pr-x { display: none; margin-right: -12px; height: 34px; padding: 0 14px; border-radius: 17px; background: var(--raise); color: var(--ink); font-weight: 600; font-size: 13.5px; }
+body.plocked .precbar .pr-side { display: none; }
+body.plocked .precbar .pr-x { display: block; }
+/* Slide while holding a talk button: sideways throws it away; up (or down, for a button along the top) keeps it recording
+   with your finger off, and the button turns into Send */
+.ptalk, .k-rtalk, .glide > .talk-ring { translate: var(--gx, 0px) 0; }
+.tlock { position: absolute; z-index: 2; left: 50%; bottom: calc(100% + 24px); width: 40px; margin-left: -20px; padding: 8px 0; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 1px;
+  background: var(--raise-2); color: color-mix(in srgb, var(--sun) calc(var(--gl, 0) * 100%), var(--ink-2)); box-shadow: 0 0 0 1px var(--line-2), 0 8px 22px rgba(0, 0, 0, .4);
+  opacity: 0; transform: translateY(calc(var(--gl, 0) * -12px)) scale(.9); pointer-events: none; transition: opacity .2s, transform .1s; }
+.tlock svg { width: 18px; height: 18px; flex: none; }
+.tlock .chev { animation: nudge 1.1s ease-in-out infinite; }
+.gdown .tlock { bottom: auto; top: calc(100% + 24px); flex-direction: column-reverse; transform: translateY(calc(var(--gl, 0) * 12px)) scale(.9); }
+.gdown .tlock .chev { rotate: 180deg; }
+.glide .tlock { opacity: 1; transform: translateY(calc(var(--gl, 0) * -12px)) scale(1); }
+.gdown.glide .tlock { transform: translateY(calc(var(--gl, 0) * 12px)) scale(1); }
+@keyframes nudge { 50% { transform: translateY(-3px); } }
+.ptalk .snd, .k-rtalk .snd, .talk .snd { display: none; }
+.ptalk .snd svg, .k-rtalk .snd svg { width: 100%; height: 100%; }
+body.plocked .ptalk > svg, #kRoom.locked .k-rtalk > svg, #kidApp.locked .talk > svg { display: none; }
+body.plocked .ptalk .snd, #kRoom.locked .k-rtalk .snd { display: grid; place-items: center; width: 32px; height: 32px; }
+.k-room.gameroom .k-rtalk .snd { width: 22px !important; height: 22px !important; }
+.pgame-top .ptalk .snd { width: 22px !important; height: 22px !important; }
+#kidApp.locked .talk .snd { display: grid; place-items: center; width: 34%; height: 34%; }
+#kidApp.locked .talk .snd svg { width: 100%; height: 100%; }
+body.plocked .ptalk, #kRoom.locked .k-rtalk, #kidApp.locked .talk { animation: sendme 1.6s ease-in-out infinite; }
+@keyframes sendme { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--sun) 28%, transparent); } }
+.tcx { position: absolute; z-index: 2; left: 50%; top: calc(100% + 18px); width: 46px; height: 46px; margin-left: -23px; border-radius: 50%; display: none; place-items: center;
+  background: var(--raise-2); color: var(--ink); box-shadow: 0 0 0 1px var(--line-2), 0 8px 22px rgba(0, 0, 0, .4); }
+.tcx svg { width: 22px; height: 22px; }
+#kRoom.locked .tcx { display: grid; animation: pop .2s cubic-bezier(.3, 1.4, .5, 1); }
 body.prec .pdeck { opacity: 0; pointer-events: none; }
 .pdeck { position: fixed; z-index: 6; left: 12px; right: 12px; bottom: calc(118px + env(safe-area-inset-bottom)); max-width: 32rem; margin: 0 auto; display: grid; justify-items: center; gap: 10px; pointer-events: none; transition: opacity .2s; }
 .pdeck > * { pointer-events: auto; }
@@ -271,7 +302,7 @@ dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
 .sheet h3 { margin: 26px 0 8px; font-size: 15px; font-weight: 600; }
 .sheet p { margin: 6px 0; color: var(--ink-2); font-size: 15px; }
 .sheet .result { margin-top: 10px; font-size: 14px; color: var(--ink-2); }
-.sheet .result.err { color: var(--sun); }
+.sheet .result.err, .card .result.err, .pgames .result.err { color: var(--sun); }
 .steps { list-style: none; counter-reset: s; padding: 0; margin: 18px 0 0; }
 .steps li { counter-increment: s; position: relative; padding: 0 0 18px 40px; color: var(--ink-2); font-size: 15px; }
 .steps li::before { content: counter(s); position: absolute; left: 0; top: -1px; width: 26px; height: 26px; border-radius: 50%; background: var(--raise-2); color: var(--ink); font-size: 13px; font-weight: 600; display: grid; place-items: center; }
@@ -302,7 +333,8 @@ dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast[popover]:not(:popover-open) { display: none; }
 body:not(.kid) .toast { bottom: calc(124px + env(safe-area-inset-bottom)); }          /* your phone: clear of the talk button */
-body.ptalkview .toast, body.prec .toast { bottom: calc(232px + env(safe-area-inset-bottom)); }   /* and of the replies and the recording time */
+body.ptalkview .toast { bottom: calc(232px + env(safe-area-inset-bottom)); }   /* and of the replies */
+body.prec .toast { bottom: calc(252px + env(safe-area-inset-bottom)); }          /* and of the recording time */
 
 /* ---------- Her phone ---------- */
 body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
@@ -501,7 +533,8 @@ body.sleeping .k-rtalk { background: #1C0604; color: #B8402C; box-shadow: 0 0 0 
 .k-minipanel { position: fixed; z-index: 13; left: 50%; top: 64px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 34px; background: var(--raise);
   box-shadow: 0 0 0 1px var(--line-2), 0 18px 44px rgba(0, 0, 0, .45); max-width: calc(100vw - 16px); animation: drop .18s ease-out; }
 @keyframes drop { from { opacity: 0; transform: translate(-50%, -8px); } }
-.k-minipanel .art { width: 56px; height: 56px; border-radius: 16px; overflow: hidden; background: var(--raise-2); display: grid; place-items: center; font-size: 26px; flex: none; position: relative; }
+.k-minipanel .art { width: 56px; height: 56px; border-radius: 16px; overflow: hidden; background: var(--raise-2); display: grid; place-items: center; font-size: 26px; flex: none; position: relative; padding: 0; }
+.k-minipanel .art:active { transform: scale(.92); }
 .k-minipanel .art img { width: 100%; height: 100%; object-fit: cover; }
 .k-minipanel .art i { position: absolute; right: 2px; bottom: 2px; font-style: normal; font-size: 15px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .6)); }
 .k-minipanel button { width: 54px; height: 54px; border-radius: 50%; background: var(--raise-2); color: var(--ink); font-size: 21px; display: grid; place-items: center; flex: none; transition: transform .12s; }
@@ -561,7 +594,14 @@ body.sleeping .k-mini, body.sleeping .k-minipanel { filter: grayscale(1) sepia(1
    playing is a big record turning in the middle, with a line to slide along the song. Headings in Fredoka. */
 :root { --kfont: "Fredoka", "Hanken Grotesk", system-ui, sans-serif; }
 .mroom { --rec: clamp(104px, 18vh, 164px); display: flex; flex-direction: column; gap: 10px; min-height: 100%; }
-.mroom > #muDevs { position: absolute; }      /* the speakers drop over the page: nothing under them moves */
+.mroom > #muDevs { position: absolute; }
+.pmroom { --rec: clamp(100px, 14vh, 140px); min-height: 0; padding-top: 2px; gap: 8px; }   /* a little smaller than hers, so it all sits above your talk button */
+.mroom.pmroom .music-card, .mroom.pmroom .music-card .cv { width: 74px; }
+.mroom.pmroom .music-card .cv { height: 74px; border-radius: 20px; }
+.mroom.pmroom .music-card .cap { max-width: 74px; }
+.mroom.pmroom .mnow { padding-top: 10px; padding-bottom: 10px; }
+.pmroom .mhint { margin: 2px 0 0; text-align: center; }
+.pm-h { margin: 4px 0 2px; font: 600 22px var(--kfont); }      /* the speakers drop over the page: nothing under them moves */
 .mh { display: flex; align-items: center; gap: 9px; margin: 0 0 0 2px; font: 600 17px/1.2 var(--kfont); letter-spacing: .01em; color: var(--ink); }
 .mh::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 4px var(--sun-soft); }
 .mroom .shelf.mu-covers { display: flex; gap: 12px; margin: 0 -18px; padding: 10px 18px 4px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; }
@@ -674,6 +714,59 @@ body.sleeping .mglow { opacity: .12; }
 .stories-list .round + .round { margin-left: -4px; }
 .k-dock:has(> :nth-child(6)) { gap: 8px; }
 .k-dock:has(> :nth-child(6)) button { width: 50px; height: 50px; font-size: 23px; }
+.k-dock:has(> :nth-child(7)) { gap: 5px; padding-left: 6px; padding-right: 6px; }
+.k-dock:has(> :nth-child(7)) button { width: min(46px, calc((100vw - 42px) / 7)); height: min(46px, calc((100vw - 42px) / 7)); font-size: 20px; }
+/* Her Videos room: her search words along the top, two videos a row, a heart on each, Send at the bottom */
+.k-room.vidroom .k-room-body { padding: 0; overflow: hidden; }
+.vroom { position: relative; height: 100%; display: grid; grid-template-rows: auto 1fr; min-height: 0; }
+.vterms { display: flex; gap: 8px; overflow-x: auto; overscroll-behavior-x: contain; padding: 2px 16px 12px; scrollbar-width: none; }
+.vterms::-webkit-scrollbar { display: none; }
+.vterms button { flex: none; height: 46px; padding: 0 18px; border-radius: 23px; background: var(--raise); color: var(--ink-2); font: 600 16px var(--kfont); white-space: nowrap; transition: transform .15s; }
+.vterms button:active { transform: scale(.94); }
+.vterms button[aria-selected="true"] { background: var(--sun); color: var(--on-sun); }
+.vgrid { min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; padding: 4px 16px 112px; align-content: start; }
+.vcard { display: grid; gap: 6px; text-align: left; min-width: 0; }
+.vcard .th { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: var(--raise); box-shadow: 0 6px 16px rgba(0, 0, 0, .25); transition: transform .22s cubic-bezier(.3, 1.4, .5, 1), box-shadow .22s; }
+.vcard .th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vcard .nm { font: 500 12.5px/1.25 var(--kfont); color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vcard .hrt { position: absolute; right: 7px; top: 7px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: rgba(0, 0, 0, .45); font-style: normal; font-size: 18px; line-height: 1; }
+.vcard .hrt::after { content: "🤍"; }
+.vcard.on .hrt { background: #fff; }
+.vcard.on .hrt::after { content: "❤️"; }
+.vcard.on .th { box-shadow: 0 0 0 4px var(--sun), 0 8px 20px rgba(0, 0, 0, .3); transform: scale(.96); }
+.vcard.on .nm { color: var(--ink); }
+.vcard:active .th { transform: scale(.93); }
+.vcard.hearted .hrt { animation: hpop .4s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes hpop { 40% { transform: scale(1.4); } }
+.vwait { grid-column: 1 / -1; display: grid; place-items: center; min-height: 40vh; font-size: 54px; color: var(--ink-3); }
+.vsend { position: absolute; left: 0; right: 0; bottom: 18px; margin: 0 auto; width: max-content; display: flex; align-items: center; gap: 12px; height: 70px; padding: 0 28px 0 24px; border-radius: 35px;
+  background: var(--sun); color: var(--on-sun); box-shadow: 0 0 0 7px color-mix(in srgb, var(--sun) 24%, transparent), 0 14px 30px rgba(0, 0, 0, .4); animation: vsin .25s cubic-bezier(.3, 1.4, .5, 1); }
+.vsend:active { transform: scale(.95); }
+.vsend svg { width: 32px; height: 32px; }
+.vsend b { font: 600 26px var(--kfont); }
+@keyframes vsin { from { opacity: 0; transform: translateY(16px) scale(.9); } }
+/* Your Videos card, what a search finds, and her picks in Talk */
+.vq .vqchip { padding: 0; gap: 0; overflow: hidden; }
+.vq .vqchip button { height: 38px; padding: 0 6px 0 14px; color: inherit; font: inherit; }
+.vq .vqchip .x { padding: 0 11px 0 6px; color: var(--ink-3); display: grid; place-items: center; }
+.vq .vqchip .x svg { width: 15px; height: 15px; }
+.vprev { display: grid; gap: 14px; margin-top: 14px; }
+.vrow { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 12px; align-items: start; }
+.vrow .th { display: block; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: var(--raise); }
+.vrow .th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vrow .t { display: grid; gap: 2px; min-width: 0; }
+.vrow .t b { font-size: 13.5px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vrow .t small { font-size: 12px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vrow .vacts { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 4px; }
+.vrow.hid .th, .vrow.hid b { opacity: .35; }
+.msg .vids { display: grid; gap: 10px; width: min(300px, 78vw); padding: 12px; border-radius: 20px; background: var(--raise); box-shadow: 0 0 0 1px var(--line); }
+.vids .vh2 { margin: 0; font-weight: 600; font-size: 15px; }
+.vthumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.vthumbs a, .vthumbs .more { display: block; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: var(--raise-2); }
+.vthumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vthumbs .more { display: grid; place-items: center; font-weight: 600; color: var(--ink-2); }
+.vids .vgo { width: 100%; }
+.vids .small { margin: 0; }
 /* Games */
 .games { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
 .game-card { position: relative; aspect-ratio: 1; border-radius: 26px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 10px; padding: 12px; }
@@ -844,11 +937,12 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
   </div>
   <div class="pfade" aria-hidden="true"></div>
   <div class="pdeck" id="pDeck"><div class="pnowbox" id="pNow"></div><div class="pquick" id="pQuick" role="group" aria-label="Quick replies"></div></div>
-  <div class="precbar" id="pRecBar" hidden><span class="rec-dot"></span><span class="num" id="pRecTime">0:00</span><span>Let go to send</span></div>
+  <div class="precbar" id="pRecBar" hidden><span class="rec-dot"></span><span class="num" id="pRecTime">0:00</span><span id="pRecSay">Let go to send</span><span class="pr-side" aria-hidden="true">‹ slide to cancel ›</span><button class="pr-x" id="pRecX" type="button">Cancel</button></div>
   <nav class="pbar" id="pbar" aria-label="Pages">
     <button type="button" data-view="talk" aria-current="page"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4.5 5.5h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5v-3.5h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"/></svg></i><span>Talk</span></button>
     <button type="button" data-view="sleep"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19.5 14.2A8 8 0 0 1 9.8 4.5a8 8 0 1 0 9.7 9.7Z"/></svg></i><span>Sleep</span></button>
-    <div class="pbar-mid"><div class="ptalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="ptalk" id="ptalk" type="button" aria-label="Hold to talk to her, let go to send" title="Hold to talk"></button></div></div>
+    <button type="button" data-view="music"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5.5l11-2v12.5"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></i><span>Music</span></button>
+    <div class="pbar-mid"><div class="ptalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="ptalk" id="ptalk" type="button" aria-label="Hold to talk to her, let go to send" title="Hold to talk"></button><span class="tlock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 14 5-5 5 5"/></svg></span></div></div>
     <button type="button" data-view="room"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="2.8" width="10" height="18.4" rx="2.4"/><path d="M10.5 17.6h3" stroke-linecap="round"/></svg></i><span id="pRoomName">Her phone</span></button>
     <button type="button" data-view="games"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 8h9a4.5 4.5 0 0 1 4.4 5.4l-.8 3.7a2.3 2.3 0 0 1-3.9 1.1L14.3 16H9.7l-1.9 2.2a2.3 2.3 0 0 1-3.9-1.1l-.8-3.7A4.5 4.5 0 0 1 7.5 8Z"/><path d="M8 11v3M6.5 12.5h3"/><circle cx="15.5" cy="11.6" r=".6" fill="currentColor"/><circle cx="17" cy="13.4" r=".6" fill="currentColor"/></svg></i><span>Games</span></button>
   </nav>
@@ -895,7 +989,7 @@ body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
 <audio id="player" preload="none"></audio>
 <audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=13"></script>
+<script src="core.js?v=15"></script>
 <script>
 (() => {
 'use strict';
@@ -907,8 +1001,8 @@ if (C && typeof C.msgCap !== 'function') { try { if (!sessionStorage.getItem('wl
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const RELEASE = 13;          // shown at the top of Settings, so you can see an update has arrived
-const EXPECT_BUILD = 2;      // the Apps Script release this app needs
+const RELEASE = 15;          // shown at the top of Settings, so you can see an update has arrived
+const EXPECT_BUILD = 3;      // the Apps Script release this app needs (3: the post box and Videos)
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
 const BEAT_EVERY = 30 * MIN;
@@ -1196,9 +1290,10 @@ async function checkSheet() {
   if (!S.fam || !S.fam.s || !FK) return;
   try {
     const j = await api('ping');
-    S.sheet = Object.assign(S.sheet || {}, { build: j.build, url: j.sheet || (S.sheet && S.sheet.url) || '', mine: !!j.mine, ok: true, err: j.mine ? '' : 'This phone isn’t part of the family the sleep log belongs to.' });
-  } catch (e) { S.sheet = Object.assign(S.sheet || {}, { ok: false, err: e.message }); }
+    S.sheet = Object.assign(S.sheet || {}, { build: j.build, url: j.sheet || (S.sheet && S.sheet.url) || '', mine: !!j.mine, ok: true, err: j.mine ? '' : 'This phone isn’t part of the family the sleep log belongs to.', checked: Date.now() });
+  } catch (e) { S.sheet = Object.assign(S.sheet || {}, { ok: false, err: e.message, checked: Date.now() }); }
   put('sheetInfo', S.sheet);
+  if (boxOn() && !BOX.at) boxPoll();
   if (!isKid()) renderNotices();
 }
 async function loadLog() {
@@ -1214,6 +1309,51 @@ async function loadLog() {
   S.logBusy = false;
   if (S.view === 'sleep') renderView();
 }
+/* ---------- The post box: your Apps Script holds settings and reports for the phones to collect ---------- */
+// None of this goes through ntfy, so none of it uses the 250 messages a day your home Wi-Fi shares. Her phone looks
+// every 20 seconds by day (a minute at night); yours every half a minute, more often on her phone's page and just after
+// you've asked her phone to do something. What must arrive at once or wake a phone (her taps and voice, your replies,
+// your play and stop, the gone-quiet alert) still goes by ntfy. Anything the post box can't take goes by ntfy too.
+const BOX = { seq: get('boxSeq', 0), kid: get('boxKid', 0), at: 0, busy: false, fails: 0, quick: 0 };
+const boxOn = () => !!(S.fam && S.fam.s && FK && S.sheet && S.sheet.mine && (S.sheet.build || 0) >= 3);
+// her settings only go this way once her phone has been seen collecting from it (so an older release still gets them)
+const boxToKid = () => boxOn() && Date.now() - BOX.kid < 6 * HOUR;
+async function viaBox(slot, obj, toKid) {
+  if (!boxOn() || (toKid && !boxToKid())) return false;
+  try { await api('box', { s: slot || '', d: await sealText(obj) }); return true; } catch { return false; }
+}
+async function boxPoll() {
+  if (!boxOn() || BOX.busy) return;
+  BOX.busy = true; BOX.at = Date.now();
+  try {
+    const j = await api('boxget', { since: BOX.seq, by: isKid() ? 'kid' : 'p' });
+    if (!isKid() && +j.kid && +j.kid !== BOX.kid) { BOX.kid = +j.kid; put('boxKid', BOX.kid); }
+    if ((+j.seq || 0) < BOX.seq) { BOX.seq = 0; put('boxSeq', 0); BOX.at = 0; }      // a new Apps Script: collect everything again
+    else {
+      for (const it of j.items || []) {
+        if (!(+it.id > BOX.seq)) continue;
+        try { await onData({ message: String(it.d || ''), time: (+it.at || Date.now()) / 1000, id: 'b' + it.id }, true); } catch {}
+        BOX.seq = +it.id;
+      }
+      if ((+j.seq || 0) > BOX.seq) BOX.seq = +j.seq;
+      put('boxSeq', BOX.seq);
+    }
+    BOX.fails = 0;
+  } catch { BOX.fails++; }
+  finally { BOX.busy = false; }
+}
+const BOX_TEST = Math.max(0, +get('boxEvery', 0) || 0);     // tests only: look more often
+function boxEvery() {
+  if (BOX_TEST) return BOX_TEST;
+  if (isKid()) return nightish() ? MIN : 20e3;
+  return S.view === 'room' || Date.now() < BOX.quick ? 8e3 : 30e3;
+}
+setInterval(() => {
+  if (!S.fam || !S.me || document.visibilityState !== 'visible') return;
+  if (S.fam.s && FK && Date.now() - ((S.sheet && S.sheet.checked) || 0) > 6 * HOUR) checkSheet();   // an updated Apps Script is noticed
+  if (boxOn() && Date.now() - BOX.at >= boxEvery() * Math.min(8, 1 + BOX.fails)) boxPoll();
+}, 2000);
+
 function allEvents() {
   const out = ((S.log && S.log.events) || []).slice();
   const ids = new Set(out.map((e) => e.id));
@@ -1222,15 +1362,26 @@ function allEvents() {
 }
 
 /* ---------- Family config, shared over ntfy ---------- */
+// true when it's gone; 'limit' when ntfy's daily allowance is used up; false when it couldn't go (offline, say).
+// One that didn't go is kept as owed and goes by itself: within a minute or so, or just after midnight UTC for the limit.
 async function sendCfg() {
-  if (!S.fam) return;
+  if (!S.fam) return false;
   const f = S.fam;
-  if (isKid() && !spend(1)) return;
-  try { await ntfy(TD(), {}, await sealText({ t: 'cfg', at: f.cfgAt || 0, by: meId(), bed: f.cfg.bed, wd: f.cfg.wd, we: f.cfg.we, cd: f.cfg.cd || null, ri: f.cfg.ri || null, gm: f.cfg.gm || null, ...(f.cfg.sp ? { sp: f.cfg.sp } : {}), ...(Array.isArray(f.cfg.mu) ? { mu: f.cfg.mu } : {}), ...(f.cfg.ml ? { ml: f.cfg.ml } : {}), s: f.s || '', n: f.n || '', r: f.r || [] })); return true; }
-  catch { if (isKid()) refund(1); return false; }
+  const msg = { t: 'cfg', at: f.cfgAt || 0, by: meId(), bed: f.cfg.bed, wd: f.cfg.wd, we: f.cfg.we, cd: f.cfg.cd || null, ri: f.cfg.ri || null, gm: f.cfg.gm || null, ...(f.cfg.sp ? { sp: f.cfg.sp } : {}), ...(Array.isArray(f.cfg.mu) ? { mu: f.cfg.mu } : {}), ...(f.cfg.ml ? { ml: f.cfg.ml } : {}), ...(f.cfg.vd ? { vd: f.cfg.vd } : {}), s: f.s || '', n: f.n || '', r: f.r || [] };
+  if (await viaBox(`cfg:${meId()}`, msg, !isKid())) { cfgOwe(0); return true; }     // each phone's latest, so one can't hide another's
+  if (isKid() && !spend(1)) { cfgOwe(f.cfgAt || 1); return false; }
+  try { await ntfy(TD(), {}, await sealText(msg)); cfgOwe(0); return true; }
+  catch (e) { if (isKid()) refund(1); cfgOwe(f.cfgAt || 1, e.limit); return e.limit ? 'limit' : false; }
 }
-let cfgRetryT = 0;
-function retryCfg(n = 0) { clearTimeout(cfgRetryT); if (n < 30) cfgRetryT = setTimeout(async () => { if (!(await sendCfg())) retryCfg(n + 1); }, MIN); }
+const CFGO = { next: 0, tries: 0 };
+function cfgOwe(at, limit) {
+  if (!at) { if (get('cfgOwed', 0)) put('cfgOwed', 0); CFGO.tries = 0; return; }
+  put('cfgOwed', at);
+  CFGO.tries++;
+  const d = new Date(); d.setUTCHours(24, 2, 0, 0);
+  CFGO.next = limit ? d.getTime() : Date.now() + Math.min(5, CFGO.tries) * MIN;
+}
+setInterval(() => { if (S.fam && S.me && get('cfgOwed', 0) && navigator.onLine !== false && Date.now() >= CFGO.next) { CFGO.next = Date.now() + MIN; sendCfg(); } }, 15e3);
 let cfgTimer = 0;
 const sendCfgSoon = () => { clearTimeout(cfgTimer); cfgTimer = setTimeout(sendCfg, 4000); };
 function mergeRoster(list) {
@@ -1248,6 +1399,12 @@ function mergeRoster(list) {
 const inSp = (o) => (o && o.sp && C.spotifyCid && C.spotifyCid(o.sp.cid) ? { cid: C.spotifyCid(o.sp.cid) } : null);
 const inMu = (o) => (o && Array.isArray(o.mu) && C.spotifyRef ? o.mu.slice(0, 12).map((x) => x && C.spotifyRef(`spotify:${x.k}:${x.id}`)).filter(Boolean) : null);
 const inMl = (o) => (o && C.CAPS && C.CAPS.includes(+o.ml) ? +o.ml : null);
+// Videos: on or off, your search words (up to 8), and the videos and channels you've hidden
+const VID_RE = /^[A-Za-z0-9_-]{11}$/, CH_RE = /^[A-Za-z0-9_-]{10,30}$/;
+const vdClean = (v) => (v && typeof v === 'object' ? { on: !!v.on,
+  q: (Array.isArray(v.q) ? v.q : []).map((x) => String(x || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40)).filter(Boolean).slice(0, 8),
+  hide: (Array.isArray(v.hide) ? v.hide : []).filter((x) => VID_RE.test(String(x))).slice(-60),
+  bc: (Array.isArray(v.bc) ? v.bc : []).filter((x) => CH_RE.test(String(x))).slice(-20) } : null);
 function applyCfg(o) {
   let changed = mergeRoster(o.r);
   if ((o.at || 0) > (S.fam.cfgAt || 0)) {
@@ -1259,7 +1416,8 @@ function applyCfg(o) {
       // Spotify: a phone that never had these (an older release) sends nothing, so nothing is wiped
       sp: inSp(o) || cfg().sp || null,
       mu: inMu(o) || cfg().mu || null,
-      ml: inMl(o) || cfg().ml || null };
+      ml: inMl(o) || cfg().ml || null,
+      vd: 'vd' in o ? vdClean(o.vd) : cfg().vd || null };
     S.fam.cfgAt = o.at;
     if (typeof o.s === 'string' && (!o.s || /^https:\/\/script\.google\.com\//.test(o.s))) S.fam.s = o.s || S.fam.s;
     if (typeof o.n === 'string') S.fam.n = o.n.slice(0, 30);
@@ -1269,7 +1427,7 @@ function applyCfg(o) {
     const sp = !cfg().sp && inSp(o), mu = !Array.isArray(cfg().mu) && inMu(o), ml = !cfg().ml && inMl(o);
     if (sp || mu || ml) { S.fam.cfg = Object.assign({}, S.fam.cfg, sp ? { sp } : {}, mu ? { mu } : {}, ml ? { ml } : {}); changed = true; }
   }
-  if (changed) { saveFam(); if (S.fam.s) { checkSheet(); flushSoon(); } if (isKid()) { setTimeout(kidTick, 0); setTimeout(muWarm, 500); } }
+  if (changed) { saveFam(); if (S.fam.s) { checkSheet(); flushSoon(); } if (isKid()) { setTimeout(kidTick, 0); setTimeout(muWarm, 500); setTimeout(renderVideos, 0); } }
   return changed;
 }
 
@@ -1383,6 +1541,11 @@ async function onData(m, live) {
     }
     if (!isKid() && live && from === 'child' && o.t === 'voice' && item.att) autoPlay(item);
     refresh();
+  } else if (o.t === 'vpick' && !isKid() && Array.isArray(o.v)) {     // her video picks, from your post box
+    const v = o.v.filter((x) => Array.isArray(x) && VID_RE.test(String(x[0]))).slice(0, 20).map((x) => [String(x[0]), String(x[1] || '').replace(/[<>]/g, '').slice(0, 60)]);
+    if (!v.length) return;
+    upsert({ eid: String(o.eid || m.id).slice(0, 20), ts: +o.at || ts, from: 'child', kind: 'vids', v });
+    saveItems(); refresh();
   } else if (o.t === 'heard') {
     for (const id of (o.ids || []).slice(0, 30)) {
       const list = S.heard[id] = S.heard[id] || [];
@@ -1633,7 +1796,8 @@ function queueHeard(eid) {
   heardTimer = setTimeout(async () => {
     const ids = [...HEARD_Q]; HEARD_Q.clear();
     if (!ids.length) return;
-    try { const r = await ntfy(TD(), {}, await sealText({ t: 'heard', ids, from: S.me.id })); if (r && r.id) markSeen(r.id); } catch {}
+    const o = { t: 'heard', ids, from: S.me.id };
+    if (!(await viaBox('', o, !isKid()))) { try { const r = await ntfy(TD(), {}, await sealText(o)); if (r && r.id) markSeen(r.id); } catch {} }
     ids.forEach((id) => { const l = S.heard[id] = S.heard[id] || []; if (!l.includes(S.me.id)) l.push(S.me.id); });
     put('heard', S.heard); refresh();
   }, 2000);
@@ -1931,7 +2095,7 @@ function kidTick() {
   if (K.room === 'colours' && S.sleep.on) closeRoom();
   if (K.room === 'music' && !musicOn()) closeRoom();
   if (K.room === 'music') renderTracks();     // her songs: a failed fetch tries again
-  if ((K.shelfOwed || shelfKey() !== get('shelfSent', '')) && canSpend(1)) sendShelfSoon();   // a shelf your phones haven't had yet
+  if ((K.shelfOwed || shelfKey() !== get('shelfSent', '')) && (boxOn() || canSpend(1))) sendShelfSoon();   // a shelf your phones haven't had yet
   if (K.stateOwed && !K.stateBusy) sendStateSoon();                                              // an update that couldn't go yet
   // music switched off, or its playlist taken off her phone: it stops too (she'd have no button to stop it)
   if (MU.ctx && (!musicOn() || (!MU.adopted && !muList().some((x) => x.id === MU.ctx)))) muStop();
@@ -1944,6 +2108,7 @@ function kidTick() {
   if (S.sleep.on && MU.out && !MU.ctx) { muOutGone(); muChanged(); }   // a speaker picked but not used by bedtime: back to her phone
   if (MU.out && !MU.pollT && !MU.polling && document.visibilityState === 'visible') muPollSoon(1000);
   if (S.sp && now - (K.muAt || 0) > 6 * HOUR) { K.muAt = now; setTimeout(muWarm, 3000); }
+  if (K.room === 'videos' && (S.sleep.on || !vidOn())) closeRoom();      // bedtime, or switched off
   if (K.room === 'games' || K.room === 'play') {
     if (S.sleep.on || !gamesOn()) closeRoom();
     else if (K.room === 'play') {
@@ -1964,16 +2129,35 @@ function kidTick() {
 
 // Hold to talk
 const talk = $('#talk');
-talk.insertAdjacentHTML('beforeend', ICON.mic);
+talk.insertAdjacentHTML('beforeend', ICON.mic + `<span class="snd">${ICON.send}</span>`);
+// Slide while holding a talk button (not her big one at home): sideways, either way, throws it away; away from the screen's
+// edge (up, or down for a button along the top) keeps it recording with the finger off, and a tap on the button sends it
+const SLIDE_X = 90, LOCK_Y = 64;
+const TLOCK = `<span class="tlock" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 14 5-5 5 5"/></svg></span>`;
+function glideStart(btn, e) {
+  const r = btn.getBoundingClientRect(), w = btn.parentElement, down = r.top + r.height / 2 < innerHeight * 0.3;
+  w.classList.toggle('gdown', down); glideReset(w);
+  return { x0: e.clientX, y0: e.clientY, dir: down ? 1 : -1, w };
+}
+function glideMove(g, e) {
+  const dx = e.clientX - g.x0, dy = (e.clientY - g.y0) * g.dir, xp = Math.max(-1, Math.min(1, dx / SLIDE_X));
+  g.w.style.setProperty('--gx', `${(xp * 34).toFixed(1)}px`);
+  g.w.style.setProperty('--gl', Math.max(0, Math.min(1, dy / LOCK_Y)).toFixed(2));
+  if (Math.abs(dx) >= SLIDE_X && Math.abs(dx) > Math.abs(dy)) return 'cancel';
+  if (dy >= LOCK_Y && dy > Math.abs(dx)) return 'lock';
+  return '';
+}
+function glideReset(w) { if (w) { w.style.removeProperty('--gx'); w.style.removeProperty('--gl'); w.classList.remove('glide'); } }
 // the same button, smaller, at the top of each of her rooms: hold to talk from anywhere
-const ROOM_TALK = `<div class="k-rtalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="k-rtalk" type="button" aria-label="Hold to talk"><span class="rest" aria-hidden="true">💤</span>${ICON.mic}</button></div>`;
+const ROOM_TALK = `<div class="k-rtalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="k-rtalk" type="button" aria-label="Hold to talk"><span class="rest" aria-hidden="true">💤</span>${ICON.mic}<span class="snd">${ICON.send}</span></button>${TLOCK}<button class="tcx" type="button" aria-label="Don’t send">${ICON.x}</button></div>`;
 async function talkDown(e, btn) {
   e.preventDefault();
   kidTouch();
+  if (K.locked) { talkFinish(true); return; }          // recording hands-free: a tap on a talk button sends it
   if (K.press || K.rec) return;
   if (K.restUntil > Date.now() || !canSpend(2)) { rest(); wiggle(btn); return; }
   try { btn.setPointerCapture(e.pointerId); } catch {}
-  K.press = { up: false, pid: e.pointerId, btn };
+  K.press = { up: false, pid: e.pointerId, btn, g: btn.classList.contains('k-rtalk') ? glideStart(btn, e) : null };
   stopPlayback();
   K.overlay = null; renderKid();
   hush(true);
@@ -1982,16 +2166,30 @@ async function talkDown(e, btn) {
   if (K.press.up || !ok || !recStart()) { K.press = null; wiggle(btn); hush(false); return; }
   K.rec = true;
   $('#kidApp').classList.add('rec'); $('#kRoom').classList.add('rec');
+  if (K.press.g) K.press.g.w.classList.add('glide');
   K.recTimer = setInterval(() => {
     const el = Date.now() - REC.t0, off = String(100 - Math.min(100, el / KID_MAX * 100)), lv = REC.lvl.toFixed(2);
     $('#kidApp').style.setProperty('--lvl', lv); $('#kRoom').style.setProperty('--lvl', lv);
     $('#prog').style.strokeDashoffset = off;
     document.querySelectorAll('#kRoom .k-rtalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = off; });
-    if (el >= KID_MAX) talkEnd(null);
+    if (el >= KID_MAX) talkFinish(true);
   }, 90);
 }
 talk.addEventListener('pointerdown', (e) => talkDown(e, talk));
-$('#kRoom').addEventListener('pointerdown', (e) => { const b = e.target.closest('.k-rtalk'); if (b) talkDown(e, b); });
+$('#kRoom').addEventListener('pointerdown', (e) => {
+  if (e.target.closest('.tcx')) { e.preventDefault(); kidTouch(); talkFinish(false); return; }
+  const b = e.target.closest('.k-rtalk'); if (b) talkDown(e, b);
+});
+document.addEventListener('pointermove', (e) => {
+  if (!isKid() || !K.rec || K.locked || !K.press || !K.press.g || e.pointerId !== K.press.pid) return;
+  const r = glideMove(K.press.g, e);
+  if (r === 'cancel') talkFinish(false);
+  else if (r === 'lock') {
+    K.locked = true; glideReset(K.press.g.w);
+    $('#kidApp').classList.add('locked'); $('#kRoom').classList.add('locked');
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch {}
+  }
+});
 $('#kRoom').addEventListener('contextmenu', (e) => { if (e.target.closest('.k-rtalk')) e.preventDefault(); });
 // her finger lifting anywhere ends it, even if her room redrew under it
 ['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => { if (isKid() && K.press && e.pointerId === K.press.pid) talkEnd(e); }));
@@ -1999,15 +2197,20 @@ async function talkEnd(e) {
   if (!K.press) return;
   if (e && e.pointerId != null && K.press.pid != null && e.pointerId !== K.press.pid) return;   // another finger: ignore
   K.press.up = true;
+  if (!K.rec || K.locked) return;          // locked: it carries on until she taps to send
+  talkFinish(true);
+}
+async function talkFinish(send) {
   if (!K.rec) return;
   clearInterval(K.recTimer);
   K.rec = false;
-  $('#kidApp').classList.remove('rec'); $('#kRoom').classList.remove('rec');
+  const held = Date.now() - REC.t0, btn = K.press && K.press.btn, g = K.press && K.press.g, locked = K.locked;
+  K.press = null; K.locked = false;
+  $('#kidApp').classList.remove('rec', 'locked'); $('#kRoom').classList.remove('rec', 'locked');
+  if (g) glideReset(g.w);
   $('#prog').style.strokeDashoffset = '100';
   document.querySelectorAll('#kRoom .k-rtalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = '100'; });
-  const held = Date.now() - REC.t0, btn = K.press.btn;
-  K.press = null;
-  if (held < MIN_HOLD) { recCancel(); wiggle(btn); hush(false); return; }
+  if (!send || (held < MIN_HOLD && !locked)) { recCancel(); wiggle(btn); hush(false); return; }   // slid away, or only a tap
   const rec = await recStop(REC_TAIL);     // half a second more, then her story or music carries on
   hush(false);
   if (rec && rec.blob.size) sendVoice(rec);
@@ -2169,9 +2372,16 @@ function sendShelfSoon() { if (!isKid()) return; clearTimeout(shelfTimer); shelf
 const shelfKey = () => JSON.stringify(S.shelf.map((x) => x.sid));
 async function sendShelf() {
   const key = shelfKey();
-  if (!spend(1)) { K.shelfOwed = true; return; }      // a story arriving is worth telling you, even on a busy day
-  try { await ntfy(TD(), {}, await sealText({ t: 'shelf', at: S.shelfAt || Date.now(), items: S.shelf })); put('shelfSent', key); K.shelfOwed = false; }
-  catch { refund(1); K.shelfOwed = true; }
+  // a story arriving is worth telling you, even on a busy day
+  if (await report('shelf', { t: 'shelf', at: S.shelfAt || Date.now(), items: S.shelf }, () => spend(1))) { put('shelfSent', key); K.shelfOwed = false; }
+  else K.shelfOwed = true;
+}
+// A report for your phones: through the post box when it's there (costs nothing), otherwise one of her ntfy messages
+// if her allowance has room (`cost` says)
+async function report(slot, obj, cost) {
+  if (await viaBox(slot, obj)) return true;
+  if (!(cost || (() => spend(1, false, true)))()) return false;
+  try { await ntfy(TD(), {}, await sealText(obj)); return true; } catch { refund(1); return false; }
 }
 // What's playing, for the grown-ups' page. While a grown-up is controlling her phone it reports within seconds;
 // otherwise at most once a minute (the latest wins), with a daily cap, so an evening of tapping can't use up ntfy's messages
@@ -2203,12 +2413,12 @@ async function sendState() {
   }
   const key = JSON.stringify([st.noise && st.noise.kind, st.noise && Math.round(st.noise.until / 6e4), st.story && st.story.sid, st.game && st.game.n, st.game ? 0 : st.gu]);
   if (key === K.stateKey) { K.stateOwed = false; return; }
-  if (!C.budget(S.budget, Date.now(), 1, nightish(), false, dayCap(), true).ok || !extraOk()) { K.stateOwed = true; return; }   // goes when there's room again
-  spend(1, false, true);
   K.stateBusy = true; K.stateAt = Date.now();
-  try { await ntfy(TD(), {}, await sealText(st)); K.stateKey = key; K.stateOwed = false; }
-  catch { refund(1); K.stateOwed = true; }
-  finally { K.stateBusy = false; }
+  try {
+    // by ntfy only with room in her allowance and under the daily cap; otherwise it goes when there's room again
+    if (await report('state', st, () => C.budget(S.budget, Date.now(), 1, nightish(), false, dayCap(), true).ok && extraOk() && spend(1, false, true))) { K.stateKey = key; K.stateOwed = false; }
+    else K.stateOwed = true;
+  } finally { K.stateBusy = false; }
 }
 
 // Story player
@@ -2321,7 +2531,7 @@ function setLevel(i) {
 }
 
 // Rooms: full-screen pages with a big home button
-const ROOMS = { stories: '📖', sounds: '🎧', calm: '⭐', draw: '🎨', games: '🎮', colours: '🌈', music: '🎵' };
+const ROOMS = { stories: '📖', sounds: '🎧', calm: '⭐', draw: '🎨', games: '🎮', colours: '🌈', music: '🎵', videos: '📺' };
 ICON.home = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></svg>';
 ICON.stop = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
 ICON.plane = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 3 3 10.5l7 2.5 2.5 7L21 3Z"/><path d="m10 13 4.5-4.5"/></svg>';
@@ -2332,6 +2542,7 @@ function openRoom(name) {
   if (name === 'games' && (S.sleep.on || !gamesOn())) return;
   if (name === 'colours' && S.sleep.on) return;
   if (name === 'music' && !musicOn()) return;
+  if (name === 'videos' && (S.sleep.on || !vidOn())) return;
   if (K.room === 'play') closeRoom();
   K.room = name;
   K.miniOpen = false; K.pickOpen = false;
@@ -2341,6 +2552,7 @@ function openRoom(name) {
   $('#kRoom').hidden = false;
   if (name === 'calm') startCalm();
   if (name === 'draw') setupDraw();
+  if (name === 'videos') renderVideos();
   renderKid();
 }
 function closeRoom() {
@@ -2380,6 +2592,7 @@ function renderRoom() {
   if (K.room === 'calm') body = `<div class="calm">${STAR_SVG}</div>`;
   if (K.room === 'games') { body = gamesHtml(); right = pieHtml(); }
   if (K.room === 'colours') body = coloursHtml();
+  if (K.room === 'videos') body = '<div class="vroom"><div class="vterms" id="vTerms" role="tablist" aria-label="Videos"></div><div class="vgrid" id="vGrid"></div><div id="vSendBox"></div></div>';
   if (K.room === 'music') {      // her songs keep their own box, so they don't redraw with every change
     body = `<div class="mroom"><div id="muDevs">${devsHtml()}</div>
       <div class="mpl"><h3 class="mh">Playlists</h3><div id="muTop">${musicHtml()}</div></div>
@@ -2403,7 +2616,7 @@ function renderRoom() {
     right = `<button class="k-bin" type="button" data-act="k-bin" aria-label="Start again">🗑️</button><button class="k-send" type="button" data-act="k-send" aria-label="Send to the grown-ups">${ICON.plane}</button>`;
   }
   void title;
-  el.className = 'k-room' + (K.room === 'play' ? ' gameroom' : '') + (K.room === 'draw' ? ' drawroom' : '') + (el.classList.contains('rec') ? ' rec' : '') + (K.restUntil > Date.now() ? ' resting' : '');
+  el.className = 'k-room' + (K.room === 'play' ? ' gameroom' : '') + (K.room === 'draw' ? ' drawroom' : '') + (K.room === 'videos' ? ' vidroom' : '') + (el.classList.contains('rec') ? ' rec' : '') + (K.restUntil > Date.now() ? ' resting' : '');
   // each part is only redrawn when it changes, so her talk button stays put under her finger
   if (el.dataset.room !== K.room || !el.querySelector('.k-room-top')) {
     el.innerHTML = '<div class="k-room-top"><div class="k-left"></div><div class="k-room-title"></div><div class="k-right"></div></div><div class="k-room-body"></div>';
@@ -2415,6 +2628,7 @@ function renderRoom() {
   setHtml(el.querySelector('.k-room-body'), body);
   if (K.room === 'play') watchGame();
   if (K.room === 'music') renderTracks();
+  if (K.room === 'videos') renderVideos();
 }
 function startCalm() {
   K.calmNoise = !NZ.on;
@@ -2664,6 +2878,130 @@ function celebrate(e) {
   clearTimeout(K.celT); K.celT = setTimeout(() => { el.hidden = true; }, 2700);
 }
 
+// Videos: your search words as buttons on her phone, twenty YouTube videos for each (safe search, through your Apps Script).
+// She hearts the ones she'd like and sends you the list; nothing plays on her phone. You open them in YouTube and cast.
+const vdCfg = () => vdClean(cfg().vd) || { on: false, q: [], hide: [], bc: [] };
+const vidOn = () => { const v = vdCfg(); return v.on && v.q.length > 0 && boxOn(); };
+const vThumb = (id) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+const ytList = (ids) => `https://www.youtube.com/watch_videos?video_ids=${ids.join(',')}`;
+const ytOne = (id) => `https://www.youtube.com/watch?v=${id}`;
+S.vids = get('vids', {});
+const V = { term: null, busy: '', err: '', picks: get('vpick', []), at: {} };
+const vidOk = (x, v = vdCfg()) => x && VID_RE.test(x.id) && !v.hide.includes(x.id) && !v.bc.includes(x.ch);
+async function vidsLoad(q, force) {
+  const k = q.toLowerCase(), have = S.vids[k];
+  if (!force && have && Date.now() - have.at < 12 * HOUR) return have;
+  if (V.busy === k || (!force && Date.now() - (V.at[k] || 0) < 30e3)) return have || null;
+  V.busy = k; V.at[k] = Date.now();
+  try {
+    const j = await api('videos', { q });
+    S.vids[k] = { at: Date.now(), items: (j.items || []).filter((x) => x && VID_RE.test(String(x.id))).slice(0, 20).map((x) => ({ id: x.id, t: String(x.t || '').slice(0, 90), c: String(x.c || '').slice(0, 40), ch: String(x.ch || '').slice(0, 30) })) };
+    const keys = Object.keys(S.vids).sort((a, b) => S.vids[b].at - S.vids[a].at);
+    keys.slice(16).forEach((x) => delete S.vids[x]);
+    put('vids', S.vids); V.err = '';
+  } catch (e) { V.err = e.message || 'Couldn’t find videos just now.'; }
+  finally { V.busy = ''; }
+  if (isKid()) renderVideos(); else { renderView(); renderVPrev(); }
+  return S.vids[k] || null;
+}
+
+// Her Videos room: her search words along the top (and ❤️ for ones she's sent before), the videos below, Send at the bottom
+function renderVideos() {
+  if (!isKid() || K.room !== 'videos') return;
+  const v = vdCfg(), sent = get('vsent', []);
+  const tabs = (sent.length ? [['fav', '❤️']] : []).concat(v.q.map((q, i) => [String(i), q]));
+  if (V.term == null || !tabs.some((x) => x[0] === V.term)) V.term = v.q.length ? '0' : 'fav';
+  setHtml($('#vTerms'), tabs.map(([k, l]) => `<button type="button" role="tab" data-vterm="${k}" aria-selected="${V.term === k}"${k === 'fav' ? ' aria-label="Sent before"' : ''}>${esc(l)}</button>`).join(''));
+  let list = null, q = '';
+  if (V.term === 'fav') list = sent.filter((x) => VID_RE.test(x[0]) && !v.hide.includes(x[0])).map(([id, t]) => ({ id, t }));
+  else {
+    q = v.q[+V.term] || '';
+    const c = S.vids[q.toLowerCase()];
+    if (!c || Date.now() - c.at > 12 * HOUR) vidsLoad(q);
+    list = c ? c.items.filter((x) => vidOk(x, v)) : null;
+  }
+  const grid = $('#vGrid');
+  const h = list == null ? (V.err && !V.busy ? '<div class="vwait" aria-label="No videos just now"><span aria-hidden="true">📺💤</span></div>' : '<div class="vwait"><span class="spinner"></span></div>')
+    : !list.length ? '<div class="vwait" aria-label="No videos"><span aria-hidden="true">📺</span></div>'
+    : list.map((x) => `<button class="vcard" type="button" data-vid="${x.id}" data-vt="${esc(x.t)}" aria-label="${esc(x.t)}"><span class="th"><img src="${vThumb(x.id)}" alt="" loading="lazy"><i class="hrt" aria-hidden="true"></i></span><span class="nm">${esc(x.t)}</span></button>`).join('');
+  if (grid && grid.dataset.h !== h) { grid.innerHTML = h; grid.dataset.h = h; grid.scrollTop = 0; }
+  vidPicksUi();
+}
+function vidPicksUi() {
+  const ids = V.picks.map((x) => x[0]);
+  document.querySelectorAll('#vGrid [data-vid]').forEach((b) => { const on = ids.includes(b.dataset.vid); b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  setHtml($('#vSendBox'), V.picks.length ? `<button class="vsend" type="button" data-act="v-send" aria-label="Send ${V.picks.length} to the grown-ups">${ICON.plane}<b class="num">${V.picks.length}</b></button>` : '');
+}
+function vidPick(b) {
+  K.lastTouch = Date.now();
+  const id = b.dataset.vid, i = V.picks.findIndex((x) => x[0] === id);
+  if (i >= 0) V.picks.splice(i, 1);
+  else { if (V.picks.length >= 20) { wiggleEl(b); return; } V.picks.push([id, String(b.dataset.vt || '').slice(0, 60)]); b.classList.add('hearted'); setTimeout(() => b.classList.remove('hearted'), 400); }
+  put('vpick', V.picks);
+  vidPicksUi();
+}
+// Send: the list goes in your post box (with the names), and one notification that opens them straight in YouTube
+async function sendVids(btn) {
+  const picks = V.picks.slice(0, 20);
+  if (!picks.length) return;
+  if (!spend(1)) { rest(); return; }
+  btn.disabled = true;
+  const eid = rid(10), ids = picks.map((x) => x[0]), n = picks.length;
+  // either one is enough: the list waits in Walkie on your phones, and the notification itself opens it in YouTube
+  const boxed = await viaBox('', { t: 'vpick', eid, from: 'child', at: Date.now(), v: picks });
+  let told = false;
+  try {
+    await tryHard(() => ntfy(TA(), { title: 'Videos to watch', tags: 'tv', p: 3, click: ytList(ids), actions: `view, Open in Walkie, ${APP}#e=${eid}&w=vids` },
+      `She picked ${n === 1 ? 'one' : n}. Tap to open ${n === 1 ? 'it' : 'them'} in YouTube, then tap Cast.`));
+    told = true;
+  } catch { refund(1); }
+  if (!boxed && !told) { btn.disabled = false; wiggleEl(btn); return; }
+  put('vsent', picks.concat(get('vsent', []).filter((x) => !ids.includes(x[0]))).slice(0, 30));
+  V.picks = []; put('vpick', []);
+  flyAway('📺');
+  renderVideos();
+}
+
+// Your Videos card on her phone's page: on or off, your search words, and a look at what each finds (hide any of them)
+function videosCardHtml() {
+  const v = vdCfg(), ready = boxOn();
+  return `<section class="card">
+    <h2><span class="e" aria-hidden="true">📺</span>Videos</h2>
+    <p>Your search words become buttons on her phone, each with 20 YouTube videos (safe search). She hearts the ones she’d like and sends you the list. Nothing plays on her phone: you open them in YouTube and cast. Daytime only.</p>
+    ${!ready ? `<p class="result err">${S.fam.s ? 'Videos need your Apps Script updated to release 3 (README, Update).' : 'Videos need the sleep log’s Apps Script (Settings, Sleep log).'}</p>` : `
+    <div class="toggle-row"><p style="margin:0">Videos on her phone</p><button class="switch" type="button" role="switch" data-act="vd-on" aria-checked="${v.on}" aria-label="Videos on her phone"></button></div>
+    ${v.q.length ? `<div class="chips vq" style="margin-top:12px" role="group" aria-label="Search words">${v.q.map((q, i) => `<span class="chip vqchip"><button type="button" data-vqprev="${i}" aria-label="See what ${esc(q)} finds">${esc(q)}</button><button type="button" class="x" data-vqrm="${i}" aria-label="Remove ${esc(q)}">${ICON.x}</button></span>`).join('')}</div>
+      <p class="small" style="margin-top:8px">Tap one to see what it finds, and hide anything you don’t want.</p>` : '<p class="small" style="margin-top:12px">No search words yet.</p>'}
+    ${v.q.length < 8 ? `<div class="field-row" style="margin-top:12px"><input class="field" id="vqIn" autocomplete="off" maxlength="40" placeholder="Search words, e.g. Bluey" aria-label="Search words"><button class="btn" type="button" data-act="vq-add">Add</button></div>` : ''}
+    ${v.hide.length || v.bc.length ? `<div class="actions"><button class="btn" type="button" data-act="vd-unhide">Show hidden again (${v.hide.length + v.bc.length})</button></div>` : ''}
+    ${V.err ? `<p class="result err">${esc(V.err)}</p>` : ''}`}
+  </section>`;
+}
+// What one search finds, on your phone: hide a video, or everything from its channel
+const VP = { q: null };
+function openVPrev(i) {
+  const q = vdCfg().q[+i];
+  if (!q) return;
+  VP.q = q;
+  openSheet(head(q) + '<div id="vPrev" class="vprev"></div>');
+  renderVPrev();
+  const c = S.vids[q.toLowerCase()];
+  if (!c || Date.now() - c.at > 12 * HOUR) vidsLoad(q, true);
+}
+function renderVPrev() {
+  const box = $('#vPrev');
+  if (!box || !VP.q) return;
+  const v = vdCfg(), c = S.vids[VP.q.toLowerCase()];
+  const h = !c ? (V.err && !V.busy ? `<p class="result err">${esc(V.err)}</p>` : '<div class="vwait"><span class="spinner"></span></div>')
+    : !c.items.length ? '<p class="small">YouTube found nothing for these words.</p>'
+    : c.items.map((x) => { const hid = v.hide.includes(x.id), ch = v.bc.includes(x.ch); return `<div class="vrow${hid || ch ? ' hid' : ''}">
+      <a class="th" href="${ytOne(x.id)}" target="_blank" rel="noopener"><img src="${vThumb(x.id)}" alt="" loading="lazy"></a>
+      <span class="t"><b>${esc(x.t)}</b><small>${esc(x.c)}${ch ? ' · channel hidden' : hid ? ' · hidden' : ''}</small>
+      <span class="vacts">${ch ? `<button type="button" class="link-btn" data-vbc="${esc(x.ch)}" data-on="0">Show this channel</button>` : `<button type="button" class="link-btn" data-vhide="${x.id}" data-on="${hid ? 0 : 1}">${hid ? 'Show' : 'Hide'}</button>${x.ch ? `<button type="button" class="link-btn" data-vbc="${esc(x.ch)}" data-on="1">Hide channel</button>` : ''}`}</span></span></div>`; }).join('');
+  setHtml(box, h);
+}
+function vdSave(part, btn, msg) { const v = Object.assign(vdCfg(), part); return saveCfgPart({ vd: v }, btn, msg).then((r) => { renderVPrev(); return r; }); }
+
 // Games: her own games from the same site, opened inside Walkie in the daytime, for as long as the grown-ups allow
 const GAMES_FALLBACK = { games: [
   { id: 'solitaire', name: 'Solitaire', url: '../Solitaire/', icon: '../Solitaire/icon-192.png', ready: true },
@@ -2674,12 +3012,23 @@ async function loadGames() {
   try {
     const r = await fetch('games.json', { cache: 'no-cache' });
     if (!r.ok) return;
-    const j = await r.json();
+    const text = await r.text();
+    let j;
+    // a mistake in games.json (a missing comma, say) keeps the games she had, and your Games settings say where it is
+    try { j = JSON.parse(text); } catch (e) { S.gamesErr = jsonMistake(text, e); if (!isKid()) renderView(); return; }
+    S.gamesErr = '';
     put('games', j); S.games = C.gameList(j, APP);
     if (K.room === 'games') renderRoom();
     renderKid();
-    if (!isKid() && S.view === 'games') renderView();
+    if (!isKid() && (S.view === 'games' || S.view === 'room')) renderView();
   } catch {}
+}
+function jsonMistake(text, e) {
+  const m = String((e && e.message) || ''), lc = m.match(/line (\d+)/), pos = m.match(/position (\d+)/);
+  let line = lc ? +lc[1] : pos ? text.slice(0, +pos[1]).split('\n').length : 0;
+  // an error found at the start of a line is usually the missing comma at the end of the line before
+  if (line > 1 && pos && /^\s*$/.test(text.slice(0, +pos[1]).split('\n').pop())) line -= 1;
+  return line ? `games.json has a mistake on or just before line ${line}, often a missing comma at the end of a line. Until it’s fixed, her phone keeps the games it had.` : 'games.json has a mistake, often a missing comma at the end of a line. Until it’s fixed, her phone keeps the games it had.';
 }
 const gmc = () => (C.gmCfg ? C.gmCfg(cfg()) : { on: false, m: 30 });
 const gamesOn = () => gmc().on && S.games.some((g) => g.ready);
@@ -2902,8 +3251,7 @@ async function sendMusic() {
     items: muList().map((x) => { const m = S.muMeta[x.id] || {}; return { id: x.id, n: m.n || '', img: m.img || '', bad: m.bad ? 1 : 0 }; }) };
   const key = JSON.stringify([msg.acct, msg.uid, msg.err, msg.items]);
   if (key === get('musicSent', '')) return;
-  if (!spend(1, false, true)) return;
-  try { await ntfy(TD(), {}, await sealText(msg)); put('musicSent', key); } catch { refund(1); }
+  if (await report('mlist', msg)) put('musicSent', key);
 }
 
 // The player
@@ -3190,45 +3538,47 @@ function devsHtml() {
   if (MU.devs && !MU.devs.length && !o) tiles += '<p class="devs-none">Nothing else found. Speakers, TVs and computers show here while they’re signed in to her Spotify. A Chromecast shows only while it’s already playing her Spotify.</p>';
   return `<div class="devs" role="group" aria-label="Play on">${tiles}</div>`;
 }
-// Her playlists: square covers with their names, in a row to swipe
-function musicHtml() {
-  const playing = muPlaying();
-  const cards = muList().map((x) => {
-    const m = S.muMeta[x.id] || {}, on = (MU.ctx === x.id && playing) || MU.want === x.id;
-    return `<button class="music-card${on ? ' playing' : ''}${MU.ctx === x.id ? ' cur' : ''}${m.bad ? ' bad' : ''}" type="button" data-music="${x.id}" aria-label="${esc(m.n || 'Music')}">
-      <span class="cv">${m.img ? `<img src="${esc(m.img)}" alt="">` : '<span class="pic" aria-hidden="true">🎵</span>'}${MU.want === x.id ? '<span class="spinner"></span>' : ''}${m.bad ? '<span class="glock" aria-hidden="true">⚠️</span>' : ''}</span>
-      <span class="cap">${esc(m.n || (x.k === 'album' ? 'Album' : 'Playlist'))}</span></button>`;
+// The music page, on her phone and on yours, drawn from a view of what's playing (`a` prefixes the buttons' actions):
+// her playlists as square covers with names, the song playing on a big record turning, a line to slide along it, her buttons
+function kidMV() {
+  const tr = muTrack(), meta = S.muMeta[MU.ctx] || {};
+  return { a: 'mu', bar: 'muBar', t0: 'muT0', t1: 'muT1', ctx: MU.ctx, want: MU.want, playing: muPlaying(), song: tr ? String(tr.name || '') : '', art: muArt(tr) || meta.img || '', pl: meta.n || '',
+    on: MU.out ? MU.out.name : '', shuf: muShuffle(), rep: muRepeat(), modes: true, vol: !MU.out || MU.out.vol, level: muLevel(), err: MU.err, hint: '',
+    list: muList().map((x) => { const m = S.muMeta[x.id] || {}; return { id: x.id, k: x.k, n: m.n, img: m.img, bad: m.bad }; }) };
+}
+function musicHtml(v = kidMV()) {
+  const cards = v.list.map((x) => {
+    const on = (v.ctx === x.id && v.playing) || v.want === x.id;
+    return `<button class="music-card${on ? ' playing' : ''}${v.ctx === x.id ? ' cur' : ''}${x.bad ? ' bad' : ''}" type="button" data-${v.a === 'mu' ? 'music' : 'pmusic'}="${x.id}" aria-label="${esc(x.n || 'Music')}">
+      <span class="cv">${x.img ? `<img src="${esc(x.img)}" alt="">` : '<span class="pic" aria-hidden="true">🎵</span>'}${v.want === x.id ? '<span class="spinner"></span>' : ''}${x.bad ? '<span class="glock" aria-hidden="true">⚠️</span>' : ''}</span>
+      <span class="cap">${esc(x.n || (x.k === 'album' ? 'Album' : 'Playlist'))}</span></button>`;
   }).join('');
   return `<div class="shelf mu-covers" role="group" aria-label="Her playlists">${cards}</div>`;
 }
 ICON.shuffle = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5h4v4"/><path d="M3.5 20.5 20.5 3.5"/><path d="M20.5 16.5v4h-4"/><path d="m14.8 14.8 5.7 5.7"/><path d="M3.5 3.5 9 9"/></svg>';
 ICON.repeat = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2.5 3.5 3.5L17 9.5"/><path d="M3.5 11.5V10a4 4 0 0 1 4-4h13"/><path d="m7 21.5-3.5-3.5L7 14.5"/><path d="M20.5 12.5V14a4 4 0 0 1-4 4h-13"/></svg>';
-// The song playing: a big record turning, its name, a line to slide along the song, and her buttons
-function musicNowHtml() {
-  if (!MU.ctx) return `<section class="mnow empty"><div class="mrec-wrap"><div class="mrec"><span class="lbl"><span aria-hidden="true">🎵</span></span></div></div>
+function musicNowHtml(v = kidMV()) {
+  if (!v.ctx) return `<section class="mnow empty"><div class="mrec-wrap"><div class="mrec"><span class="lbl"><span aria-hidden="true">🎵</span></span></div></div>
     <p class="mpick"><span class="up" aria-hidden="true">☝️</span>Pick a playlist</p></section>`;
-  const playing = muPlaying(), tr = muTrack(), art = muArt(tr) || (S.muMeta[MU.ctx] || {}).img || '';
-  const name = tr ? String(tr.name || '') : '', pl = (S.muMeta[MU.ctx] || {}).n || '';
-  const shuf = muShuffle(), rep = muRepeat();
-  return `<section class="mnow${playing ? ' on' : ''}">
-    <div class="mrec-wrap">${art ? `<img class="mglow" src="${esc(art)}" alt="">` : ''}<div class="mrec${playing ? ' spin' : ''}"><span class="lbl">${art ? `<img src="${esc(art)}" alt="">` : '<span aria-hidden="true">🎵</span>'}</span></div></div>
-    <div class="mtitle">${esc(name || pl || 'Music')}</div>
-    <div class="msub">${esc([name ? pl : '', MU.out ? `on ${MU.out.name}` : ''].filter(Boolean).join(' · '))}</div>
-    <div class="mtime"><span class="num" id="muT0">0:00</span><div class="mbar" id="muBar" role="slider" aria-label="Where in the song" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i class="mfill"></i><b class="mknob"></b></div><span class="num" id="muT1"></span></div>
+  const p = v.playing;
+  return `<section class="mnow${p ? ' on' : ''}">
+    <div class="mrec-wrap">${v.art ? `<img class="mglow" src="${esc(v.art)}" alt="">` : ''}<div class="mrec${p ? ' spin' : ''}"><span class="lbl">${v.art ? `<img src="${esc(v.art)}" alt="">` : '<span aria-hidden="true">🎵</span>'}</span></div></div>
+    <div class="mtitle">${esc(v.song || v.pl || 'Music')}</div>
+    <div class="msub">${esc([v.song ? v.pl : '', v.on ? `on ${v.on}` : ''].filter(Boolean).join(' · '))}</div>
+    ${v.bar ? `<div class="mtime"><span class="num" id="${v.t0}">0:00</span><div class="mbar" id="${v.bar}" role="slider" aria-label="Where in the song" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i class="mfill"></i><b class="mknob"></b></div><span class="num" id="${v.t1}"></span></div>` : ''}
     <div class="mubar">
-      <button type="button" class="mside${shuf ? ' lit' : ''}" data-act="mu-shuffle" aria-pressed="${shuf}" aria-label="Shuffle">${ICON.shuffle}</button>
-      <button type="button" class="mstep" data-act="mu-prev" aria-label="Back a song">${ICON.prev}</button>
-      <button type="button" class="big-go" data-act="mu-toggle" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
-      <button type="button" class="mstep" data-act="mu-next" aria-label="Next song">${ICON.next}</button>
-      <button type="button" class="mside${rep ? ' lit' : ''}" data-act="mu-repeat" aria-pressed="${rep}" aria-label="Play this song again and again">${ICON.repeat}${rep ? '<b class="one">1</b>' : ''}</button>
+      ${v.modes ? `<button type="button" class="mside${v.shuf ? ' lit' : ''}" data-act="${v.a}-shuffle" aria-pressed="${v.shuf}" aria-label="Shuffle">${ICON.shuffle}</button>` : ''}
+      <button type="button" class="mstep" data-act="${v.a}-prev" aria-label="Back a song">${ICON.prev}</button>
+      <button type="button" class="big-go" data-act="${v.a}-toggle" aria-label="${p ? 'Pause' : 'Play'}">${p ? ICON.pause : ICON.play}</button>
+      <button type="button" class="mstep" data-act="${v.a}-next" aria-label="Next song">${ICON.next}</button>
+      ${v.modes ? `<button type="button" class="mside${v.rep ? ' lit' : ''}" data-act="${v.a}-repeat" aria-pressed="${v.rep}" aria-label="Play this song again and again">${ICON.repeat}${v.rep ? '<b class="one">1</b>' : ''}</button>` : ''}
     </div></section>`;
 }
 // At the bottom: how loud, and Stop (away from play and pause), and a warning if Spotify isn't working
-function musicLowerHtml() {
-  const lvl = muLevel(), vol = !MU.out || MU.out.vol;
-  return `<div class="mlow">${vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-mulevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : '<span></span>'}
-    ${MU.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}
-    ${MU.ctx ? `<button type="button" class="mstop" data-act="mu-stop" aria-label="Stop the music">${ICON.stop}<span>Stop</span></button>` : ''}</div>`;
+function musicLowerHtml(v = kidMV()) {
+  return `<div class="mlow">${v.vol ? `<div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-${v.a === 'mu' ? 'mulevel' : 'pmlevel'}="${i}" aria-pressed="${v.level === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div>` : '<span></span>'}
+    ${v.err ? '<p class="mu-warn" role="img" aria-label="Music isn’t working right now">⚠️</p>' : ''}
+    ${v.ctx ? `<button type="button" class="mstop" data-act="${v.a}-stop" aria-label="Stop the music">${ICON.stop}<span>Stop</span></button>` : ''}</div>${v.hint ? `<p class="small mhint">${v.hint}</p>` : ''}`;
 }
 // Where in the song, from Spotify's last word and the time since: [now, length] in ms
 function muPos() {
@@ -3275,17 +3625,16 @@ async function muSeek(ms) {
   paintTime();
 }
 const TM = { drag: null, pid: null };
-function paintTime() {
-  const bar = $('#muBar');
+function paintBar(bar, t0, t1, pd, drag) {
   if (!bar) return;
-  const pd = muPos(), d = pd ? pd[1] : 0, p = TM.drag != null ? TM.drag : pd ? pd[0] : 0, f = d ? Math.min(1, p / d) : 0;
+  const d = pd ? pd[1] : 0, p = drag != null ? drag : pd ? pd[0] : 0, f = d ? Math.min(1, p / d) : 0;
   bar.style.setProperty('--f', f.toFixed(4));
   bar.setAttribute('aria-valuenow', String(Math.round(f * 100)));
-  bar.classList.toggle('drag', TM.drag != null);
-  const t0 = $('#muT0'), t1 = $('#muT1');
+  bar.classList.toggle('drag', drag != null);
   if (t0) t0.textContent = durTxt(p / 1000);
   if (t1) t1.textContent = d ? `-${durTxt(Math.max(0, d - p) / 1000)}` : '';
 }
+function paintTime() { paintBar($('#muBar'), $('#muT0'), $('#muT1'), muPos(), TM.drag); }
 setInterval(() => { if (K.room === 'music' && document.visibilityState === 'visible') paintTime(); }, 250);
 function tmAt(e, bar) {
   const pd = muPos(), r = bar.getBoundingClientRect();
@@ -3339,8 +3688,15 @@ async function muQueueList() {
   }
   return out;
 }
-async function muTracksLoad(force) {
-  const id = MU.ctx, k = MU.ctxK || (muList().find((x) => x.id === id) || {}).k || 'playlist';
+// Where the songs come from: her phone's player, or (on yours) what Spotify says is playing on her account
+function kidTS() { return { box: $('#muTracks'), id: MU.ctx, k: MU.ctxK || (muList().find((x) => x.id === MU.ctx) || {}).k || 'playlist', cur: muCurUri(), playing: muPlaying(), ok: musicOn(), attr: 'trk', open: () => K.room === 'music' }; }
+function parTS() {
+  const st = LV.st, c = st && ctxOf(st.context && st.context.uri), it = st && st.item;
+  return { box: $('#pmTracks'), id: c ? c.id : '', k: c ? c.k : 'playlist', cur: it ? [it.uri, it.linked_from && it.linked_from.uri].filter(Boolean) : [], playing: !!(st && st.is_playing), ok: lvOn() && !!st && !LV.stopped, attr: 'ptrk', open: () => S.view === 'music' };
+}
+const tsNow = () => (isKid() ? kidTS() : parTS());
+async function muTracksLoad(force, src = tsNow()) {
+  const id = src.id, k = src.k || (muList().find((x) => x.id === id) || {}).k || 'playlist';
   if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !/^(playlist|album)$/.test(k) || TL.busy) return;
   const have = TL.lists[id], now = Date.now();
   if (have && !force && (have.src === 'full' ? now - have.at < 30 * MIN : have.list.length)) return;
@@ -3353,7 +3709,7 @@ async function muTracksLoad(force) {
     if (list && list.length) TL.lists[id] = { at: now, src: 'full', list, album: k === 'album' };
     else {
       TL.lists[id] = { at: now, src: 'queue', list: await muQueueList().catch(() => []), denied: list ? 0 : (have && have.denied && now - have.denied <= 10 * MIN ? have.denied : now) };
-      TL.qFor = (muCurUri()[0]) || '';
+      TL.qFor = (src.cur[0]) || '';
     }
     TL.fail = null;
   } catch { TL.fail = { id, at: now }; } finally { TL.busy = ''; }   // offline, say: try again in half a minute
@@ -3370,34 +3726,34 @@ async function muPlayAt(uri) {
   if (MU.out) muPollSoon(1200);
   setTimeout(renderTracks, 6000);
 }
-function renderTracks() {
-  const box = $('#muTracks');
+function renderTracks(src = tsNow()) {
+  const box = src.box;
   if (!box) return;
-  const id = MU.ctx, L = id && TL.lists[id];
+  const id = src.id, L = id && TL.lists[id];
   const sec = box.closest('.msongs');
-  if (sec) sec.hidden = !/^[A-Za-z0-9]{22}$/.test(id || '');
-  if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !musicOn()) { if (box.dataset.k) { box.innerHTML = ''; box.dataset.k = ''; } return; }
+  if (sec) sec.hidden = !/^[A-Za-z0-9]{22}$/.test(id || '') || !src.ok;
+  if (!/^[A-Za-z0-9]{22}$/.test(id || '') || !src.ok) { if (box.dataset.k) { box.innerHTML = ''; box.dataset.k = ''; } return; }
   if (!L) {
-    if (!TL.busy && !(TL.fail && TL.fail.id === id && Date.now() - TL.fail.at < 30e3)) muTracksLoad();
+    if (!TL.busy && !(TL.fail && TL.fail.id === id && Date.now() - TL.fail.at < 30e3)) muTracksLoad(false, src);
     if (box.dataset.k !== 'wait:' + id) { box.innerHTML = '<div class="trk-wait" aria-hidden="true"><span class="spinner"></span></div>'; box.dataset.k = 'wait:' + id; }
     return;
   }
   const key = id + '|' + L.list.map((t) => t.uri).join(',');
   if (box.dataset.k !== key) {
     const fresh = box.dataset.id !== id;        // a new playlist slides in; a moving queue just updates
-    box.innerHTML = L.list.length ? `<div class="trk-row${fresh ? ' enter' : ''}" role="list" aria-label="Songs">${L.list.map((t, i) => `<button class="trk" type="button" role="listitem" data-trk="${esc(t.uri)}" style="--i:${Math.min(i, 9)}" aria-label="${esc(t.n || 'Song')}">
+    box.innerHTML = L.list.length ? `<div class="trk-row${fresh ? ' enter' : ''}" role="list" aria-label="Songs">${L.list.map((t, i) => `<button class="trk" type="button" role="listitem" data-${src.attr}="${esc(t.uri)}" style="--i:${Math.min(i, 9)}" aria-label="${esc(t.n || 'Song')}">
       <span class="pic">${t.img ? `<img src="${esc(t.img)}" alt="" loading="lazy">` : '<span aria-hidden="true">🎵</span>'}${L.album && t.no ? `<b class="no num">${t.no}</b>` : ''}<span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></span>
       <span class="nm">${esc(t.n)}</span></button>`).join('')}</div>` : '';
     box.dataset.k = key; box.dataset.id = id; TL.shown = '';
   }
   // the song playing now glows, with dancing bars, and stays in view
-  const cur = muCurUri(), playing = muPlaying();
+  const cur = src.cur, playing = src.playing;
   if (TL.tapped && (cur.includes(TL.tapped) || Date.now() - TL.tapAt > 5500)) TL.tapped = '';
   let curEl = null;
-  box.querySelectorAll('[data-trk]').forEach((b) => {
-    const on = cur.includes(b.dataset.trk);
+  box.querySelectorAll(`[data-${src.attr}]`).forEach((b) => {
+    const u = b.dataset[src.attr], on = cur.includes(u);
     b.classList.toggle('on', on); b.classList.toggle('still', on && !playing);
-    b.classList.toggle('busy', TL.tapped === b.dataset.trk);
+    b.classList.toggle('busy', TL.tapped === u);
     b.setAttribute('aria-current', on ? 'true' : 'false');
     if (on) curEl = b;
   });
@@ -3407,7 +3763,7 @@ function renderTracks() {
     try { row.scrollTo({ left: Math.max(0, x), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches || !row.dataset.seen ? 'auto' : 'smooth' }); } catch { row.scrollLeft = Math.max(0, x); }
     row.dataset.seen = '1';
   }
-  if (L.src === 'queue' && cur[0] && TL.qFor !== cur[0] && !TL.busy) { TL.qFor = cur[0]; setTimeout(() => { if (K.room === 'music') muTracksLoad(true); }, 800); }   // the queue moves on with each song
+  if (L.src === 'queue' && cur[0] && TL.qFor !== cur[0] && !TL.busy) { TL.qFor = cur[0]; setTimeout(() => { if (src.open()) muTracksLoad(true, tsNow()); }, 800); }   // the queue moves on with each song
 }
 
 // Her small record: whenever music is on and she isn't on the music page. Tap it for back, pause, next and stop.
@@ -3441,7 +3797,7 @@ function renderMini() {
   pn.hidden = !K.miniOpen;
   if (K.miniOpen) {
     pn.style.top = `${Math.round(r.top + size + 12)}px`;
-    setHtml(pn, `<span class="art">${pic}${MU.out ? `<i>${devIcon(MU.out.type)}</i>` : ''}</span>
+    setHtml(pn, `<button type="button" class="art" data-act="mini-music" aria-label="Open the music page">${pic}${MU.out ? `<i>${devIcon(MU.out.type)}</i>` : ''}</button>
       <button type="button" data-mini="prev" aria-label="Back a song">⏮</button>
       <button type="button" class="go" data-mini="${playing ? 'pause' : 'resume'}" aria-label="${playing ? 'Pause' : 'Play'}">${playing ? ICON.pause : ICON.play}</button>
       <button type="button" data-mini="next" aria-label="Next song">⏭</button>
@@ -3486,9 +3842,8 @@ async function sendStars() {
   K.starsT = 0;
   const s = starList(Date.now()).map((x) => [x.day, x.star ? 1 : 0]), key = JSON.stringify(s);
   if (key === get('starsSent', '[]')) return;
-  if (!spend(1, false, true)) { K.starsNext = Date.now() + 10 * MIN; return; }
-  try { await ntfy(TD(), {}, await sealText({ t: 'stars', at: Date.now(), s })); put('starsSent', key); }
-  catch { refund(1); K.starsNext = Date.now() + 5 * MIN; }
+  if (await report('stars', { t: 'stars', at: Date.now(), s })) put('starsSent', key);
+  else K.starsNext = Date.now() + 10 * MIN;
 }
 function starsSoon(now) {
   if (K.starsT || now < (K.starsNext || 0)) return;
@@ -3538,6 +3893,7 @@ function dockHtml() {
     : [['stories', '📖', 'Stories'], ['sounds', '🎧', 'Sleepy sounds'], ['light', '🔦', 'Night light'], ['calm', '⭐', 'Calm star']];
   if (musicOn()) items.splice(1, 0, ['music', '🎵', 'Music']);
   if (day && gamesOn()) items.push(['games', '🎮', 'Games']);
+  if (day && vidOn()) items.push(['videos', '📺', 'Videos']);
   const done = gmLeft(Date.now()) <= 0;
   return items.map(([k, e, t]) => `<button type="button" data-room="${k}" aria-label="${t}" class="${(k === 'sounds' && NZ.on && !NZ.silent) || (k === 'stories' && K.story) || (k === 'music' && muPlaying()) ? 'on' : ''}">${e}${k === 'stories' && K.newStory ? '<span class="dot"></span>' : ''}${k === 'games' && done ? '<span class="zz" aria-hidden="true">💤</span>' : ''}</button>`).join('');
 }
@@ -3601,7 +3957,7 @@ function renderNotices() {
   if (isKid() || !S.me) return;
   const out = [], dismissed = get('dismissed', {});
   if (!S.connected) out.push(`<div class="notice"><p>Get her messages as notifications on this phone.</p><button class="link-btn" type="button" data-act="setup-ntfy">Set up</button></div>`);
-  if (S.sheet && S.sheet.build != null && S.sheet.build < EXPECT_BUILD) out.push(`<div class="notice"><p>Your Apps Script is out of date (release ${S.sheet.build}, this app needs ${EXPECT_BUILD}). Deploy a new version under Manage deployments.</p></div>`);
+  if (S.sheet && S.sheet.build != null && S.sheet.build < EXPECT_BUILD) out.push(`<div class="notice"><p>Your Apps Script is out of date (release ${S.sheet.build}, this app needs ${EXPECT_BUILD}). Paste the new Code.gs and appsscript.json from the repo into it and deploy a new version (README, Update). Until then Videos are off, and settings use ntfy’s messages.</p></div>`);
   if (!standalone && !dismissed.install) {
     if (S.installEvt) out.push(`<div class="notice"><p>Add Walkie to your home screen for one-tap access.</p><button class="link-btn" type="button" data-act="install">Install</button><button class="x" type="button" data-dismiss="install" aria-label="Dismiss">${ICON.x}</button></div>`);
     else if (isIOS) out.push(`<div class="notice"><p>Add Walkie to your Home Screen: tap Share, then Add to Home Screen.</p><button class="x" type="button" data-dismiss="install" aria-label="Dismiss">${ICON.x}</button></div>`);
@@ -3653,6 +4009,15 @@ function msgHtml(it, showWho) {
       <div class="voice${isNew ? ' new' : ''}"><button class="play" type="button" data-play="${esc(it.eid)}" aria-label="${esc(label)}" ${exp || (!it.att && !CLIPS.has(it.eid)) ? 'disabled' : ''}>${playing ? ICON.pause : ICON.play}</button>
       <span class="wave" aria-hidden="true">${waveHtml(it.pk)}</span><span class="vdur num">${durTxt(it.dur || 0)}</span></div>
       <span class="meta num${it.st === 'failed' ? ' warn' : ''}">${t}${exp ? ' · Expired after 3 hours' : ''}${kid ? esc(heardTxt(it.eid)) : ''}${st}</span></div>`;
+  }
+  if (it.kind === 'vids') {       // her video picks: open them in YouTube (lined up), then cast
+    const v = it.v || [], ids = v.map((x) => x[0]);
+    return `<div class="msg${side} vidsmsg" data-eid="${esc(it.eid)}">${who}<div class="vids">
+      <p class="vh2"><span aria-hidden="true">📺</span> ${v.length === 1 ? 'A video to watch' : `${v.length} videos to watch`}</p>
+      <div class="vthumbs">${v.slice(0, 6).map(([id, tt]) => `<a href="${ytOne(id)}" target="_blank" rel="noopener" aria-label="${esc(tt || 'Video')}"><img src="${vThumb(id)}" alt="" loading="lazy"></a>`).join('')}${v.length > 6 ? `<span class="more num">+${v.length - 6}</span>` : ''}</div>
+      <a class="btn primary vgo" href="${ytList(ids)}" target="_blank" rel="noopener">${ICON.play}Open in YouTube</a>
+      <p class="small">Then tap Cast in YouTube to put ${v.length === 1 ? 'it' : 'them'} on the TV.</p></div>
+      <span class="meta num">${t}</span></div>`;
   }
   const info = kid ? TILE[it.q] : QUICK[it.q];
   if (!info) return '';
@@ -3767,7 +4132,7 @@ function outLink(url) {
   return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
 }
 
-const VIEWS = ['talk', 'sleep', 'room', 'games'];
+const VIEWS = ['talk', 'sleep', 'music', 'room', 'games'];
 const MIC_BAR = false;      // release 12's mic bar (hold, slide left to cancel, up to lock): kept, switched off for the big talk button
 // Your pages, along the bottom: Talk, Sleep, her phone (by her name) and Games
 function renderTabs() {
@@ -3791,6 +4156,9 @@ function renderView() {
     renderDeck();
     if (nearBottom || renderView.first !== false) { renderView.first = false; window.scrollTo(0, document.body.scrollHeight); }
     loadDrawings();
+  } else if (S.view === 'music') {
+    renderPMusic();
+    $('#composer').hidden = true;
   } else if (S.view === 'games') {
     const h = pGamesHtml();
     if (v.className !== 'pgames' || v.dataset.h !== h) { v.className = 'pgames'; v.innerHTML = h; v.dataset.h = h; }
@@ -3818,13 +4186,13 @@ let refreshQueued = false;
 function refresh() {
   if (refreshQueued) return;
   refreshQueued = true;
-  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); renderPMini(); if ((S.view === 'talk' && !REC.on && !SWP.open && !SWP.el && $('#pMenu').hidden) || (S.view === 'room' && !SR.on && !sheet.open)) renderView(); else if (S.view === 'talk') renderDeck(); } });
+  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); renderPMini(); if ((S.view === 'talk' && !REC.on && !SWP.open && !SWP.el && $('#pMenu').hidden) || (S.view === 'room' && !SR.on && !sheet.open) || (S.view === 'music' && PTM.drag == null)) renderView(); else if (S.view === 'talk') renderDeck(); } });
 }
 
 // Parent hold-to-talk, Signal style: hold, slide left to cancel, slide up to keep recording hands-free
 const mic = $('#mic');
 mic.innerHTML = ICON.mic;
-$('#ptalk').innerHTML = ICON.mic;
+$('#ptalk').innerHTML = ICON.mic + `<span class="snd">${ICON.send}</span>`;
 const PR = { on: false, locked: false, x0: 0, y0: 0, timer: 0, pid: null, starting: false };
 mic.addEventListener('pointerdown', async (e) => {
   e.preventDefault();
@@ -3884,40 +4252,48 @@ function renderQuickRow() {
 
 // Your talk button, exactly like hers: hold it and talk, let go to send (it keeps listening half a second more).
 // A quick tap sends nothing. It's on every page, and on your games.
-const PT = { press: null, rec: false, timer: 0 };
+const PT = { press: null, rec: false, timer: 0, locked: false };
 async function ptDown(e, btn) {
   e.preventDefault();
+  if (PT.locked) { ptFinish(true); return; }          // recording hands-free: a tap on a talk button sends it
   if (PT.press || PT.rec || PR.on || PR.starting) return;
   try { btn.setPointerCapture(e.pointerId); } catch {}
-  PT.press = { up: false, pid: e.pointerId, btn };
+  PT.press = { up: false, pid: e.pointerId, btn, g: glideStart(btn, e) };
   stopPlayback(); renderPlayButtons();
   const ok = await micReady();
   if (!PT.press) return;
   if (!ok) { PT.press = null; toast('Walkie needs the microphone. Allow it when Chrome asks.'); return; }
   if (PT.press.up || !recStart()) { PT.press = null; ptWiggle(btn); return; }
   PT.rec = true;
-  document.body.classList.add('prec'); $('#pRecBar').hidden = false; $('#pRecTime').textContent = '0:00';
+  PT.press.g.w.classList.add('glide');
+  document.body.classList.add('prec'); $('#pRecBar').hidden = false; $('#pRecTime').textContent = '0:00'; $('#pRecSay').textContent = 'Let go to send';
   if (navigator.vibrate) try { navigator.vibrate(12); } catch {}
   PT.timer = setInterval(() => {
     const el = Date.now() - REC.t0;
     document.body.style.setProperty('--plvl', REC.lvl.toFixed(2));
     document.querySelectorAll('.ptalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = String(100 - Math.min(100, el / PARENT_MAX * 100)); });
     $('#pRecTime').textContent = durTxt(el / 1000);
-    if (el >= PARENT_MAX) ptUp(null);
+    if (el >= PARENT_MAX) ptFinish(true);
   }, 90);
 }
 async function ptUp(e) {
   if (!PT.press) return;
   if (e && e.pointerId != null && PT.press.pid != null && e.pointerId !== PT.press.pid) return;   // another finger: ignore
   PT.press.up = true;
+  if (!PT.rec || PT.locked) return;        // locked: it carries on until you tap to send
+  ptFinish(true);
+}
+async function ptFinish(send) {
   if (!PT.rec) return;
   clearInterval(PT.timer);
   PT.rec = false;
-  const btn = PT.press.btn, held = Date.now() - REC.t0;
-  PT.press = null;
-  document.body.classList.remove('prec'); $('#pRecBar').hidden = true;
+  const btn = PT.press && PT.press.btn, g = PT.press && PT.press.g, held = Date.now() - REC.t0, locked = PT.locked;
+  PT.press = null; PT.locked = false;
+  document.body.classList.remove('prec', 'plocked'); $('#pRecBar').hidden = true;
+  if (g) glideReset(g.w);
   document.querySelectorAll('.ptalk-wrap .prog').forEach((c) => { c.style.strokeDashoffset = '100'; });
-  if (held < MIN_HOLD) { recCancel(); ptWiggle(btn); pumpAuto(); return; }
+  if (!send) { recCancel(); toast('Cancelled, nothing sent'); pumpAuto(); return; }
+  if (held < MIN_HOLD && !locked) { recCancel(); ptWiggle(btn); pumpAuto(); return; }
   const rec = await recStop(REC_TAIL);     // half a second more, so your last word isn't clipped
   if (rec && rec.blob.size) sendVoice(rec);
   pumpAuto();
@@ -3927,6 +4303,17 @@ function ptWiggle(btn) {
   toast('Hold the button while you talk');
 }
 document.addEventListener('pointerdown', (e) => { if (isKid() || !S.me) return; const b = e.target.closest('.ptalk'); if (b) ptDown(e, b); });
+document.addEventListener('pointermove', (e) => {
+  if (isKid() || !PT.rec || PT.locked || !PT.press || e.pointerId !== PT.press.pid) return;
+  const r = glideMove(PT.press.g, e);
+  if (r === 'cancel') ptFinish(false);
+  else if (r === 'lock') {
+    PT.locked = true; glideReset(PT.press.g.w);
+    document.body.classList.add('plocked'); $('#pRecSay').textContent = 'Tap the button to send';
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch {}
+  }
+});
+$('#pRecX').addEventListener('click', () => ptFinish(false));
 ['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => { if (PT.press) ptUp(e); }));
 document.addEventListener('contextmenu', (e) => { if (e.target.closest('.ptalk, .parent-wrap .msg')) e.preventDefault(); });
 
@@ -3956,7 +4343,7 @@ document.addEventListener('pointerdown', (e) => {
   if (isKid() || !S.me || S.view !== 'talk' || e.target.closest('.ptalk, #pMenu, #pbar, .pdeck')) return;
   if (SWP.open && !e.target.closest('.sw-acts')) { swClose(); SW.pid = e.pointerId; swallow(e); return; }   // a tap elsewhere just puts them back
   const m = e.target.closest('#view .msg[data-eid]');
-  if (!m) return;
+  if (!m || m.classList.contains('vidsmsg')) return;
   Object.assign(SWP, { el: m, x0: e.clientX, y0: e.clientY, pid: e.pointerId, dx: 0, on: false });
   clearTimeout(SWP.hold);
   SWP.hold = setTimeout(() => { if (SWP.el === m && !SWP.on) { const el = m; SWP.el = null; SW.pid = e.pointerId; openMsgMenu(el); } }, 480);
@@ -4006,19 +4393,117 @@ function openMsgMenu(m) {
 function closeMsgMenu() { const menu = $('#pMenu'); if (menu.hidden) return; menu.hidden = true; menu.innerHTML = ''; document.querySelectorAll('.msg.held').forEach((x) => x.classList.remove('held')); setTimeout(refresh, 50); }
 $('#pMenu').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeMsgMenu(); });
 
+// Your Music page: the same as hers. With this phone signed in to her Spotify it's all straight from Spotify (no messages);
+// if it isn't, play, pause and stop still work by message, and the page says how to get the rest
+function parMV() {
+  const km = S.kmusic || {}, names = new Map((km.items || []).map((x) => [x.id, x])), cur = nowMusic(), live = lvOn() && !!LV.st && !LV.stopped;
+  const it = live && LV.st.item, dev = live && LV.st.device;
+  return { a: 'pmu', bar: it ? 'pmBar' : '', t0: 'pmT0', t1: 'pmT1', ctx: cur ? cur.id || 'other' : '', want: '', playing: !!cur && !cur.p,
+    song: cur ? cur.song : '', art: cur ? cur.art : '', pl: cur ? cur.n : '', on: cur ? cur.on : '',
+    shuf: pmShuffle(), rep: pmRepeat(), modes: live, vol: !!(dev && dev.supports_volume !== false), level: pmLevel(), err: '',
+    hint: lvOn() ? '' : 'To see each song, slide along it, and use shuffle and repeat here, sign in as her on this phone: Settings, Spotify.',
+    list: muList().map((x) => { const m = names.get(x.id) || {}; return { id: x.id, k: x.k, n: m.n, img: m.img, bad: m.bad }; }) };
+}
+const pmShuffle = () => (LV.shufOver != null && Date.now() - LV.shufAt < 5000 ? LV.shufOver : !!(LV.st && LV.st.shuffle_state));
+const pmRepeat = () => (LV.repOver != null && Date.now() - LV.repAt < 5000 ? LV.repOver : !!(LV.st && LV.st.repeat_state === 'track'));
+function pmLevel() {
+  const v = LV.st && LV.st.device && +LV.st.device.volume_percent;
+  if (!v && v !== 0) return -1;
+  let best = 0; MU_LEVELS.forEach((l, i) => { if (Math.abs(l * 100 - v) < Math.abs(MU_LEVELS[best] * 100 - v)) best = i; });
+  return best;
+}
+function pmPos() {
+  const st = LV.st, d = st && st.item ? +st.item.duration_ms || 0 : 0;
+  if (!d) return null;
+  return [Math.min(d, Math.max(0, (+st.progress_ms || 0) + (st.is_playing ? Date.now() - LV.at : 0))), d];
+}
+function renderPMusic() {
+  const v = $('#view');
+  if (!spCid() || !muList().length) {
+    const h = `<div class="mroom pmroom"><h2 class="pm-h">Music</h2><p class="small">${!spCid() ? 'Her music plays inside Walkie through Spotify, once it’s set up.' : 'Add her playlists on her phone’s page, under Music.'}</p>
+      <div class="actions">${!spCid() ? '<button class="btn primary" type="button" data-act="settings-spotify">Set up Spotify</button>' : '<button class="btn primary" type="button" data-view="room">Add playlists</button>'}</div></div>`;
+    if (v.dataset.h !== h) { v.className = 'pmusic'; v.innerHTML = h; v.dataset.h = h; }
+    return;
+  }
+  if (!v.querySelector('#pmNow')) {
+    v.className = 'pmusic'; delete v.dataset.h;
+    v.innerHTML = '<div class="mroom pmroom"><div class="mpl"><h3 class="mh">Playlists</h3><div id="pmTop"></div></div><div id="pmNow"></div><div class="msongs" hidden><h3 class="mh">Songs</h3><div class="tracks" id="pmTracks"></div></div><div id="pmLow"></div></div>';
+  }
+  const mv = parMV();
+  setHtml($('#pmTop'), musicHtml(mv)); setHtml($('#pmNow'), musicNowHtml(mv)); setHtml($('#pmLow'), musicLowerHtml(mv));
+  renderTracks(parTS()); pmPaint();
+}
+async function pmMode(kind) {
+  const dev = LV.st && LV.st.device && LV.st.device.id;
+  if (!lvOn() || !dev) return;
+  if (kind === 'shuffle') {
+    const on = !pmShuffle(); LV.shufOver = on; LV.shufAt = Date.now(); renderView();
+    try { await spApi('PUT', `/me/player/shuffle?state=${on}&device_id=${encodeURIComponent(dev)}`); if (LV.st) LV.st.shuffle_state = on; setTimeout(() => { if (S.view === 'music') muTracksLoad(true, parTS()); }, 1200); }
+    catch { LV.shufOver = null; renderView(); }
+  } else {
+    const on = !pmRepeat(); LV.repOver = on; LV.repAt = Date.now(); renderView();
+    try { await spApi('PUT', `/me/player/repeat?state=${on ? 'track' : 'off'}&device_id=${encodeURIComponent(dev)}`); if (LV.st) LV.st.repeat_state = on ? 'track' : 'off'; }
+    catch { LV.repOver = null; renderView(); }
+  }
+  setTimeout(lvPoll, 1200);
+}
+function pmVol(i) {
+  const dev = LV.st && LV.st.device, pc = Math.round((MU_LEVELS[i] || 0.55) * 100);
+  if (!lvOn() || !dev || !dev.id) return;
+  dev.volume_percent = pc; renderView();
+  spApi('PUT', `/me/player/volume?volume_percent=${pc}&device_id=${encodeURIComponent(dev.id)}`).catch(() => {});
+}
+async function pmPlayAt(uri) {
+  const src = parTS(), dev = LV.st && LV.st.device && LV.st.device.id;
+  if (!lvOn() || !dev || !/^[A-Za-z0-9]{22}$/.test(src.id || '')) return;
+  TL.tapped = uri; TL.tapAt = Date.now(); renderTracks(src);
+  try { await spApi('PUT', `/me/player/play?device_id=${encodeURIComponent(dev)}`, { context_uri: `spotify:${src.k}:${src.id}`, offset: { uri } }); } catch {}
+  setTimeout(lvPoll, 1000); setTimeout(() => renderTracks(parTS()), 6000);
+}
+function pmSeek(ms) {
+  const dev = LV.st && LV.st.device && LV.st.device.id;
+  if (!lvOn() || !dev) return;
+  ms = Math.max(0, Math.round(ms));
+  LV.st.progress_ms = ms; LV.at = Date.now(); pmPaint();
+  spApi('PUT', `/me/player/seek?position_ms=${ms}&device_id=${encodeURIComponent(dev)}`).catch(() => {});
+  setTimeout(lvPoll, 1500);
+}
+const PTM = { drag: null, pid: null };
+function pmPaint() { paintBar($('#pmBar'), $('#pmT0'), $('#pmT1'), pmPos(), PTM.drag); }
+setInterval(() => { if (!isKid() && S.view === 'music' && document.visibilityState === 'visible') pmPaint(); }, 250);
+document.addEventListener('pointerdown', (e) => {
+  if (isKid() || !S.me) return;
+  const bar = e.target.closest('#pmBar'), pd = pmPos();
+  if (!bar || !pd) return;
+  e.preventDefault(); PTM.pid = e.pointerId;
+  try { bar.setPointerCapture(e.pointerId); } catch {}
+  const r = bar.getBoundingClientRect(); PTM.drag = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * pd[1]; pmPaint();
+});
+document.addEventListener('pointermove', (e) => {
+  if (PTM.pid !== e.pointerId || PTM.drag == null) return;
+  const bar = $('#pmBar'), pd = pmPos();
+  if (!bar || !pd) return;
+  const r = bar.getBoundingClientRect(); PTM.drag = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * pd[1]; pmPaint();
+});
+['pointerup', 'pointercancel'].forEach((t) => document.addEventListener(t, (e) => {
+  if (PTM.pid !== e.pointerId) return;
+  const ms = PTM.drag; PTM.pid = null; PTM.drag = null;
+  if (ms != null && t === 'pointerup') pmSeek(ms); else pmPaint();
+}));
+
 // Your games: the same as hers, full screen, as long as you like (nothing goes to her phone or the sleep log)
 function pGamesHtml() {
   const cards = S.games.map((g) => (g.ready
     ? `<button class="game-card" type="button" data-pgame="${esc(g.id)}" aria-label="${esc(g.name)}">${g.icon ? `<img src="${esc(g.icon)}" alt="">` : `<span class="emo" aria-hidden="true">${esc(g.emoji)}</span>`}<span class="nm">${esc(g.name)}</span></button>`
     : `<div class="game-card soon" role="img" aria-label="${esc(g.name)}, coming soon"><span class="emo" aria-hidden="true">${esc(g.emoji)}</span><span class="nm">${esc(g.name)}</span><span class="glock" aria-hidden="true">🔒</span></div>`)).join('');
-  return `<h2>Games</h2><p class="small">Yours to play, for as long as you like. Nothing goes to her phone.</p><div class="games">${cards}</div>`;
+  return `<h2>Games</h2><p class="small">Yours to play, for as long as you like. Nothing goes to her phone.</p>${S.gamesErr ? `<p class="result err" role="alert">⚠️ ${esc(S.gamesErr)}</p>` : ''}<div class="games">${cards}</div>`;
 }
 function openPGame(id) {
   const g = S.games.find((x) => x.id === id && x.ready);
   if (!g) return;
   const el = $('#pGame');
   el.innerHTML = `<div class="pgame-top"><button class="icon-btn" type="button" data-act="pgame-close" aria-label="Close the game">${ICON.x}</button><b>${esc(g.name)}</b>
-    <div class="ptalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="ptalk" type="button" aria-label="Hold to talk to her, let go to send">${ICON.mic}</button></div></div>
+    <div class="ptalk-wrap"><svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" cx="50" cy="50" r="48" pathLength="100"/></svg><button class="ptalk" type="button" aria-label="Hold to talk to her, let go to send">${ICON.mic}<span class="snd">${ICON.send}</span></button>${TLOCK}</div></div>
     <iframe src="${esc(g.url)}" title="${esc(g.name)}" sandbox="allow-scripts allow-same-origin allow-forms" allow="autoplay"></iframe>`;
   el.hidden = false;
   try { history.pushState({ pgame: 1 }, ''); } catch {}
@@ -4096,6 +4581,7 @@ function roomHtml() {
     ${list}
   </section>
   ${gamesCardHtml()}
+  ${videosCardHtml()}
   <section class="card">
     <h2><span class="e" aria-hidden="true">🗓️</span>Countdown</h2>
     ${cd && n != null ? `<p class="num"><span style="font-size:22px">${esc(cd.e)}</span> ${esc(cd.l || 'The big day')}: ${n === 0 ? 'today!' : `${n} sleep${n === 1 ? '' : 's'} to go`}, ${esc(new Date(cd.d + 'T12:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}.</p>
@@ -4142,7 +4628,7 @@ async function lvPoll() {
       if (LV.st && LV.st.is_playing && Date.now() - LV.stopped > 8000) LV.stopped = 0;   // playing again after a Stop (not just Spotify catching up)
     } catch {}
     finally { LV.busy = false; }
-    renderPMini(); if (S.view === 'room') refresh();
+    renderPMini(); if (S.view === 'room' || S.view === 'music') refresh();
   }
   LV.t = setTimeout(lvPoll, LV.st && LV.st.is_playing ? 5000 : 15000);
 }
@@ -4180,7 +4666,7 @@ function renderPMini() {
   pn.hidden = !PM.open;
   if (PM.open) {
     pn.style.top = `${Math.round($('#appbar').getBoundingClientRect().bottom + 10)}px`;
-    setHtml(pn, `<span class="art">${pic}${m.on ? `<i>${devIcon(m.onType)}</i>` : ''}</span>
+    setHtml(pn, `<button type="button" class="art" data-act="pm-music" aria-label="Open Music">${pic}${m.on ? `<i>${devIcon(m.onType)}</i>` : ''}</button>
       <button type="button" data-pm="prev" aria-label="Back a song">⏮</button>
       <button type="button" class="go" data-pm="${m.p ? 'resume' : 'pause'}" aria-label="${m.p ? 'Play' : 'Pause'} her music">${m.p ? ICON.play : ICON.pause}</button>
       <button type="button" data-pm="next" aria-label="Next song">⏭</button>
@@ -4228,6 +4714,7 @@ async function pmCtl(a, btn) {
       } catch { return false; }
     });
     if (ok) {
+      const pp = pmPos(); if (pp && LV.st) { LV.st.progress_ms = pp[0]; LV.at = Date.now(); }
       if (a === 'pause') { LV.st.is_playing = false; LV.pausedSince = Date.now(); }
       if (a === 'resume') { LV.st.is_playing = true; LV.pausedSince = 0; }
       if (a === 'stop') { LV.stopped = Date.now(); remote({ t: 'mctl', a: 'stop' }); }     // and her record goes from her screen
@@ -4286,9 +4773,11 @@ function gamesCardHtml() {
     <div class="toggle-row"><p style="margin:0">Games on her phone</p><button class="switch" type="button" role="switch" data-act="gm-on" aria-checked="${g.on}" aria-label="Games on her phone"></button></div>
     ${g.on ? `<div class="chips" style="margin-top:12px" role="group" aria-label="Game time a day">${lens.map(([m, t]) => `<button class="chip" type="button" data-gmmins="${m}" aria-pressed="${g.m === m}">${t}</button>`).join('')}</div>` : ''}
     ${today != null ? `<p class="small" style="margin-top:12px">Played today: ${today} min${g.m ? ` of ${g.m}` : ''}.</p>` : ''}
+    ${S.gamesErr ? `<p class="result err" role="alert">⚠️ ${esc(S.gamesErr)}</p>` : ''}
   </section>`;
 }
 async function remote(cmd, btn, okMsg) {
+  BOX.quick = Date.now() + 90e3;
   return withBusy(btn, async () => {
     try {
       const r = await ntfy(TD(), {}, await sealText(Object.assign({ by: S.me.id, at: Date.now() }, cmd)));
@@ -4393,9 +4882,11 @@ async function saveCfgPart(part, btn, msg) {
   S.fam.cfgAt = Date.now(); saveFam();
   let ok = false;
   await withBusy(btn, async () => { ok = await sendCfg(); });
-  if (ok) toast(msg); else { toast('Saved here. Her phone gets it once your connection is back.'); retryCfg(); }
+  if (ok === true) toast(msg);
+  else if (ok === 'limit') toast(`Saved here. ntfy’s daily limit is used up today, so her phone gets it just after ${resetAt()}, by itself.`);
+  else toast('Saved here. Her phone gets it by itself as soon as your phone is back online.');
   renderView();
-  return ok;
+  return ok === true;
 }
 
 // Her drawings in the thread: fetched once, shown as pictures
@@ -4542,7 +5033,8 @@ function sheetStatusTxt() {
   const i = S.sheet || {};
   if (i.err) return i.err;
   const rel = i.build != null ? (i.build < EXPECT_BUILD ? `Apps Script release ${i.build}, this app needs ${EXPECT_BUILD}.` : `Apps Script release ${i.build}, up to date.`) : '';
-  return `Connected. ${rel}${S.outbox.length ? ` ${S.outbox.length} waiting to save.` : ''}`;
+  const box = !boxOn() ? '' : boxToKid() ? ' Settings and reports go through it, not ntfy.' : ' Her phone hasn’t collected from it yet (it needs release 15, open on her phone), so her settings still go by ntfy.';
+  return `Connected. ${rel}${box}${S.outbox.length ? ` ${S.outbox.length} waiting to save.` : ''}`;
 }
 const msgCapHtml = () => `<div class="chips" role="group" aria-label="Her messages by day">${(C.CAPS || [70]).map((n) => `<button class="chip num" type="button" data-mlcap="${n}" aria-pressed="${dayCap() === n}">${n}${n === 70 ? ' (usual)' : ''}</button>`).join('')}</div>`;
 // This phone's own sign-in to her Spotify, so her music shows at the top straight from Spotify (no messages)
@@ -4685,7 +5177,7 @@ function leave() {
   K.reloading = true;
   stopBeat();
   ['fam', 'me', 'beat', 'items', 'since', 'seen', 'heard', 'played', 'outbox', 'sleep', 'photos', 'log', 'sheetInfo', 'quiet', 'connected', 'budget',
-    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away', 'sp', 'spAuth', 'muMeta', 'musicSent', 'kmusic', 'shelfSent'].forEach(drop);
+    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away', 'sp', 'spAuth', 'muMeta', 'musicSent', 'kmusic', 'shelfSent', 'boxSeq', 'boxKid', 'cfgOwed', 'vids', 'vsent', 'vpick'].forEach(drop);
   try { indexedDB.deleteDatabase('walkie'); } catch {}
   location.replace(APP);
 }
@@ -4697,6 +5189,12 @@ document.addEventListener('click', async (e) => {
   const d = t.dataset;
   // her phone
   if (d.room) { openRoom(d.room); return; }
+  if (d.vterm != null && isKid()) { K.lastTouch = Date.now(); V.term = d.vterm; renderVideos(); return; }
+  if (d.vid && isKid()) { vidPick(t); return; }
+  if (d.vqprev != null) { openVPrev(d.vqprev); return; }
+  if (d.vqrm != null) { const v = vdCfg(), q = v.q[+d.vqrm]; if (q) vdSave({ q: v.q.filter((_, i) => i !== +d.vqrm) }, t, `Removed “${q}”`); return; }
+  if (d.vhide) { const v = vdCfg(); vdSave({ hide: d.on === '1' ? v.hide.filter((x) => x !== d.vhide).concat(d.vhide) : v.hide.filter((x) => x !== d.vhide) }, null, d.on === '1' ? 'Hidden on her phone' : 'Shown again'); return; }
+  if (d.vbc) { const v = vdCfg(); vdSave({ bc: d.on === '1' ? v.bc.filter((x) => x !== d.vbc).concat(d.vbc) : v.bc.filter((x) => x !== d.vbc) }, null, d.on === '1' ? 'That channel is hidden on her phone' : 'Channel shown again'); return; }
   if (d.game) { openGame(d.game, t); return; }
   if (d.music) {
     if (MU.player) MU.player.activateElement().catch(() => {});   // straight from her tap, so the sound is allowed to start
@@ -4720,8 +5218,14 @@ document.addEventListener('click', async (e) => {
   }
   // yours: pause, play, next and stop for her music
   if (d.pm) { if (t.closest('#pMiniPanel')) pmOpen(d.pm !== 'stop'); pmCtl(d.pm, t); return; }
-  if (d.mplay) {
-    const x = muList().find((y) => y.id === d.mplay);
+  if (d.pmlevel != null) { pmVol(+d.pmlevel); return; }
+  if (d.ptrk) { pmPlayAt(d.ptrk); return; }
+  if (d.pmusic) {        // your Music page: the one playing pauses or plays; another starts
+    const m = nowMusic();
+    if (m && m.id === d.pmusic) { pmCtl(m.p ? 'resume' : 'pause', t); return; }
+  }
+  if (d.mplay || d.pmusic) {
+    const x = muList().find((y) => y.id === (d.mplay || d.pmusic));
     if (!x) return;
     if (lvOn() && await lvPlay(x, t)) return;
     if (await remote({ t: 'music', id: x.id, k: x.k }, t, 'Playing on her phone')) pmAssume(x);
@@ -4785,8 +5289,9 @@ document.addEventListener('click', async (e) => {
     if (REC.on || SR.on) { toast('Finish recording first'); return; }
     swClose(); closeMsgMenu();
     S.view = d.view; renderView.first = true; renderView();
+    if (d.view === 'room') boxPoll();
     if (d.view === 'sleep' && S.fam.s) loadLog();
-    if (d.view === 'games') loadGames();
+    if (d.view === 'games' || d.view === 'room') loadGames();
     if (d.view !== 'talk') window.scrollTo(0, 0);
     return;
   }
@@ -4846,6 +5351,14 @@ document.addEventListener('click', async (e) => {
     case 'mu-next': muCtl('next'); break;
     case 'mu-prev': muCtl('prev'); break;
     case 'mu-stop': muStopMine(); break;
+    case 'mini-music': miniOpen(false); openRoom('music'); break;
+    case 'pm-music': pmOpen(false); swClose(); closeMsgMenu(); S.view = 'music'; renderView.first = true; renderView(); window.scrollTo(0, 0); break;
+    case 'pmu-toggle': { const m = nowMusic(); pmCtl(m && !m.p ? 'pause' : 'resume', t); break; }
+    case 'pmu-prev': pmCtl('prev', t); break;
+    case 'pmu-next': pmCtl('next', t); break;
+    case 'pmu-stop': pmCtl('stop', t); break;
+    case 'pmu-shuffle': pmMode('shuffle'); break;
+    case 'pmu-repeat': pmMode('repeat'); break;
     case 'mu-shuffle': muMode('shuffle'); break;
     case 'mu-repeat': muMode('repeat'); break;
     case 'mu-pick':
@@ -4876,6 +5389,18 @@ document.addEventListener('click', async (e) => {
       break;
     }
     case 'gm-on': { const g = gmc(); saveCfgPart({ gm: { on: !g.on, m: g.m } }, t, g.on ? 'Games off on her phone' : 'Games on'); break; }
+    case 'vd-on': { const v = vdCfg(); vdSave({ on: !v.on }, t, v.on ? 'Videos off on her phone' : v.q.length ? 'Videos on' : 'Videos on. Add some search words.'); break; }
+    case 'vq-add': {
+      const inp = $('#vqIn'), q = String((inp && inp.value) || '').replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40), v = vdCfg();
+      if (!q) { if (inp) inp.focus(); break; }
+      if (v.q.some((x) => x.toLowerCase() === q.toLowerCase())) { toast('Already there'); break; }
+      if (inp) inp.value = '';
+      await vdSave({ q: v.q.concat(q).slice(0, 8), on: v.q.length ? v.on : true }, t, `Added “${q}”`);
+      vidsLoad(q);
+      break;
+    }
+    case 'vd-unhide': vdSave({ hide: [], bc: [] }, t, 'Everything shown again'); break;
+    case 'v-send': sendVids(t); break;
     case 'fs':
       S.set.fs = S.set.fs === false; saveSet(); t.setAttribute('aria-checked', String(S.set.fs !== false));
       if (S.set.fs === false && document.fullscreenElement) document.exitFullscreen().catch(() => {});
@@ -5050,7 +5575,7 @@ $('#themeBtn').addEventListener('click', () => togglePop('themes'));
 $('#replay').addEventListener('click', () => { const it = itemById($('#replay').dataset.eid); if (it) showIncoming(it); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePops(); });
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; renderNotices(); });
-window.addEventListener('online', () => { flush(); if (S.fam) { catchUp(); connect(); } });
+window.addEventListener('online', () => { flush(); if (S.fam) { catchUp(); connect(); boxPoll(); } });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible' || !S.fam) return;
   keepAwake();
@@ -5059,6 +5584,7 @@ document.addEventListener('visibilitychange', () => {
   flush();
   if (!isKid() && S.view === 'sleep') loadLog();
   if (!isKid()) lvPoll();
+  boxPoll();
 });
 
 /* ---------- Clock ---------- */
@@ -5122,6 +5648,7 @@ async function boot() {
   // a tap on one of her notifications opens Walkie at that message
   const c = C.clickInfo(location.href);
   if (c && !isKid()) {
+    if (c.w === 'vids') await boxPoll();       // her video picks wait in your post box
     history.replaceState(null, '', location.pathname + location.search);
     S.view = 'talk'; renderView();
     const el = document.querySelector(`[data-eid="${CSS.escape(c.eid)}"]`);
@@ -5129,7 +5656,7 @@ async function boot() {
   }
 }
 (function start() {
-  window.__walkie = { S, K, MU, TL, tick: () => (isKid() ? kidTick() : renderParent()), render: () => (isKid() ? renderKid() : renderParent()) };
+  window.__walkie = { S, K, MU, TL, LV, tick: () => (isKid() ? kidTick() : renderParent()), render: () => (isKid() ? renderKid() : renderParent()) };
   const f = C.parseJoin(location.hash);
   if (f) history.replaceState(null, '', location.pathname + location.search);
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
