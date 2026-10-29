@@ -4,8 +4,8 @@ A child's bedside walkie-talkie and sleep log, linked to her parents' phones.
 
 Live at **https://quick-sheet.github.io/Walkie/**
 
-- **Her phone:** one big hold-to-talk button and picture buttons (Water, Toilet, Bad dream, Cuddle, Love you, Night night / I'm awake). At bedtime the screen turns black with a dim red clock and a moon, which turns into a sun at wake-up time. Along the bottom: 📖 stories and songs you've sent, 🎧 sleepy sounds (white, grey, brown noise or rain, for 15, 30 or 60 minutes or until morning) and ⭐ a calm breathing star; in the daytime also 🎨 drawing to send to you and 🎮 your games; at night also 🔦 a night light. She earns a ⭐ for each night she stays in bed until the sun, sees moons counting the sleeps to something special, ticks off bedtime routine pictures, and in the daytime picks her colours with the round colour button: 🍦 pastel, 🎈 cartoon, 🌙 classic, or ✏️ her own background and button (Walkie keeps the text readable and won't let the button disappear into the background).
-- **Your phones:** her messages arrive as ntfy notifications, with reply buttons. With Walkie open in front of you, her voice messages play out loud as they arrive. In the chat, her messages carry her name (**Settings → Child's name**), yours say **Me**, and the other parent's carry their name. The header stays at the top with three tabs: **Talk** (listen, hold to talk back, slide left to cancel, slide up to keep recording, see who has heard what, her drawings), **Sleep** (her nights, with stars) and **Her phone** (start or stop sounds and stories on her phone, record or send stories, games on or off and her daily game time, the countdown and her routine pictures). When you reply On my way, she sees a woman running for Mummy or Mum and a man running for Daddy or Dad.
+- **Her phone:** one big hold-to-talk button and picture buttons (Water, Toilet, Bad dream, Cuddle, Love you, Night night / I'm awake). At bedtime the screen turns black with a dim red clock and a moon, which turns into a sun at wake-up time. Along the bottom: 📖 stories and songs you've sent, 🎵 your Spotify playlists (once set up), 🎧 sleepy sounds (white, grey, brown noise or rain, for 15, 30 or 60 minutes or until morning) and ⭐ a calm breathing star; in the daytime also 🎨 drawing to send to you and 🎮 your games; at night also 🔦 a night light. She earns a ⭐ for each night she stays in bed until the sun, sees moons counting the sleeps to something special, ticks off bedtime routine pictures, and in the daytime picks her colours with the round colour button: 🍦 pastel, 🎈 cartoon, 🌙 classic, or ✏️ her own background and button (Walkie keeps the text readable and won't let the button disappear into the background).
+- **Your phones:** her messages arrive as ntfy notifications, with reply buttons. With Walkie open in front of you, her voice messages play out loud as they arrive. In the chat, her messages carry her name (**Settings → Child's name**), yours say **Me**, and the other parent's carry their name. The header stays at the top with three tabs: **Talk** (listen, hold to talk back, slide left to cancel, slide up to keep recording, see who has heard what, her drawings), **Sleep** (her nights, with stars) and **Her phone** (start or stop sounds, music and stories on her phone, pick her Spotify playlists, record or send stories, games on or off and her daily game time, the countdown and her routine pictures). When you reply On my way, she sees a woman running for Mummy or Mum and a man running for Daddy or Dad.
 - **Sleep log:** every tap and message is saved to a Google Sheet of your own, through a small Apps Script.
 
 ## Host
@@ -24,6 +24,18 @@ Live at **https://quick-sheet.github.io/Walkie/**
 3. **Second parent:** scan the same code, choose **A parent's phone**, pick a name and follow the ntfy steps.
 
 Anyone with the pairing link can join, so only use it on your own phones.
+
+## Spotify
+
+Her playlists play inside Walkie, through Spotify's own web player, so the kiosk can stay locked to Walkie. It needs Spotify Premium (your Family plan; not a mobile-only plan).
+
+1. **Her account:** add her to your Family plan, and in her account settings turn off explicit content.
+2. **A Spotify app (once, about 5 minutes):** at [developer.spotify.com](https://developer.spotify.com/dashboard), log in with your own account, choose **Create app** (any name, e.g. Walkie). As **Redirect URI** add exactly `https://quick-sheet.github.io/Walkie/` (Walkie shows it in **Settings → Spotify** with a Copy button). Tick **Web API** and **Web Playback SDK**, save. Under **User Management** add her Spotify account (name and email). Copy the app's **Client ID**.
+3. **Your phone:** **Settings → Spotify**, paste the Client ID, **Save**.
+4. **Her phone:** hold the slider icon → **Spotify → Sign in to Spotify**, and sign in with her account. If the kiosk blocks Spotify's sign-in page, pause the kiosk while you sign in. Her phone stays signed in; the Spotify sign-in details never leave her phone.
+5. **Pick her music:** on your **Her phone** tab, **Music**: in Spotify use ⋯ → **Share → Copy link** on a playlist or album, paste it and **Add** (up to 12). The 🎵 button appears on her phone with the covers.
+
+Good to know: update all three phones to release 5 before setting up Spotify. Sign in on her phone with her email and password (the Google or Apple buttons open pop-ups the kiosk may block). Do the first play with a grown-up there: Chrome may ask once to allow protected content, and it must be allowed. If her settings say Chrome couldn't start Spotify's player, check Chrome → Settings → Site settings → Protected content is allowed. Use playlists you made (Spotify doesn't let apps like this play its own editorial playlists such as "Today's Top Hits"; copy the songs into your own playlist instead). At night music fades out after half an hour. Music pauses while she talks or while your voice message plays. Spotify's developer rules allow up to 5 people per app and need the app owner (you) to keep Premium.
 
 ## Keep her in Walkie
 
@@ -51,7 +63,7 @@ Her games open inside Walkie, full screen, in the daytime only. They're listed i
 2. Wait about a minute (**Actions** shows a green tick when it's live).
 3. On each phone, open **Settings** and tap **Check for update** next to the release number at the top (on her phone: press and hold the slider icon). No need to unpin her phone. If the release number hasn't changed, wait a minute and tap it again.
 
-Every release bumps `core.js?v=N` in `index.html` and `walkie-vN` in `sw.js` together. **Settings** shows the release at the top ("Walkie release 4"), so you can see when a phone has the update. When `Code.gs` changes, also paste it into Apps Script and go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** (same URL). **Settings → Sleep log → Check** then shows the Apps Script release.
+Every release bumps `core.js?v=N` in `index.html` and `walkie-vN` in `sw.js` together. **Settings** shows the release at the top ("Walkie release 5"), so you can see when a phone has the update. When `Code.gs` changes, also paste it into Apps Script and go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** (same URL). **Settings → Sleep log → Check** then shows the Apps Script release.
 
 ## Files
 
@@ -66,6 +78,7 @@ Every release bumps `core.js?v=N` in `index.html` and `walkie-vN` in `sw.js` tog
 
 ## Good to know
 
+- **Spotify** knows what she plays (it's her account). Walkie keeps her Spotify sign-in on her phone only; your phones see just the playlist names.
 - **Privacy:** voice clips, stories, drawings and the messages between the phones are sealed with your family's key before they leave the phone, so ntfy only stores noise. Notification texts never include her name; it only shows inside the app. ntfy deletes uploads after 3 hours; the Sheet stores what happened and when, never audio or pictures.
 - **Stories** are kept on her phone once they arrive (up to 24; the oldest goes when a new one arrives). If her phone can't download one straight away it keeps trying, but ntfy only keeps uploads for 3 hours; after that your Her phone page says it didn't arrive. ntfy takes files up to 2 MB, which is about 8 minutes of recording; for a longer song, send an MP3 under 2 MB. Leaving the family on her phone deletes them.
 - **Stars** are counted on her phone from her own buttons, starting from the first night after this update, and shown on your Sleep page too: Night night at bedtime, then no I'm awake until the sun is up. A bad dream or a cuddle in the night doesn't cost the star; pressing I'm awake while the moon is still up does.

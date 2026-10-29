@@ -370,6 +370,16 @@
     return c >= 1.8 || (c >= 1.25 && dist >= 160);
   }
 
+  /* ---------- Spotify ---------- */
+  // A playlist or album the grown-ups pick, from a shared link ("Copy link" in Spotify) or a spotify: address
+  function spotifyRef(text) {
+    const t = String(text || '').trim();
+    let m = /^spotify:(playlist|album):([A-Za-z0-9]{22})$/.exec(t);
+    if (!m) m = /^https?:\/\/open\.spotify\.com\/(?:intl-[a-z]{2}(?:-[a-z]{2})?\/)?(?:embed\/)?(playlist|album)\/([A-Za-z0-9]{22})(?:[/?#].*)?$/i.exec(t);
+    return m ? { k: m[1].toLowerCase(), id: m[2] } : null;
+  }
+  const spotifyCid = (x) => (/^[0-9a-f]{32}$/i.test(String(x || '').trim()) ? String(x).trim().toLowerCase() : '');
+
   /* ---------- Waveform ---------- */
   // Squash a list of 0..1 levels to n bars of 0..9, as a digit string
   function peaks(levels, n) {
@@ -611,6 +621,7 @@
     star, stars, sunFor, sleepsUntil, ROUTINE, ROUTINE_DEFAULT, routineItems, routineOn,
     GM_MINS, gmCfg, gameList,
     hexRgb, contrast, palette, KID_COLOURS, buttonOk,
+    spotifyRef, spotifyCid,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;
   else root.Core = Core;
