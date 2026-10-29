@@ -1,0 +1,8 @@
+{
+  "games": [
+    { "id": "solitaire", "name": "Solitaire", "url": "../Solitaire/", "icon": "../Solitaire/icon-192.png", "ready": true },
+    { "id": "gamesmaster", "name": "Games Master", "url": "../GamesMaster/", "icon": "../GamesMaster/icon-192.png", "ready": true },
+    { "id": "wolfsheep", "name": "Wolf & Sheep", "emoji": "🐺", "url": "../WolfSheep/", "ready": false },
+    { "id": "chess", "name": "Chess", "emoji": "♟️", "url": "../Chess/", "ready": false }
+  ]
+}

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="frame-src 'self'">
 <title>Walkie</title>
 <meta name="description" content="A child's bedside walkie-talkie and sleep log, linked to her parents' phones.">
 <meta name="theme-color" content="#0F1528">
@@ -37,8 +38,20 @@ a { color: inherit; }
 [hidden] { display: none !important; }
 .wrap { max-width: 34rem; margin: 0 auto; padding: env(safe-area-inset-top) calc(20px + env(safe-area-inset-right)) 0 calc(20px + env(safe-area-inset-left)); position: relative; }
 
-/* Header */
-.top { display: grid; grid-template-columns: 1fr auto; align-items: start; padding: 18px 0 8px; }
+/* Header: stays put while the page scrolls, with the page tabs in it */
+.appbar { position: sticky; top: 0; z-index: 6; padding-top: env(safe-area-inset-top); background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 84%, transparent); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px);
+  border-bottom: 1px solid transparent; transition: border-color .2s, box-shadow .2s; }
+.appbar.scrolled { border-bottom-color: var(--line); box-shadow: 0 10px 30px rgba(0, 0, 0, .18); }
+.appbar-in { max-width: 34rem; margin: 0 auto; padding: 0 calc(20px + env(safe-area-inset-right)) 10px calc(20px + env(safe-area-inset-left)); }
+.parent-wrap { padding-top: 0; }
+.tabs { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 3px; border-radius: 14px; background: var(--raise); }
+.tabs button { position: relative; z-index: 1; height: 38px; border-radius: 11px; font-size: 14px; font-weight: 500; color: var(--ink-3); display: inline-flex; align-items: center; justify-content: center; gap: 7px; transition: color .2s; white-space: nowrap; }
+.tabs button svg { width: 18px; height: 18px; flex: none; }
+.tabs button[aria-selected="true"] { color: var(--ink); }
+.tab-ink { position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: 11px; background: var(--raise-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 6px 16px rgba(0, 0, 0, .25); transform: translateX(calc(var(--i, 0) * 100%)); transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.top { display: grid; grid-template-columns: 1fr auto; align-items: start; padding: 14px 0 10px; }
 .mark { font-weight: 600; font-size: 17px; letter-spacing: -.01em; }
 .sub { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-3); margin-top: 1px; min-height: 19px; }
 .sub .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); flex: none; }
@@ -98,7 +111,7 @@ a { color: inherit; }
 /* Talk thread */
 .thread { padding: 6px 0 calc(170px + env(safe-area-inset-bottom)); }
 .day { margin: 20px 0 8px; font-size: 13px; font-weight: 500; color: var(--ink-3); text-align: center; }
-.msg { display: flex; flex-direction: column; align-items: flex-start; margin: 10px 0; scroll-margin: 90px 0 180px; }
+.msg { display: flex; flex-direction: column; align-items: flex-start; margin: 10px 0; scroll-margin: 150px 0 180px; }
 .msg.mine, .msg.parent { align-items: flex-end; }
 .msg .who { font-size: 12.5px; color: var(--ink-3); margin: 0 12px 3px; }
 .msg .meta { font-size: 12.5px; color: var(--ink-3); margin: 4px 12px 0; }
@@ -126,8 +139,8 @@ a { color: inherit; }
 .composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; padding: 12px calc(16px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
   background: linear-gradient(transparent, var(--bg) 22%); }
 .composer-in { max-width: 34rem; margin: 0 auto; display: grid; gap: 8px; }
-.quick-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0; }
-.quick-row .chip { padding: 0 11px; font-size: 13.5px; gap: 5px; height: 36px; }
+.quick-row { display: flex; flex-wrap: wrap; gap: 5px; padding: 2px 0; }
+.quick-row .chip { padding: 0 10px; font-size: 13.5px; gap: 5px; height: 36px; }
 .talk-row { display: flex; align-items: center; gap: 10px; position: relative; }
 .hold-hint { flex: 1; height: 50px; border-radius: 25px; background: var(--raise); display: flex; align-items: center; padding: 0 18px; color: var(--ink-3); font-size: 15px; }
 .quick-row::-webkit-scrollbar { display: none; }
@@ -195,7 +208,7 @@ dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
 .role[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--sun); }
 
 /* Popover */
-.pop { position: absolute; top: 64px; right: 12px; z-index: 5; width: min(300px, calc(100% - 24px)); padding: 16px 12px 12px; border-radius: 18px; background: var(--raise); border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); }
+.pop { position: fixed; top: calc(env(safe-area-inset-top) + 58px); right: max(12px, calc((100vw - 34rem) / 2 + 8px)); z-index: 7; width: min(300px, calc(100% - 24px)); padding: 16px 12px 12px; border-radius: 18px; background: var(--raise); border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); }
 .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 6px; }
 .theme-opt { display: grid; justify-items: center; gap: 6px; padding: 4px 0; font-size: 12.5px; color: var(--ink-2); }
 .theme-opt[aria-pressed="true"] { color: var(--ink); }
@@ -211,13 +224,14 @@ dialog.sheet::backdrop { background: rgba(4, 6, 14, .62); }
 
 /* ---------- Her phone ---------- */
 body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
-.kid-app { position: fixed; inset: 0; display: grid; grid-template-rows: auto 1fr auto; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
-.k-top { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; height: 60px; padding: 0 8px; }
+.kid-app { position: fixed; inset: 0; display: grid; grid-template-rows: auto auto 1fr auto; grid-template-areas: "top" "info" "main" "side"; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+.k-top { grid-area: top; display: grid; grid-template-columns: 104px 1fr 104px; align-items: center; height: 60px; padding: 0 8px; }
+.k-right { grid-column: 3; justify-self: end; display: flex; align-items: center; gap: 4px; }
 .k-clock { grid-column: 2; text-align: center; font-size: 15px; color: var(--ink-3); }
 .k-replay, .k-gear { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; position: relative; }
 .k-replay .avatar { width: 40px; height: 40px; font-size: 15px; }
 .k-replay::after { content: ""; position: absolute; right: 2px; bottom: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--sun) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M6 4.5v7l5.5-3.5z' fill='%23000'/%3E%3C/svg%3E") center / 14px no-repeat; }
-.k-gear { grid-column: 3; justify-self: end; color: var(--ink-3); }
+.k-gear { color: var(--ink-3); }
 .k-gear svg { width: 22px; height: 22px; }
 .k-gear .hold { position: absolute; inset: 2px; border-radius: 50%; background: conic-gradient(var(--ink-2) var(--g, 0%), transparent 0); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px)); opacity: 0; }
 .k-gear.holding .hold { opacity: 1; animation: fillring 1.5s linear forwards; }
@@ -225,8 +239,9 @@ body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -web
 @keyframes fillring { to { --g: 100%; } }
 .k-conn { position: absolute; top: 10px; right: 10px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
 .k-conn.ok { background: var(--sun); opacity: .7; }
-.k-main { display: grid; place-items: center; align-content: center; gap: 14px; min-height: 0; padding: 0 16px; }
-.talk-wrap { position: relative; width: min(64vw, 40vh, 270px); aspect-ratio: 1; }
+.k-main { grid-area: main; display: grid; place-items: center; align-content: center; gap: 10px; min-height: 0; padding: 0 16px; }
+.k-side { grid-area: side; display: grid; gap: 4px; padding-bottom: 10px; }
+.talk-wrap { position: relative; width: min(60vw, 33vh, 260px); aspect-ratio: 1; }
 .talk-ring { position: absolute; inset: -8%; width: 116%; height: 116%; overflow: visible; pointer-events: none; }
 .talk-ring .lvl { fill: var(--sun); transform-origin: 50% 50%; transform: scale(calc(.97 + var(--lvl, 0) * .28)); transition: transform .09s linear; opacity: 0; }
 .talk-ring .prog { fill: none; stroke: var(--sun); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; transform: rotate(-90deg); transform-origin: 50% 50%; opacity: 0; }
@@ -255,8 +270,8 @@ body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -web
 .k-status .avatar { width: 30px; height: 30px; font-size: 12px; box-shadow: 0 0 0 2px var(--bg); }
 .k-status .tick { font-size: 18px; color: var(--sun); }
 .k-status .warn { width: 12px; height: 12px; border-radius: 50%; background: var(--sun); opacity: .8; }
-.k-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 8px 16px 18px; max-width: 520px; width: 100%; margin: 0 auto; }
-.tile { height: min(13vh, 104px); border-radius: 22px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 2px; position: relative; transition: transform .12s; }
+.k-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 6px 16px 4px; max-width: 520px; width: 100%; margin: 0 auto; }
+.tile { height: min(11.5vh, 96px); border-radius: 22px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 2px; position: relative; transition: transform .12s; }
 .tile .e { font-size: clamp(32px, 9.5vw, 46px); line-height: 1.1; }
 .tile .w { font-size: 12px; color: var(--ink-3); }
 .tile:active { transform: scale(.94); }
@@ -267,11 +282,13 @@ body.kid { overflow: hidden; touch-action: manipulation; user-select: none; -web
 .resting .tile { opacity: .45; }
 
 @media (orientation: landscape) and (max-height: 520px) {
-  .kid-app { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
-  .k-top { grid-column: 1 / -1; height: 52px; }
-  .talk-wrap { width: min(36vw, 62vh, 250px); }
-  .k-tiles { align-self: center; padding: 0 24px 12px 8px; }
-  .tile { height: min(28vh, 104px); }
+  .kid-app { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto 1fr; grid-template-areas: "top top" "main info" "main side"; }
+  .k-top { height: 52px; }
+  .talk-wrap { width: min(34vw, 56vh, 240px); }
+  .k-side { align-content: start; padding: 0 20px 8px 4px; }
+  .k-tiles { padding: 0; }
+  .tile { height: min(17vh, 76px); }
+  .tile .e { font-size: 30px; } .tile .w { display: none; }
 }
 
 /* The night clock and the daytime rest screen */
@@ -294,10 +311,172 @@ body.sleeping .tile { background: #120404; }
 body.sleeping .tile .e, body.sleeping .k-status, body.sleeping .k-in .avatar, body.sleeping .k-replay, body.sleeping .glow .avatar { filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-38deg) brightness(.62); }
 body.sleeping .tile .w { color: #6A2418; }
 
+/* ---------- Release 3: her extra screens ---------- */
+.k-info { grid-area: info; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 34px; padding: 0 18px; }
+.k-stars { display: flex; gap: 3px; font-size: 17px; line-height: 1; }
+.k-stars span { color: var(--line-2); }
+.k-stars span.on { color: #FFC83D; text-shadow: 0 0 10px rgba(255, 200, 61, .45); }
+.k-count { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px 4px 8px; border-radius: 16px; background: var(--raise); font-size: 18px; line-height: 1; }
+.k-count .moons { font-size: 13px; letter-spacing: -1px; }
+.k-count .n { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.k-palette { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
+.k-palette i { width: 24px; height: 24px; border-radius: 50%; background: conic-gradient(#F2A7C8 0 25%, #6FD9D0 0 50%, #FFB04A 0 75%, #86E3A8 0); box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--line-2); }
+.k-swatches { position: fixed; z-index: 12; top: calc(env(safe-area-inset-top) + 58px); right: 12px; display: flex; gap: 12px; padding: 14px; border-radius: 26px; background: var(--raise); border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, .45); }
+.k-swatches button { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, var(--b) 0 34%, var(--a) 36%); box-shadow: 0 0 0 1px var(--line-2); }
+.k-swatches button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); }
+.k-routine { display: flex; justify-content: center; gap: 10px; padding: 2px 16px 6px; }
+.k-routine button { width: 58px; height: 58px; border-radius: 50%; background: var(--raise); font-size: 28px; display: grid; place-items: center; position: relative; transition: transform .15s; }
+.k-routine button.done { background: var(--sun-soft); }
+.k-routine button.done::after { content: "✓"; position: absolute; right: -2px; bottom: -2px; width: 22px; height: 22px; border-radius: 50%; background: var(--sun); color: var(--on-sun); font-size: 14px; font-weight: 700; display: grid; place-items: center; animation: pop .4s ease; }
+.k-dock { display: flex; justify-content: center; gap: 12px; padding: 8px 16px 2px; }
+.k-dock button { width: 56px; height: 56px; border-radius: 50%; background: var(--raise); font-size: 26px; display: grid; place-items: center; position: relative; transition: transform .12s; }
+.k-dock button:active, .k-routine button:active { transform: scale(.92); }
+.k-dock button.on { box-shadow: 0 0 0 3px var(--sun); }
+.k-dock button .dot { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 2px var(--bg); }
+.k-dock button .zz { position: absolute; top: -6px; right: -6px; font-size: 18px; }
+body.sleeping .k-dock button, body.sleeping .k-routine button { background: #120404; }
+body.sleeping .k-dock, body.sleeping .k-routine, body.sleeping .k-info { filter: grayscale(1) sepia(1) saturate(5) hue-rotate(-38deg) brightness(.62); }
+body.sleeping .k-palette { display: none; }
+.k-room { position: fixed; inset: 0; z-index: 9; background: var(--bg); display: grid; grid-template-rows: auto 1fr; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+body.sleeping .k-room { background: #000; }
+.k-room-top { display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; height: 72px; padding: 0 8px; }
+.k-home { width: 56px; height: 56px; border-radius: 50%; background: var(--raise); display: grid; place-items: center; color: var(--ink); }
+.k-home svg { width: 28px; height: 28px; }
+.k-room-title { text-align: center; font-size: 34px; }
+.k-room-body { min-height: 0; overflow: auto; padding: 14px 18px 22px; }
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.story-card { position: relative; aspect-ratio: 1; border-radius: 26px; background: var(--raise); display: grid; place-items: center; overflow: hidden; }
+.story-card .pic { font-size: 64px; line-height: 1; }
+.story-card .avatar { position: absolute; left: 10px; bottom: 12px; width: 34px; height: 34px; font-size: 13px; box-shadow: 0 0 0 2px var(--bg); }
+.story-card .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: var(--line); }
+.story-card .bar i { display: block; height: 100%; width: 0; background: var(--sun); }
+.story-card.playing { box-shadow: 0 0 0 4px var(--sun); animation: cardglow 1.6s ease-in-out infinite; }
+@keyframes cardglow { 50% { box-shadow: 0 0 0 4px var(--sun), 0 0 0 11px var(--sun-soft); } }
+.story-card.playing .pic { animation: bob 2s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
+.empty-shelf { display: grid; place-items: center; gap: 14px; padding: 12vh 0; font-size: 80px; opacity: .5; }
+.sounds { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 420px; margin: 0 auto; }
+.sound { aspect-ratio: 1.15; border-radius: 26px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 8px; font-size: 13px; color: var(--ink-3); }
+.sound .disc { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 34px; box-shadow: inset 0 -6px 16px rgba(0, 0, 0, .25); }
+.sound[aria-pressed="true"] { box-shadow: 0 0 0 4px var(--sun); color: var(--ink); }
+.timers, .levels { display: flex; justify-content: center; gap: 10px; margin: 18px auto 0; }
+.timers button, .levels button { min-width: 64px; height: 56px; padding: 0 14px; border-radius: 28px; background: var(--raise); font-size: 18px; font-weight: 600; color: var(--ink-2); }
+.timers button small { font-size: 12px; font-weight: 500; margin-left: 2px; }
+.timers button[aria-pressed="true"], .levels button[aria-pressed="true"] { background: var(--sun); color: var(--on-sun); }
+.big-go { display: grid; place-items: center; width: 96px; height: 96px; margin: 22px auto 0; border-radius: 50%; background: var(--sun); color: var(--on-sun); box-shadow: 0 0 0 10px var(--sun-soft); }
+.big-go svg { width: 40px; height: 40px; }
+.left { text-align: center; margin: 10px 0 0; color: var(--ink-2); font-size: 15px; }
+.sctl { display: grid; justify-items: center; }
+/* Games */
+.games { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.game-card { position: relative; aspect-ratio: 1; border-radius: 26px; background: var(--raise); display: grid; place-items: center; align-content: center; gap: 10px; padding: 12px; }
+.game-card img { width: 62%; aspect-ratio: 1; border-radius: 22%; box-shadow: 0 10px 24px rgba(0, 0, 0, .35); }
+.game-card .emo { font-size: 56px; line-height: 1; }
+.game-card .nm { font-size: 13px; color: var(--ink-2); text-align: center; }
+.game-card.soon { opacity: .42; filter: grayscale(.85); }
+.game-card .glock { position: absolute; top: 10px; right: 12px; font-size: 18px; }
+.game-card img, .k-room-title img { pointer-events: none; -webkit-user-drag: none; -webkit-touch-callout: none; }
+.game-card.done { opacity: .32; filter: grayscale(1); }
+.game-card.offline::after { content: "📶"; position: absolute; top: 10px; right: 12px; font-size: 18px; }
+.gdone { display: flex; justify-content: center; align-items: center; gap: 12px; font-size: 56px; padding: 2vh 0 4vh; }
+.gdone .z { font-size: 30px; align-self: flex-start; } .gdone .arrow { font-size: 30px; color: var(--ink-3); }
+.gpie { display: block; width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(var(--bg) 0 50%, transparent 51%), conic-gradient(var(--sun) calc(var(--p, 100) * 1%), var(--raise-2) 0); }
+.k-room.gameroom .k-room-top { height: 56px; grid-template-columns: 56px 1fr 56px; }
+.k-room.gameroom .k-home { width: 44px; height: 44px; }
+.k-room.gameroom .k-home svg { width: 24px; height: 24px; }
+.k-room.gameroom .k-room-title img { width: 30px; height: 30px; border-radius: 22%; vertical-align: middle; }
+.k-room.gameroom .k-room-body { padding: 0; overflow: hidden; }
+.k-room-title img { width: 40px; height: 40px; border-radius: 22%; }
+.game-frame { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+@media (orientation: landscape) and (max-height: 520px) { .games { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 760px; margin: 0 auto; } .gdone { padding: 0 0 2vh; font-size: 44px; } }
+@media (orientation: landscape) and (max-height: 520px) {
+  .k-dock { padding: 4px 0 0; } .k-info { padding: 0 20px 4px 4px; }
+  .k-routine { padding: 0 0 6px; } .k-routine button { width: 48px; height: 48px; font-size: 24px; }
+  /* sounds page side by side: the four sounds, then how long, play and how loud */
+  .sroom { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 26px; align-items: center; max-width: 780px; margin: 0 auto; }
+  .sounds { margin: 0; max-width: none; }
+  .sound { aspect-ratio: auto; height: min(30vh, 124px); }
+  .sound .disc { width: 48px; height: 48px; }
+  .sctl .timers { margin-top: 0; }
+  .sctl .big-go { width: 80px; height: 80px; margin-top: 16px; }
+}
+.k-light { position: fixed; inset: 0; z-index: 11; background: radial-gradient(circle at 50% 45%, #FFD28A 0%, #F2A04A 45%, #6B3A10 100%); transition: opacity 1.2s ease; }
+.k-light.fade { opacity: 0; transition-duration: 30s; }
+body.sleeping .k-light { filter: brightness(.72); }   /* gentler in the night */
+.k-light .tapoff { position: absolute; left: 50%; bottom: calc(40px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(0, 0, 0, .12); color: rgba(60, 30, 0, .5); display: grid; place-items: center; }
+.k-light .tapoff svg { width: 28px; height: 28px; }
+.calm { display: grid; place-items: center; height: 100%; }
+.calm svg { width: min(70vw, 50vh); height: auto; overflow: visible; transform-origin: 50% 50%; animation: breathe 10s ease-in-out infinite; filter: drop-shadow(0 0 24px rgba(255, 200, 61, .5)); }
+@keyframes breathe { 0% { transform: scale(.62); } 40% { transform: scale(1); } 100% { transform: scale(.62); } }
+.draw-wrap { display: grid; grid-template-rows: 1fr auto; gap: 12px; height: 100%; }
+.draw-pad { border-radius: 22px; background: #fff; touch-action: none; width: 100%; height: 100%; min-height: 0; display: block; }
+.colours { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.colours button { width: 46px; height: 46px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line-2); }
+.colours button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--sun); transform: scale(1.08); }
+.k-send { width: 56px; height: 56px; border-radius: 50%; background: var(--sun); color: var(--on-sun); display: grid; place-items: center; justify-self: end; }
+.k-send svg { width: 26px; height: 26px; }
+.k-bin { width: 56px; height: 56px; border-radius: 50%; background: var(--raise); display: grid; place-items: center; font-size: 24px; justify-self: end; }
+.k-bin.armed { background: #C0392B; animation: wiggle .5s ease; }
+.fly { position: fixed; z-index: 20; left: 50%; top: 50%; font-size: 90px; pointer-events: none; animation: flyaway 1.4s ease-in forwards; }
+@keyframes flyaway { 0% { transform: translate(-50%, -50%) scale(.6); opacity: 0; } 20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 100% { transform: translate(60vw, -80vh) rotate(-20deg) scale(.5); opacity: 0; } }
+.celebrate { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; pointer-events: none; }
+.celebrate .bigstar { font-size: min(52vw, 40vh); animation: starpop 2.6s cubic-bezier(.2, 1.4, .4, 1) forwards; filter: drop-shadow(0 0 30px rgba(255, 200, 61, .8)); }
+@keyframes starpop { 0% { transform: scale(.2) rotate(-40deg); opacity: 0; } 25% { transform: scale(1.1) rotate(8deg); opacity: 1; } 80% { transform: scale(1) rotate(0); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+.clock-in .starnow { font-size: .42em; filter: drop-shadow(0 0 12px rgba(255, 200, 61, .6)); }
+
+/* ---------- Release 3: her phone, from yours ---------- */
+.card { margin: 14px 0 0; padding: 16px; border-radius: 20px; background: var(--raise); }
+.card h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.card h2 .e { font-size: 20px; }
+.card p { margin: 4px 0 0; color: var(--ink-2); font-size: 14.5px; }
+.card .actions { margin-top: 14px; }
+.now { display: flex; align-items: center; gap: 12px; }
+.now .e { font-size: 26px; }
+.now p { flex: 1; margin: 0; }
+.now strong { display: block; color: var(--ink); font-weight: 600; font-size: 15px; }
+.seg4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.seg4 button { height: 74px; border-radius: 16px; background: var(--raise-2); display: grid; place-items: center; align-content: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.seg4 button .disc { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 16px; }
+.seg4 button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--sun); color: var(--ink); }
+.stories-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.stories-list li { display: flex; align-items: center; gap: 12px; min-height: 60px; border-top: 1px solid var(--line); }
+.stories-list .pic { font-size: 30px; width: 40px; text-align: center; }
+.stories-list .t { flex: 1; min-width: 0; }
+.stories-list .t b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stories-list .t small { color: var(--ink-3); font-size: 12.5px; }
+.round { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--raise-2); color: var(--ink); flex: none; }
+.round.go { background: var(--sun); color: var(--on-sun); }
+.round svg { width: 18px; height: 18px; }
+.pics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; }
+.pics button { aspect-ratio: 1; border-radius: 14px; background: var(--raise-2); font-size: 26px; }
+.pics button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--sun); background: var(--sun-soft); }
+.recbig { display: grid; justify-items: center; gap: 10px; margin: 18px 0 6px; }
+.recbig .round { width: 84px; height: 84px; background: var(--sun); color: var(--on-sun); }
+.recbig .round svg { width: 34px; height: 34px; }
+.recbig .round.rec { background: #E0483E; color: #fff; animation: pulse 1.4s ease-in-out infinite; }
+.recbig .num { font-size: 22px; font-weight: 500; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.switch { width: 50px; height: 30px; border-radius: 15px; background: var(--raise-2); position: relative; flex: none; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--ink-2); transition: transform .2s, background .2s; }
+.switch[aria-checked="true"] { background: var(--sun); }
+.switch[aria-checked="true"]::after { transform: translateX(20px); background: var(--on-sun); }
+.drawing { display: block; padding: 0; border-radius: 18px; overflow: hidden; background: #fff; width: 200px; aspect-ratio: 3 / 4; }
+.drawing img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.drawing.loading { background: var(--raise-2); }
+.release, .sheet .release { margin: 2px 0 0; font-size: 13px; color: var(--ink-3); }
+.card p.small { font-size: 13.5px; color: var(--ink-3); }
+.warn-txt { color: var(--sun) !important; }
+.k-popwrap { position: fixed; inset: 0; z-index: 14; display: grid; place-items: center; background: rgba(0, 0, 0, .55); pointer-events: none; }
+.k-popwrap .k-in { position: relative; inset: auto; width: min(58vw, 48vh, 240px); aspect-ratio: 1; }
+.nstar { color: #FFC83D; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .spinner, .btn.busy::after { animation: spin 1.6s linear infinite !important; }
   .k-gear.holding .hold { --g: 100%; }
+  .calm svg { animation: breathe 10s ease-in-out infinite !important; }   /* the slow breathing is the point of the calm star */
+  .k-light.fade { transition: opacity 30s ease !important; }
 }
 </style>
 </head>
@@ -305,24 +484,30 @@ body.sleeping .tile .w { color: #6A2418; }
 <div id="setupApp" class="wrap" hidden></div>
 
 <div id="parentApp" hidden>
-  <div class="wrap">
-    <header class="top">
-      <div><div class="mark">Walkie</div><div class="sub num" id="sub"></div></div>
-      <div class="tools">
-        <button class="icon-btn" id="themeBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="themes" aria-label="Colour theme" title="Colour theme">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>
-        </button>
-        <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
-        </button>
+  <header class="appbar" id="appbar">
+    <div class="appbar-in">
+      <div class="top">
+        <div><div class="mark">Walkie</div><div class="sub num" id="sub"></div></div>
+        <div class="tools">
+          <button class="icon-btn" id="themeBtn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="themes" aria-label="Colour theme" title="Colour theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+          </button>
+        </div>
       </div>
-    </header>
-    <div class="pop" id="themes" hidden role="group" aria-label="Colour theme"></div>
-    <div id="notices"></div>
-    <div class="switcher" role="group" aria-label="Page">
-      <button type="button" data-view="talk" aria-pressed="true">Talk</button>
-      <button type="button" data-view="sleep" aria-pressed="false">Sleep</button>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Pages">
+        <span class="tab-ink" aria-hidden="true"></span>
+        <button type="button" role="tab" data-view="talk" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4.5 5.5h15a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4.5 3.5v-3.5h-1a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"/></svg>Talk</button>
+        <button type="button" role="tab" data-view="sleep" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M19.5 14.2A8 8 0 0 1 9.8 4.5a8 8 0 1 0 9.7 9.7Z"/></svg>Sleep</button>
+        <button type="button" role="tab" data-view="room" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="7" y="2.8" width="10" height="18.4" rx="2.4"/><path d="M10.5 17.6h3" stroke-linecap="round"/></svg>Her phone</button>
+      </nav>
     </div>
+  </header>
+  <div class="pop" id="themes" hidden role="group" aria-label="Colour theme"></div>
+  <div class="wrap parent-wrap">
+    <div id="notices"></div>
     <main id="view" aria-live="polite"></main>
   </div>
   <div class="composer" id="composer">
@@ -342,9 +527,13 @@ body.sleeping .tile .w { color: #6A2418; }
   <div class="k-top">
     <button class="k-replay" id="replay" type="button" hidden aria-label="Play the last message again"></button>
     <span class="k-clock num" id="kClock"></span>
-    <button class="k-gear" id="gear" type="button" aria-label="Grown-up settings. Press and hold." title="Press and hold for settings"><span class="hold"></span><span class="k-conn" id="kConn"></span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+    <div class="k-right">
+      <button class="k-palette" id="palette" type="button" aria-label="Colours"><i></i></button>
+      <button class="k-gear" id="gear" type="button" aria-label="Grown-up settings. Press and hold." title="Press and hold for settings"><span class="hold"></span><span class="k-conn" id="kConn"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+    </div>
   </div>
+  <div class="k-info" id="kInfo"></div>
   <div class="k-main">
     <div class="talk-wrap" id="talkWrap">
       <svg class="talk-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="lvl" cx="50" cy="50" r="49"/><circle class="prog" id="prog" cx="50" cy="50" r="48" pathLength="100"/></svg>
@@ -353,25 +542,39 @@ body.sleeping .tile .w { color: #6A2418; }
     </div>
     <div class="k-status" id="kStatus" aria-live="polite"></div>
   </div>
-  <div class="k-tiles" id="tiles"></div>
+  <div class="k-side">
+    <div class="k-routine" id="routine" hidden role="group" aria-label="Bedtime routine"></div>
+    <div class="k-tiles" id="tiles"></div>
+    <nav class="k-dock" id="dock" aria-label="Things to do"></nav>
+  </div>
 </div>
+<div class="k-swatches" id="swatches" hidden role="group" aria-label="Colours"></div>
+<div class="k-room" id="kRoom" hidden></div>
+<input type="file" accept="audio/*" id="storyFile" hidden>
+<div class="k-popwrap" id="kPopWrap" hidden><div class="k-in" id="kPop"></div></div>
+<div class="k-light" id="kLight" hidden><button class="tapoff" type="button" aria-label="Turn the light off"></button></div>
+<div class="celebrate" id="celebrate" hidden aria-hidden="true"></div>
 <div class="clockface" id="clockface" hidden aria-live="off"><div class="clock-in" id="clockIn"></div><div class="glow" id="glow" hidden></div></div>
 
 <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle"><div class="sheet-in" id="sheetBody"></div></dialog>
 <div class="toast" id="toast" role="status" popover="manual"></div>
 <audio id="player" preload="none"></audio>
+<audio id="storyEl" preload="none"></audio>
 
-<script src="core.js?v=2"></script>
+<script src="core.js?v=3"></script>
 <script>
 (() => {
 'use strict';
 const C = window.Core;
+// While an update is landing, this page could meet the previous core.js: try once more for the matching one
+if (C && typeof C.gameList !== 'function') { try { if (!sessionStorage.getItem('wlk.coreRetry')) { sessionStorage.setItem('wlk.coreRetry', '1'); setTimeout(() => { K.reloading = true; location.reload(); }, 4000); } } catch {} }
 
 /* ---------- Constants ---------- */
 const NTFY = 'https://ntfy.sh';
 const APP = location.origin + location.pathname;
 const PLAY = 'https://play.google.com/store/apps/details?id=io.heckel.ntfy';
-const EXPECT_BUILD = 1;      // the Apps Script release this app needs
+const RELEASE = 3;           // shown at the top of Settings, so you can see an update has arrived
+const EXPECT_BUILD = 2;      // the Apps Script release this app needs
 const MIN = 60e3, HOUR = 3600e3;
 const QUIET_DELAY = 50;      // minutes without a check-in before you're told her phone has gone quiet
 const BEAT_EVERY = 30 * MIN;
@@ -402,7 +605,8 @@ function runner(id) {
 }
 const quickEmoji = (q, from) => (q === 'coming' ? runner(from) : QUICK[q].e);
 const LINES = { sleep: { e: '🌙', t: 'Night night' }, wake: { e: '☀️', t: 'Awake' }, early: { e: '☀️', t: 'Awake early' },
-  quiet: { e: '⚠️', t: 'Walkie went quiet' }, back: { e: '✓', t: 'Walkie’s back' }, rest: { e: '💤', t: 'Walkie resting until bedtime' } };
+  quiet: { e: '⚠️', t: 'Walkie went quiet' }, back: { e: '✓', t: 'Walkie’s back' }, rest: { e: '💤', t: 'Walkie resting until bedtime' },
+  routine: { e: '✅', t: 'Bedtime routine done' }, away: { e: '📵', t: 'Walkie left her screen' } };
 const ICON = {
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
@@ -443,6 +647,17 @@ const S = {
   view: 'talk',
   installEvt: null,
   tileSt: {},
+  shelf: get('shelf', []),        // her stories: kept on her phone, reported to yours
+  shelfAt: get('shelfAt', 0),
+  pending: get('pending', {}),
+  kstate: get('kstate', null),    // what's playing on her phone
+  kstars: get('kstars', null),    // her stars, as her phone counts them
+  games: [],                      // her games (games.json), filled in below
+  gplay: get('gplay', null),      // game minutes played today: { day, ms }
+  fetchQ: get('fetchQ', []),      // stories her phone couldn't download yet
+  mine: get('mine', []),          // her own night night and awake presses, for stars
+  routine: get('routine', null),
+  ui: Object.assign({ sound: 'white', mins: 30 }, get('ui', {})),
   beat: get('beat', null),
 };
 const SEEN = new Set(get('seen', []));
@@ -670,9 +885,11 @@ async function sendCfg() {
   if (!S.fam) return;
   const f = S.fam;
   if (isKid() && !spend(1)) return;
-  try { await ntfy(TD(), {}, await sealText({ t: 'cfg', at: f.cfgAt || 0, by: meId(), bed: f.cfg.bed, wd: f.cfg.wd, we: f.cfg.we, s: f.s || '', n: f.n || '', r: f.r || [] })); }
-  catch { if (isKid()) refund(1); }
+  try { await ntfy(TD(), {}, await sealText({ t: 'cfg', at: f.cfgAt || 0, by: meId(), bed: f.cfg.bed, wd: f.cfg.wd, we: f.cfg.we, cd: f.cfg.cd || null, ri: f.cfg.ri || null, gm: f.cfg.gm || null, s: f.s || '', n: f.n || '', r: f.r || [] })); return true; }
+  catch { if (isKid()) refund(1); return false; }
 }
+let cfgRetryT = 0;
+function retryCfg(n = 0) { clearTimeout(cfgRetryT); if (n < 30) cfgRetryT = setTimeout(async () => { if (!(await sendCfg())) retryCfg(n + 1); }, MIN); }
 let cfgTimer = 0;
 const sendCfgSoon = () => { clearTimeout(cfgTimer); cfgTimer = setTimeout(sendCfg, 4000); };
 function mergeRoster(list) {
@@ -690,13 +907,17 @@ function mergeRoster(list) {
 function applyCfg(o) {
   let changed = mergeRoster(o.r);
   if ((o.at || 0) > (S.fam.cfgAt || 0)) {
-    S.fam.cfg = { bed: C.hm(o.bed) != null ? o.bed : cfg().bed, wd: C.hm(o.wd) != null ? o.wd : cfg().wd, we: C.hm(o.we) != null ? o.we : cfg().we };
+    const okCd = (x) => x && typeof x === 'object' && C.sleepsUntil(0, x.d) !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(String(x.d || '')) && CD_PICS.includes(x.e);
+    S.fam.cfg = { bed: C.hm(o.bed) != null ? o.bed : cfg().bed, wd: C.hm(o.wd) != null ? o.wd : cfg().wd, we: C.hm(o.we) != null ? o.we : cfg().we,
+      cd: 'cd' in o ? (okCd(o.cd) ? { e: o.cd.e, d: o.cd.d, l: cleanLabel(o.cd.l).slice(0, 24) } : null) : cfg().cd || null,
+      ri: 'ri' in o ? (Array.isArray(o.ri) ? C.routineItems(o.ri) : null) : cfg().ri || null,
+      gm: 'gm' in o ? (o.gm && typeof o.gm === 'object' && C.gmCfg ? C.gmCfg({ gm: o.gm }) : null) : cfg().gm || null };
     S.fam.cfgAt = o.at;
     if (typeof o.s === 'string' && (!o.s || /^https:\/\/script\.google\.com\//.test(o.s))) S.fam.s = o.s || S.fam.s;
     if (typeof o.n === 'string') S.fam.n = o.n.slice(0, 30);
     changed = true;
   }
-  if (changed) { saveFam(); if (S.fam.s) { checkSheet(); flushSoon(); } }
+  if (changed) { saveFam(); if (S.fam.s) { checkSheet(); flushSoon(); } if (isKid()) setTimeout(kidTick, 0); }
   return changed;
 }
 
@@ -715,12 +936,16 @@ async function onNtfy(m, live) {
 function onAlert(m) {
   if (isKid()) return;
   const ts = m.time * 1000;
-  if (m.sequence_id === 'quiet') { upsert({ eid: 'q' + m.id, ts, from: 'sys', kind: 'quiet' }); S.quiet = { gone: ts }; put('quiet', S.quiet); refresh(); return; }
+  if (m.sequence_id === 'quiet') {
+    const away = /[#&]w=away(&|$)/.test(m.click || '');      // Walkie closed or hidden on her phone, rather than gone quiet
+    upsert({ eid: 'q' + m.id, ts, from: 'sys', kind: away ? 'away' : 'quiet' }); S.quiet = { gone: ts, away }; put('quiet', S.quiet); refresh(); return;
+  }
   const c = C.clickInfo(m.click);
   if (!c) return;
   const w = c.w;
   if (TILE[w]) upsert({ eid: c.eid, ts, from: 'child', kind: 'quick', q: w });
   else if (w === 'voice') upsert({ eid: c.eid, ts, from: 'child', kind: 'voice', dur: c.d });
+  else if (w === 'draw') upsert({ eid: c.eid, ts, from: 'child', kind: 'draw', mime: 'image/png' });
   else if (LINES[w]) upsert({ eid: c.eid, ts, from: 'sys', kind: w });
   if (w === 'back' && S.quiet) { S.quiet.gone = 0; put('quiet', S.quiet); }
   refresh();
@@ -730,11 +955,44 @@ async function onData(m, live) {
   const o = await unsealText(m.message);
   if (!o || !o.t) return;
   const ts = m.time * 1000;
-  if (o.t === 'voice' || o.t === 'quick') {
+  const fresh = Date.now() - ts < 10 * MIN;   // a command that arrives late (her phone was offline) is ignored
+  if (isKid() && o.t === 'story') { receiveStory(o, m); return; }
+  if (isKid() && o.t === 'unstory' && okSid(o.sid)) { removeStory(o.sid); return; }
+  if (isKid() && ['play', 'stop', 'noise'].includes(o.t) && fresh) K.cmdAt = Date.now();
+  if (isKid() && o.t === 'play' && okSid(o.sid) && fresh) { playStory(o.sid); return; }
+  if (isKid() && o.t === 'stop' && fresh) { stopStory(); stopNoise(3); return; }
+  if (isKid() && o.t === 'noise' && fresh) { if (o.kind === 'off') stopNoise(3); else startNoise(o.kind, [15, 30, 60, 0].includes(+o.mins) ? +o.mins : 30); return; }
+  if (!isKid() && o.t === 'shelf' && Array.isArray(o.items)) {
+    if ((o.at || 0) > (S.shelfAt || 0)) {
+      S.shelf = o.items.filter((x) => x && okSid(x.sid)).slice(0, 24).map((x) => ({ sid: x.sid, title: String(x.t || '').slice(0, 30), pic: String(x.p || '📖').slice(0, 8), by: String(x.b || '').slice(0, 12), dur: +x.d || 0, at: +x.a || 0 }));
+      S.shelfAt = o.at; saveShelf();
+      if (S.pending) { S.shelf.forEach((x) => { delete S.pending[x.sid]; }); put('pending', S.pending); }
+      refresh();
+    }
+    return;
+  }
+  if (!isKid() && o.t === 'stars' && Array.isArray(o.s)) {
+    if (!S.kstars || (o.at || 0) >= (S.kstars.at || 0)) {
+      S.kstars = { at: o.at || ts, s: o.s.filter((x) => Array.isArray(x) && Number.isFinite(+x[0])).slice(0, 8).map((x) => [+x[0], x[1] ? 1 : 0]) };
+      put('kstars', S.kstars);
+      if (S.view === 'sleep') renderView();
+    }
+    return;
+  }
+  if (!isKid() && o.t === 'state') {
+    if (!S.kstate || (o.at || 0) >= (S.kstate.at || 0)) {
+      S.kstate = { at: o.at || ts, noise: o.noise || null, story: o.story || null,
+        game: o.game && typeof o.game === 'object' ? { n: String(o.game.n || '').slice(0, 30), since: +o.game.since || 0 } : null, gu: Math.max(0, +o.gu || 0), gd: String(o.gd || '') };
+      put('kstate', S.kstate); refresh();
+    }
+    return;
+  }
+  if (o.t === 'voice' || o.t === 'quick' || o.t === 'draw') {
     const from = o.from || (o.t === 'quick' ? 'grown-up' : 'child');
     if (!/^[a-z0-9-]{1,12}$/.test(from)) return;
     const it = { eid: String(o.eid || m.id).slice(0, 20), ts, from, kind: o.t };
-    if (o.t === 'voice') Object.assign(it, { dur: +o.dur || 0, pk: String(o.pk || '').slice(0, 40), mime: String(o.mime || 'audio/webm').slice(0, 40), att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null });
+    if (o.t === 'draw') { if (isKid()) return; Object.assign(it, { mime: 'image/png', att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null }); }
+    else if (o.t === 'voice') Object.assign(it, { dur: +o.dur || 0, pk: String(o.pk || '').slice(0, 40), mime: String(o.mime || 'audio/webm').slice(0, 40), att: m.attachment ? { url: m.attachment.url, expires: m.attachment.expires } : null });
     else { if (!QUICK[o.q]) return; Object.assign(it, { q: o.q, re: o.re }); }
     const isNew = !itemById(it.eid);
     const item = upsert(it);
@@ -813,6 +1071,7 @@ function renderConn() {
 
 /* ---------- Recording ---------- */
 const REC = { stream: null, ctx: null, an: null, mr: null, chunks: [], levels: [], t0: 0, on: false, lvl: 0, timer: 0, idle: 0, mime: '' };
+const SR = { on: false, blob: null, dur: 0, mime: '', t0: 0, timer: 0, pic: '🐻', title: '', play: false, url: '', file: false };   // a story being recorded on a parent's phone
 async function micReady() {
   clearTimeout(REC.idle);
   REC.idle = setTimeout(micRelease, 90e3);
@@ -834,11 +1093,11 @@ function micRelease() {
   if (REC.stream) REC.stream.getTracks().forEach((t) => t.stop());
   REC.stream = null;
 }
-function recStart() {
+function recStart(bps) {
   if (!REC.stream || !window.MediaRecorder) return false;
   const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
   REC.mime = types.find((t) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
-  try { REC.mr = new MediaRecorder(REC.stream, REC.mime ? { mimeType: REC.mime, audioBitsPerSecond: 32000 } : {}); }
+  try { REC.mr = new MediaRecorder(REC.stream, REC.mime ? { mimeType: REC.mime, audioBitsPerSecond: bps || 32000 } : {}); }
   catch { return false; }
   REC.mime = (REC.mr.mimeType || REC.mime || 'audio/webm').split(';')[0];
   REC.chunks = []; REC.levels = [];
@@ -1026,16 +1285,20 @@ function renderKid() {
   const now = Date.now();
   $('#kClock').textContent = time(now);
   $('#kidApp').classList.toggle('resting', K.restUntil > now);
+  try { renderExtras(now); } catch {}      // stars, countdown, routine and dock never take her talk button down
+  if (S.sleep.on && !$('#swatches').hidden) toggleSwatches(false);
   // the talk button, or who's talking to her
-  const inEl = $('#kIn');
+  const above = !!(K.room || K.light), inEl = $(above ? '#kPop' : '#kIn');   // above her rooms and the night light
+  const showIn = (el, on) => { (el.id === 'kPop' ? $('#kPopWrap') : el).hidden = !on; };
+  showIn($(above ? '#kIn' : '#kPop'), false);
   if (K.overlay) {
     const o = K.overlay;
     const badge = o.q ? `<span class="badge" aria-hidden="true">${quickEmoji(o.q, o.from)}</span>` : '';
     const face = o.from && o.from !== 'grown-up' ? avatarHtml(o.from) : `<span class="avatar" aria-hidden="true" style="font-size:96px">❤️</span>`;
     inEl.innerHTML = face + badge;
     inEl.classList.toggle('playing', !!o.playing);
-    inEl.hidden = false;
-  } else inEl.hidden = true;
+    showIn(inEl, true);
+  } else showIn(inEl, false);
   // what happened to the last thing she sent
   const st = $('#kStatus');
   const last = K.lastSent && itemById(K.lastSent);
@@ -1060,8 +1323,10 @@ function renderKid() {
     cf.className = 'clockface ' + (S.sleep.on ? ph : 'day');
     const icon = S.sleep.on ? (ph === 'moon' ? ICON.moon : ICON.sun) : ICON.sun;
     const txt = time(now);
+    const starNow = S.sleep.on && ph === 'sun' && lastNightStar(now) === true;   // stayed in bed until the sun
     const ci = $('#clockIn');
-    if (ci.dataset.k !== txt + cf.className) { ci.innerHTML = `${icon}<span class="t num">${esc(txt)}</span>`; ci.dataset.k = txt + cf.className; }
+    const ck = txt + cf.className + starNow;
+    if (ci.dataset.k !== ck) { ci.innerHTML = `${icon}${starNow ? '<span class="starnow" aria-hidden="true">⭐</span>' : ''}<span class="t num">${esc(txt)}</span>`; ci.dataset.k = ck; }
     const d = C.drift(now, 7);
     ci.style.transform = `translate(${d.x}vw, ${d.y}vh)`;
     const g = $('#glow');
@@ -1082,17 +1347,31 @@ async function showIncoming(it) {
   K.idle = false; K.lastTouch = Date.now();
   stopPlayback();
   K.overlay = { from: it.from, q: it.kind === 'quick' ? it.q : null, eid: it.eid, playing: it.kind === 'voice' };
+  if (it.kind === 'voice' && K.story && !storyEl.paused) { storyEl.pause(); K.storyHeld = true; }
   chime(S.sleep.on);
   renderKid();
   clearTimeout(K.overlayT);
   if (it.kind === 'voice') {
     await sleepMs(900);
     try { await playItem(it); return; }
-    catch { K.overlay.playing = false; renderKid(); }
+    catch { if (K.overlay) K.overlay.playing = false; resumeStory(); renderKid(); }
   }
   K.overlayT = setTimeout(() => { K.overlay = null; renderKid(); }, it.kind === 'voice' ? 4000 : 12000);
 }
+function resumeStory() { if (K.storyHeld && K.story && !K.rec && !K.press) { K.storyHeld = false; storyEl.play().catch(() => {}); } }
+// While she talks: the story waits and the sleepy sound dips, so neither ends up in her message
+function hush(on) {
+  if (on) {
+    if (K.story && !storyEl.paused) { storyEl.pause(); K.storyHeld = true; }
+    if (NZ.on && AC) { try { const t = AC.currentTime; NZ.gain.gain.cancelScheduledValues(t); NZ.gain.gain.setValueAtTime(Math.max(0.0001, NZ.gain.gain.value), t); NZ.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15); K.ducked = true; } catch {} }
+    return;
+  }
+  if (K.ducked && NZ.on && AC) { try { const t = AC.currentTime; NZ.gain.gain.cancelScheduledValues(t); NZ.gain.gain.setValueAtTime(0.0001, t); NZ.gain.gain.exponentialRampToValueAtTime(NZ.level || LEVELS[1], t + 1.2); } catch {} }
+  K.ducked = false;
+  if (!PLAYING.eid) resumeStory();
+}
 function kidPlayEnd() {
+  resumeStory();
   if (!K.overlay) return;
   K.overlay.playing = false;
   renderKid();
@@ -1159,6 +1438,8 @@ async function kidSleepTile(k, btn) {
   if (now - (K.flipAt || 0) < 3000) return;   // a double tap doesn't say night night and I'm awake together
   K.flipAt = now;
   K.lastAct = now;
+  S.mine = S.mine.filter((e) => now - e.ts < 10 * 864e5).concat([{ id: eid, ts: now, type: k === 'sleep' ? 'sleep' : 'wake', role: 'child' }]);
+  put('mine', S.mine);
   if (k === 'sleep') {
     S.sleep.state = 'asleep';
     if (!S.sleep.on) S.sleep.since = now;
@@ -1178,7 +1459,8 @@ async function kidSleepTile(k, btn) {
   S.sleep.state = 'awake';
   logEvent({ id: eid, ts: now, type: 'wake' });
   const early = ph === 'moon' && S.sleep.on;
-  if (!early) { S.sleep.on = false; sendCfgSoon(); }
+  if (!early && S.sleep.on && lastNightStar(now) === true) setTimeout(() => celebrate('⭐'), 300);   // stayed in bed until the sun
+  if (!early) { S.sleep.on = false; sendCfgSoon(); sendShelfSoon(); }
   saveSleep();
   renderTiles(); renderKid();
   if (spend(1, true)) {
@@ -1204,16 +1486,19 @@ async function doBeat(force) {
   const now = Date.now(), night = C.phase(now, cfg()) === 'moon';
   const b = S.beat || {};
   const every = night ? BEAT_EVERY : 2 * HOUR;
-  if (!force && b.at && b.night === night && now - b.at < every - 30e3 && b.fire > now) return;
+  if (document.visibilityState === 'hidden' && !force) return;
+  if (!force && !b.away && b.at && b.night === night && now - b.at < every - 30e3 && b.fire > now) return;
   const fire = night ? now + QUIET_DELAY * MIN : Math.max(now + QUIET_DELAY * MIN, nextBedtime(now) + 20 * MIN);
-  const missed = b.fire && b.fire <= now;     // the last one went off: tell them she's back
+  const missed = b.fire && b.fire <= now + 15e3;     // the last one went off (or was about to): tell them she's back
+  const seq = K.awaySeq || 0;
   if (!spend(1, true)) return;
   const when = dayKey(fire) === dayKey(now) ? time(now) : `${time(now)} yesterday`;
   try {
     await ntfy(TA(), { title: 'Walkie has gone quiet', tags: 'warning', p: 3, delay: String(Math.floor(fire / 1000)), click: `${APP}#e=quiet&c=${now}` },
-      `${kidPhone()} last checked in at ${when}. Check it’s on, charging and on Wi-Fi, with Walkie open.`, 'quiet');
+      `Her phone last checked in at ${when}. Check it’s on, charging and on Wi-Fi, with Walkie open.`, 'quiet');
+    if ((K.awaySeq || 0) !== seq) { if (document.visibilityState === 'hidden') awayArm(true); return; }   // she left while this was on its way: the away alert stands
     S.beat = { at: now, fire, night }; put('beat', S.beat);
-    if (missed) tryHard(() => ntfy(TA(), { title: 'Walkie’s back', tags: 'white_check_mark', p: 2, click: `${APP}#e=${rid(10)}&w=back` }, `${kidPhone()} is checking in again.`)).catch(() => {});
+    if (missed) tryHard(() => ntfy(TA(), { title: 'Walkie’s back', tags: 'white_check_mark', p: 2, click: `${APP}#e=${rid(10)}&w=back` }, 'Her phone is checking in again.')).catch(() => {});
   } catch { refund(1); }
 }
 function stopBeat() {
@@ -1230,7 +1515,8 @@ function kidTick() {
   // bedtime: the night clock comes on by itself, once each evening
   if (!S.sleep.on && bed >= 720 && m >= bed && S.sleep.auto !== evening) {
     S.sleep.on = true; S.sleep.auto = evening; S.sleep.since = now; saveSleep();
-    K.idle = true; sendCfgSoon();
+    K.idle = true; sendCfgSoon(); sendShelfSoon();
+    if (['draw', 'games', 'play'].includes(K.room)) closeRoom();
   }
   // midday: a night that nobody ended with "I'm awake" ends by itself
   if (S.sleep.on && now >= noon && (S.sleep.since || 0) < noon && m < bed) {
@@ -1239,8 +1525,21 @@ function kidTick() {
   beat(false);
   if (K.tileKind !== sleepTileKind()) renderTiles();
   const quietFor = S.sleep.on ? 60e3 : 180e3;
-  if (!K.idle && !REC.on && !K.press && !PLAYING.eid && !K.overlay && now - K.lastTouch > quietFor && !$('#sheet').open) K.idle = true;
+  if (K.room === 'games' || K.room === 'play') {
+    if (S.sleep.on || !gamesOn()) closeRoom();
+    else if (K.room === 'play') {
+      gameAccrue();
+      if (gmLeft(now) <= 0) gameTimeUp();
+      else if (now - K.lastTouch > 5 * MIN) { closeRoom(); K.lastTouch = now - 5 * MIN; }   // she's wandered off: the game closes and the clock comes back
+    }
+  }
+  paintPie(now);
+  if (now - (K.gamesAt || 0) > 6 * HOUR) { K.gamesAt = now; loadGames(); recache(); }
+  const busyRoom = K.light || K.room === 'calm' || K.room === 'draw' || K.room === 'play';
+  if (!K.idle && !busyRoom && !REC.on && !K.press && !PLAYING.eid && !K.overlay && now - K.lastTouch > quietFor && !$('#sheet').open) { K.idle = true; toggleSwatches(false); }
   if (LIVE.es && now - LIVE.at > 120e3) connect();
+  starsSoon(now);
+  if (S.fetchQ.length && now - (K.retryAt || 0) > 3 * MIN) { K.retryAt = now; retryStories(); }
   renderKid();
 }
 
@@ -1256,9 +1555,10 @@ talk.addEventListener('pointerdown', async (e) => {
   K.press = { up: false, pid: e.pointerId };
   stopPlayback();
   K.overlay = null; renderKid();
+  hush(true);
   const ok = await micReady();
-  if (!K.press) return;
-  if (K.press.up || !ok || !recStart()) { K.press = null; wiggle(); return; }
+  if (!K.press) { hush(false); return; }
+  if (K.press.up || !ok || !recStart()) { K.press = null; wiggle(); hush(false); return; }
   K.rec = true;
   $('#kidApp').classList.add('rec');
   K.recTimer = setInterval(() => {
@@ -1279,8 +1579,9 @@ async function talkEnd(e) {
   $('#prog').style.strokeDashoffset = '100';
   const held = Date.now() - REC.t0;
   K.press = null;
-  if (held < MIN_HOLD) { recCancel(); wiggle(); return; }
+  if (held < MIN_HOLD) { recCancel(); wiggle(); hush(false); return; }
   const rec = await recStop();
+  hush(false);
   if (rec && rec.blob.size) sendVoice(rec);
 }
 talk.addEventListener('pointerup', talkEnd);
@@ -1312,16 +1613,598 @@ document.addEventListener('pointerdown', (e) => {
 document.addEventListener('click', (e) => { if (Date.now() < SW.clickUntil) { SW.clickUntil = 0; swallow(e); } }, true);
 document.addEventListener('pointermove', (e) => { if (SW.pid != null && e.pointerId === SW.pid) swallow(e); }, true);
 
+/* ---------- Keeping her in Walkie ---------- */
+// Full screen hides the status bar and Back/Home/Recents; a spare history step means Back lands inside Walkie.
+// Android only allows both after a touch, so they're renewed whenever she lifts her finger.
+function guardUp() {
+  if (!isKid()) return;
+  if (S.set.fs !== false && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+    try { document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {}); } catch {}
+  }
+  if (!K.guarded) { try { history.pushState({ walkie: 1 }, ''); K.guarded = true; } catch {} }
+}
+document.addEventListener('pointerup', guardUp, true);
+window.addEventListener('popstate', () => {
+  if (!isKid()) return;
+  K.guarded = false;
+  if (sheet.open) closeSheet();
+  else if (K.light) closeLight();
+  else if (K.room === 'play') { closeRoom(); openRoom('games'); }
+  else if (K.room) closeRoom();
+});
+// Walkie closed or hidden on her phone: the gone-quiet message is re-set to go off in 2 minutes, and coming back
+// before then puts it back as it was. Same message slot, so nothing extra waits on ntfy.
+document.addEventListener('visibilitychange', () => {
+  if (!isKid() || !S.fam || K.reloading) return;
+  if (document.visibilityState === 'hidden') awayArm();
+  else if (S.beat && S.beat.away) beat(true);
+});
+// At most once a minute and 10 times a day (the power button is fun), and not while a grown-up is in her settings
+// (taking a photo, or Android's settings during setup). Past that, the usual gone-quiet alert still stands.
+function awayArm(again) {
+  const now = Date.now(), day = gmDay(now), a = get('away', null), n = a && a.day === day ? a.n : 0;
+  if (!again && (sheet.open || now - (K.awayAt || 0) < MIN || n >= 10)) return;
+  if (!spend(1, true)) return;
+  K.awayAt = now; K.awaySeq = (K.awaySeq || 0) + 1;
+  if (!again) put('away', { day, n: n + 1 });
+  const fire = now + 2 * MIN;
+  S.beat = Object.assign({}, S.beat, { at: now, fire, away: true }); put('beat', S.beat);
+  const q = new URLSearchParams({ title: 'Walkie isn’t on her screen', tags: 'warning', p: '3', delay: String(Math.floor(fire / 1000)), click: `${APP}#e=quiet&w=away&c=${now}` });
+  // keepalive: the page may be frozen straight after this, and the message must still go
+  fetch(`${NTFY}/${TA()}/quiet?${q}`, { method: 'POST', body: 'Her screen has been off, or Walkie closed or hidden, for 2 minutes. If it was unpinned, open Walkie and pin it again.', keepalive: true })
+    .then((r) => { if (!r.ok) refund(1); }).catch(() => refund(1));
+}
+
 // Grown-up settings on her phone: press and hold the slider icon
 const gear = $('#gear');
 gear.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   gear.classList.add('holding');
   clearTimeout(K.gearT);
-  K.gearT = setTimeout(() => { gear.classList.remove('holding'); openKidSettings(); }, 1500);
+  K.gearT = setTimeout(() => { gear.classList.remove('holding'); openKidSettings(); K.heldOpen = true; }, 1500);
 });
+// the finger that held the icon lifts over the new sheet's backdrop: that lift mustn't close it again
+document.addEventListener('pointerup', () => { if (K.heldOpen) { K.heldOpen = false; K.keepSheetUntil = Date.now() + 600; } }, true);
 ['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => gear.addEventListener(t, () => { clearTimeout(K.gearT); gear.classList.remove('holding'); }));
 gear.addEventListener('contextmenu', (e) => e.preventDefault());
+document.addEventListener('contextmenu', (e) => { if (isKid()) e.preventDefault(); });
+
+/* ---------- Her extra screens: stories, sounds, light, calm, draw, stars, routine, countdown ---------- */
+// Stories live on her phone in IndexedDB, so they keep working long after ntfy has deleted the upload
+const DB = {
+  p: null,
+  open() {
+    return this.p || (this.p = new Promise((res, rej) => {
+      const r = indexedDB.open('walkie', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('stories', { keyPath: 'sid' });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }));
+  },
+  async run(mode, fn) {
+    const db = await this.open();
+    return new Promise((res, rej) => { const t = db.transaction('stories', mode); const q = fn(t.objectStore('stories')); t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); });
+  },
+  put(v) { return this.run('readwrite', (st) => st.put(v)); },
+  get(k) { return this.run('readonly', (st) => st.get(k)); },
+  del(k) { return this.run('readwrite', (st) => st.delete(k)); },
+};
+const saveShelf = () => { put('shelf', S.shelf); put('shelfAt', S.shelfAt); };
+const RECEIVING = new Set();
+const okSid = (x) => /^[a-z0-9]{6,20}$/.test(String(x || ''));
+async function receiveStory(o, m) {
+  const sid = String(o.sid || '');
+  if (!okSid(sid) || S.shelf.some((x) => x.sid === sid) || RECEIVING.has(sid) || !m.attachment) return;
+  RECEIVING.add(sid);
+  try {
+    const plain = await tryHard(async () => {
+      let r;
+      try { r = await fetch(m.attachment.url); } catch { throw new Error('offline'); }
+      if (r.status === 404) { const e = new Error('expired'); e.limit = true; throw e; }
+      if (!r.ok) throw new Error('fetch');
+      return unseal(new Uint8Array(await r.arrayBuffer()));
+    });
+    await DB.put({ sid, blob: new Blob([plain], { type: String(o.mime || 'audio/webm').slice(0, 40) }) });
+    S.shelf.unshift({ sid, t: cleanLabel(o.title).slice(0, 30), p: PICS.includes(o.pic) ? o.pic : '📖', b: String(o.by || '').slice(0, 12), d: Math.min(3600, +o.dur || 0), a: m.time * 1000 });
+    while (S.shelf.length > 24) { const old = S.shelf.pop(); DB.del(old.sid).catch(() => {}); }
+    S.shelfAt = Date.now(); saveShelf();
+    dropFetch(sid);
+    K.newStory = true;
+    renderKid(); renderRoomIfOpen();
+    sendShelfSoon();
+    if (K.pendingPlay === sid) { K.pendingPlay = null; playStory(sid); }
+  } catch (e) {
+    const exp = (m.attachment.expires || m.time + 3 * 3600) * 1000;
+    if (e && e.message === 'expired' || exp < Date.now()) dropFetch(sid);
+    else if (!S.fetchQ.some((x) => x.o.sid === sid)) { S.fetchQ.push({ o, m: { time: m.time, attachment: { url: m.attachment.url, expires: m.attachment.expires } } }); put('fetchQ', S.fetchQ.slice(-10)); }
+  } finally { RECEIVING.delete(sid); }
+}
+function dropFetch(sid) { const n = S.fetchQ.length; S.fetchQ = S.fetchQ.filter((x) => x.o.sid !== sid); if (S.fetchQ.length !== n) put('fetchQ', S.fetchQ); }
+function retryStories() {
+  S.fetchQ = S.fetchQ.filter((x) => (x.m.attachment.expires || x.m.time + 3 * 3600) * 1000 > Date.now()).slice(-10);
+  put('fetchQ', S.fetchQ);
+  S.fetchQ.forEach((x) => receiveStory(x.o, x.m));
+}
+async function removeStory(sid) {
+  dropFetch(sid);
+  if (K.story && K.story.sid === sid) stopStory();
+  S.shelf = S.shelf.filter((x) => x.sid !== sid);
+  S.shelfAt = Date.now(); saveShelf();
+  DB.del(sid).catch(() => {});
+  renderKid(); renderRoomIfOpen(); sendShelfSoon();
+}
+let shelfTimer = 0, stateTimer = 0;
+function sendShelfSoon() { if (!isKid()) return; clearTimeout(shelfTimer); shelfTimer = setTimeout(sendShelf, 2500); }
+async function sendShelf() {
+  if (!spend(1)) return;
+  try { await ntfy(TD(), {}, await sealText({ t: 'shelf', at: S.shelfAt || Date.now(), items: S.shelf })); } catch { refund(1); }
+}
+// What's playing, for the grown-ups' page. While a grown-up is controlling her phone it reports within seconds;
+// otherwise at most once a minute (the latest wins), with a daily cap, so an evening of tapping can't use up ntfy's messages
+const EXTRA_CAP = 40;
+function extraOk() {
+  const day = new Date().toISOString().slice(0, 10), x = get('extras', null), n = x && x.day === day ? x.n : 0;
+  if (n >= EXTRA_CAP) return false;
+  put('extras', { day, n: n + 1 });
+  return true;
+}
+function sendStateSoon() {
+  if (!isKid()) return;
+  clearTimeout(stateTimer);
+  const gap = Date.now() - (K.cmdAt || 0) < 2 * MIN ? 4000 : MIN;
+  stateTimer = setTimeout(sendState, Math.max(2000, (K.stateAt || 0) + gap - Date.now()));
+}
+async function sendState() {
+  const now0 = Date.now(), game = K.room === 'play' && K.game ? S.games.find((x) => x.id === K.game) : null;
+  const st = { t: 'state', at: now0, noise: NZ.on && !NZ.silent ? { kind: NZ.kind, until: NZ.until } : null, story: null,
+    game: game ? { n: game.name, since: K.gOpen || now0 } : null, gu: Math.round(gmUsed(now0) / MIN), gd: gmDay(now0) };
+  if (K.story) {
+    const meta = S.shelf.find((x) => x.sid === K.story.sid) || {};
+    const left = isFinite(storyEl.duration) ? (storyEl.duration - storyEl.currentTime) * 1000 : (meta.d || 0) * 1000;
+    st.story = { sid: K.story.sid, title: meta.t || '', pic: meta.p || '📖', until: Date.now() + Math.max(0, left) };
+  }
+  const key = JSON.stringify([st.noise && st.noise.kind, st.noise && Math.round(st.noise.until / 6e4), st.story && st.story.sid, st.game && st.game.n, st.game ? 0 : st.gu]);
+  if (key === K.stateKey) return;
+  if (!extraOk() || !spend(1)) return;
+  K.stateAt = Date.now();
+  try { await ntfy(TD(), {}, await sealText(st)); K.stateKey = key; } catch { refund(1); }
+}
+
+// Story player
+const storyEl = $('#storyEl');
+async function playStory(sid) {
+  const meta = S.shelf.find((x) => x.sid === sid);
+  if (!meta) { K.pendingPlay = sid; return; }
+  const rec = await DB.get(sid).catch(() => null);
+  if (!rec || !rec.blob) return;
+  stopPlayback();
+  if (K.overlay) { clearTimeout(K.overlayT); K.overlay = null; }   // a grown-up's message was showing: the story takes over
+  K.storyHeld = false;
+  if (K.storyUrl) URL.revokeObjectURL(K.storyUrl);
+  K.storyUrl = URL.createObjectURL(rec.blob);
+  storyEl.src = K.storyUrl;
+  K.story = { sid };
+  try { await storyEl.play(); } catch { K.story = null; }
+  renderKid(); renderRoomIfOpen(); sendStateSoon();
+}
+function stopStory() {
+  if (!K.story) return;
+  try { storyEl.pause(); } catch {}
+  K.story = null; K.storyHeld = false;
+  renderKid(); renderRoomIfOpen(); sendStateSoon();
+}
+storyEl.addEventListener('ended', () => { K.story = null; K.storyHeld = false; renderKid(); renderRoomIfOpen(); sendStateSoon(); });
+storyEl.addEventListener('timeupdate', () => {
+  if (!K.story) return;
+  const bar = document.querySelector(`.story-card[data-story="${CSS.escape(K.story.sid)}"] .bar i`);
+  const meta = S.shelf.find((x) => x.sid === K.story.sid) || {};
+  const len = isFinite(storyEl.duration) && storyEl.duration > 0 ? storyEl.duration : meta.d;   // recordings often don't know their length
+  if (bar && len) bar.style.width = `${Math.min(100, storyEl.currentTime / len * 100).toFixed(1)}%`;
+});
+
+// Sleepy sounds, made on her phone: nothing is downloaded
+const NZ = { on: false, src: null, gain: null, extra: [], kind: '', until: 0, bufs: {}, timer: 0, silent: false };
+const LEVELS = [0.1, 0.2, 0.34];
+function audioCtx() { AC = AC || new AudioContext(); if (AC.state === 'suspended') AC.resume().catch(() => {}); return AC; }
+function noiseBuf(ctx, kind) {
+  if (NZ.bufs[kind]) return NZ.bufs[kind];
+  const len = ctx.sampleRate * 8, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0, last = 0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    if (kind === 'brown') { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; }
+    else if (kind === 'pink') {
+      b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.969 * b2 + w * 0.153852; b3 = 0.8665 * b3 + w * 0.3104856;
+      b4 = 0.55 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.016898; d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
+    } else d[i] = w * 0.5;
+  }
+  const fade = Math.floor(ctx.sampleRate * 0.05);   // soften the loop seam
+  for (let i = 0; i < fade; i++) { const k = i / fade; d[len - fade + i] = d[len - fade + i] * (1 - k) + d[i] * k; }
+  return (NZ.bufs[kind] = buf);
+}
+function startNoise(kind, mins, opts = {}) {
+  if (!SOUND[kind]) return;
+  const ctx = audioCtx();
+  stopNoise(0.4, true);
+  const src = ctx.createBufferSource();
+  src.buffer = noiseBuf(ctx, kind === 'brown' ? 'brown' : kind === 'rain' ? 'pink' : 'white');
+  src.loop = true;
+  let node = src;
+  const extra = [];
+  const chain = (n) => { node.connect(n); node = n; extra.push(n); return n; };
+  const filt = (type, f, g, q) => { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; if (g != null) b.gain.value = g; if (q != null) b.Q.value = q; return chain(b); };
+  if (kind === 'grey') { filt('peaking', 3200, -10, 0.8); filt('lowshelf', 180, 7); filt('highshelf', 9000, 3); }
+  if (kind === 'rain') {
+    filt('highpass', 380); filt('lowpass', 7200);
+    const sw = chain(ctx.createGain()); sw.gain.value = 0.85;
+    const lfo = ctx.createOscillator(), lg = ctx.createGain();
+    lfo.frequency.value = 0.11; lg.gain.value = 0.22; lfo.connect(lg); lg.connect(sw.gain); lfo.start(); extra.push(lfo, lg);
+  }
+  const g = ctx.createGain();
+  g.gain.value = 0.0001;
+  node.connect(g); g.connect(ctx.destination);
+  const lv = LEVELS[opts.level != null ? opts.level : (S.set.noiseLevel != null ? S.set.noiseLevel : 1)];
+  g.gain.exponentialRampToValueAtTime(lv, ctx.currentTime + 3);
+  src.start();
+  Object.assign(NZ, { on: true, src, gain: g, extra, kind, level: lv, silent: !!opts.silent, until: mins ? Date.now() + mins * MIN : untilMorning(Date.now()) });
+  clearTimeout(NZ.timer);
+  NZ.timer = setTimeout(() => stopNoise(20), Math.max(1000, NZ.until - Date.now() - 20e3));
+  renderKid(); renderRoomIfOpen(); sendStateSoon();
+}
+// "Until morning": the next wake-up time that's still ahead, and never more than 14 hours
+function untilMorning(now) {
+  let t = C.nextWake(now, cfg());
+  if (t <= now + MIN) { const d = C.addDays(C.startOfDay(now), 1); t = C.at(d, C.wakeMins(cfg(), d)); }
+  return Math.min(t, now + 14 * HOUR);
+}
+function stopNoise(fade = 20, quiet) {
+  if (!NZ.on) return;
+  const { src, gain, extra } = NZ;
+  NZ.on = false; clearTimeout(NZ.timer);
+  try {
+    const t = AC.currentTime;
+    gain.gain.cancelScheduledValues(t);
+    gain.gain.setValueAtTime(Math.max(0.0001, gain.gain.value), t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + fade);
+    src.stop(t + fade + 0.05);
+  } catch {}
+  setTimeout(() => { try { gain.disconnect(); } catch {} extra.forEach((n) => { try { if (n.stop) n.stop(); } catch {} try { n.disconnect(); } catch {} }); }, (fade + 0.3) * 1000);
+  if (!quiet) { renderKid(); renderRoomIfOpen(); sendStateSoon(); }
+}
+function setLevel(i) {
+  S.set.noiseLevel = i; saveSet();
+  if (NZ.on) NZ.level = LEVELS[i];
+  if (NZ.on && !K.ducked) { const t = AC.currentTime; NZ.gain.gain.cancelScheduledValues(t); NZ.gain.gain.setValueAtTime(Math.max(0.0001, NZ.gain.gain.value), t); NZ.gain.gain.exponentialRampToValueAtTime(LEVELS[i], t + 0.6); }
+}
+
+// Rooms: full-screen pages with a big home button
+const ROOMS = { stories: '📖', sounds: '🎧', calm: '⭐', draw: '🎨', games: '🎮' };
+ICON.home = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/></svg>';
+ICON.stop = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>';
+ICON.plane = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 3 3 10.5l7 2.5 2.5 7L21 3Z"/><path d="m10 13 4.5-4.5"/></svg>';
+function openRoom(name) {
+  K.lastTouch = Date.now();
+  if (name === 'light') { openLight(); return; }
+  if (!ROOMS[name]) return;
+  if (name === 'games' && (S.sleep.on || !gamesOn())) return;
+  if (K.room === 'play') closeRoom();
+  K.room = name;
+  if (name === 'stories') K.newStory = false;
+  renderRoom();
+  $('#kRoom').hidden = false;
+  if (name === 'calm') startCalm();
+  if (name === 'draw') setupDraw();
+  renderKid();
+}
+function closeRoom() {
+  if (K.room === 'calm') stopCalm();
+  if (K.room === 'play') { gameAccrue(); clearTimeout(K.gLimitT); K.game = null; K.gStart = 0; sendStateSoon(); recache(); }
+  K.room = null;
+  $('#kRoom').hidden = true;
+  $('#kRoom').innerHTML = '';
+  K.lastTouch = Date.now();
+  renderKid();
+}
+function renderRoomIfOpen() { if (K.room === 'stories' || K.room === 'sounds') renderRoom(); }
+function storyCards() {
+  if (!S.shelf.length) {
+    const faces = ((S.fam && S.fam.r) || []).map((p) => avatarHtml(p.i)).join('');
+    return `<div class="empty-shelf"><span aria-hidden="true">📖</span><div style="display:flex;gap:8px;font-size:16px">${faces}</div><span class="vh">No stories yet. Grown-ups can send stories from their phones.</span></div>`;
+  }
+  return `<div class="shelf">${S.shelf.map((x) => `<button class="story-card${K.story && K.story.sid === x.sid ? ' playing' : ''}" type="button" data-story="${esc(x.sid)}" aria-label="${esc((x.t || 'Story') + (labelOf(x.b) ? ' from ' + labelOf(x.b) : ''))}">
+    <span class="pic" aria-hidden="true">${esc(x.p || '📖')}</span>${x.b ? avatarHtml(x.b) : ''}<span class="bar"><i></i></span></button>`).join('')}</div>`;
+}
+function soundsHtml() {
+  const sel = K.ksound || (NZ.on ? NZ.kind : S.set.lastSound) || 'rain';
+  const mins = K.kmins != null ? K.kmins : (S.set.lastMins != null ? S.set.lastMins : 30);
+  const lvl = S.set.noiseLevel != null ? S.set.noiseLevel : 1;
+  return `<div class="sroom"><div class="sounds" role="group" aria-label="Sounds">${SOUNDS.map((x) => `<button class="sound" type="button" data-ksound="${x.k}" aria-pressed="${sel === x.k}" aria-label="${esc(soundName(x.k))}">${discHtml(x)}${x.t}</button>`).join('')}</div>
+    <div class="sctl"><div class="timers" role="group" aria-label="How long">${[[15, '15'], [30, '30'], [60, '60'], [0, '🌙']].map(([m, t]) => `<button type="button" data-kmins="${m}" aria-pressed="${mins === m}" aria-label="${m ? m + ' minutes' : 'Until morning'}">${t}${m ? '<small>min</small>' : ''}</button>`).join('')}</div>
+    ${NZ.on ? `<button class="big-go" type="button" data-act="k-noise-stop" aria-label="Stop the sound">${ICON.stop}</button><p class="left num">${esc(soundName(NZ.kind))} · ${esc(leftTxt(NZ.until))}</p>`
+      : `<button class="big-go" type="button" data-act="k-noise-go" aria-label="Play the sound">${ICON.play}</button>`}
+    <div class="levels" role="group" aria-label="How loud">${['🔈', '🔉', '🔊'].map((e, i) => `<button type="button" data-klevel="${i}" aria-pressed="${lvl === i}" aria-label="${['Quiet', 'Medium', 'Loud'][i]}">${e}</button>`).join('')}</div></div></div>`;
+}
+const STAR_SVG = '<svg viewBox="-60 -60 120 120" aria-hidden="true"><defs><radialGradient id="sg"><stop offset="0" stop-color="#FFF3B0"/><stop offset="1" stop-color="#FFC83D"/></radialGradient></defs><path fill="url(#sg)" d="M0-52 14-17 52-16 22 8 33 45 0 24-33 45-22 8-52-16-14-17Z" stroke="#FFE38A" stroke-width="3" stroke-linejoin="round"/></svg>';
+function renderRoom() {
+  const el = $('#kRoom');
+  let right = '', body = '';
+  if (K.room === 'stories') { body = storyCards(); if (K.story) right = `<button class="k-home" type="button" data-act="k-story-stop" aria-label="Stop the story">${ICON.stop}</button>`; }
+  if (K.room === 'sounds') body = soundsHtml();
+  if (K.room === 'calm') body = `<div class="calm">${STAR_SVG}</div>`;
+  if (K.room === 'games') { body = gamesHtml(); right = pieHtml(); }
+  let title = ROOMS[K.room] || '';
+  if (K.room === 'play') {
+    const g = S.games.find((x) => x.id === K.game) || {};
+    title = g.icon ? `<img src="${esc(g.icon)}" alt="">` : esc(g.emoji || '🎮');
+    right = pieHtml();
+    // her game, on the same site: no address bar, and the frame can't open other pages or leave Walkie
+    body = `<iframe class="game-frame" id="gameFrame" src="${esc(g.url || 'about:blank')}" title="${esc(g.name || 'Game')}" sandbox="allow-scripts allow-same-origin allow-forms" allow="autoplay"></iframe>`;
+  }
+  el.className = 'k-room' + (K.room === 'play' ? ' gameroom' : '');
+  if (K.room === 'draw') {
+    body = `<div class="draw-wrap"><canvas class="draw-pad" id="pad" aria-label="Drawing paper"></canvas>
+      <div class="colours" role="group" aria-label="Colours">${COLOURS.map((c) => `<button type="button" data-colour="${c}" aria-pressed="${DRAW.colour === c}" style="background:${c}" aria-label="${c === '#FFFFFF' ? 'Rubber' : 'Colour'}"></button>`).join('')}</div></div>`;
+    right = `<button class="k-bin" type="button" data-act="k-bin" aria-label="Start again">🗑️</button><button class="k-send" type="button" data-act="k-send" aria-label="Send to the grown-ups">${ICON.plane}</button>`;
+  }
+  el.innerHTML = `<div class="k-room-top"><button class="k-home" type="button" data-act="room-home" aria-label="Home">${ICON.home}</button>
+    <div class="k-room-title" aria-hidden="true">${title}</div><div style="justify-self:end;display:flex;gap:10px;align-items:center">${right}</div></div>
+    <div class="k-room-body">${body}</div>`;
+  if (K.room === 'play') watchGame();
+}
+function startCalm() {
+  K.calmNoise = !NZ.on;
+  if (K.calmNoise) startNoise('brown', 4, { silent: true, level: 0 });
+  clearTimeout(K.calmT);
+  K.calmT = setTimeout(() => { if (K.room === 'calm') closeRoom(); }, 3 * MIN);
+}
+function stopCalm() { clearTimeout(K.calmT); if (K.calmNoise && NZ.on && NZ.silent) stopNoise(3); K.calmNoise = false; }
+
+// Night light: a soft amber glow for ten minutes, then it fades back to black
+function openLight() {
+  const el = $('#kLight');
+  el.classList.remove('fade'); el.hidden = false;
+  el.querySelector('.tapoff').innerHTML = ICON.x;
+  K.light = true; K.idle = false;
+  clearTimeout(K.lightT); clearTimeout(K.lightT2);
+  K.lightT = setTimeout(() => { el.classList.add('fade'); K.lightT2 = setTimeout(closeLight, 30e3); }, 10 * MIN);
+  renderKid();
+}
+function closeLight() {
+  clearTimeout(K.lightT); clearTimeout(K.lightT2);
+  const el = $('#kLight');
+  el.hidden = true; el.classList.remove('fade');
+  K.light = false; K.lastTouch = Date.now();
+  renderKid();
+}
+$('#kLight').addEventListener('click', closeLight);
+
+// Draw
+const COLOURS = ['#E53935', '#FB8C00', '#FDD835', '#43A047', '#1E88E5', '#8E24AA', '#F06292', '#6D4C41', '#212121', '#FFFFFF'];
+const DRAW = { colour: '#1E88E5', ctx: null, pid: null, last: null, dirty: false };
+function setupDraw() {
+  const cv = $('#pad');
+  if (!cv) return;
+  const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr, dpr); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, r.width, r.height);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  Object.assign(DRAW, { ctx, pid: null, last: null, dirty: false });
+  const pos = (e) => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const line = (a, b2) => { ctx.strokeStyle = DRAW.colour; ctx.lineWidth = DRAW.colour === '#FFFFFF' ? 28 : 9; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b2[0], b2[1]); ctx.stroke(); };
+  cv.addEventListener('pointerdown', (e) => { if (DRAW.pid != null) return; e.preventDefault(); DRAW.pid = e.pointerId; try { cv.setPointerCapture(e.pointerId); } catch {} DRAW.last = pos(e); line(DRAW.last, [DRAW.last[0] + 0.1, DRAW.last[1]]); DRAW.dirty = true; });
+  cv.addEventListener('pointermove', (e) => { if (e.pointerId !== DRAW.pid) return; const p2 = pos(e); line(DRAW.last, p2); DRAW.last = p2; K.lastTouch = Date.now(); });
+  const end = (e) => { if (e.pointerId === DRAW.pid) DRAW.pid = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+}
+// Turning the phone: the paper changes shape, and her picture is kept (fitted and centred)
+function sizePad() {
+  const cv = $('#pad');
+  if (!cv || !DRAW.ctx || !cv.width) return;
+  const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
+  if (!w || !h || (w === cv.width && h === cv.height)) return;
+  const old = document.createElement('canvas');
+  old.width = cv.width; old.height = cv.height; old.getContext('2d').drawImage(cv, 0, 0);
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d'), k = Math.min(w / old.width, h / old.height);
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(old, (w - old.width * k) / 2, (h - old.height * k) / 2, old.width * k, old.height * k);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  DRAW.ctx = ctx; DRAW.pid = null;
+}
+window.addEventListener('resize', () => { if (K.room === 'draw') { clearTimeout(K.padT); K.padT = setTimeout(sizePad, 200); } });
+function clearPad() { const cv = $('#pad'); if (!cv || !DRAW.ctx) return; DRAW.ctx.fillStyle = '#FFFFFF'; DRAW.ctx.fillRect(0, 0, cv.width, cv.height); DRAW.dirty = false; }
+async function sendDrawing(btn) {
+  const cv = $('#pad');
+  if (!cv || !DRAW.dirty) { wiggleEl(btn); return; }
+  if (!spend(2)) { rest(); return; }
+  btn.disabled = true;
+  const eid = rid(10), now = Date.now();
+  try {
+    const blob = await new Promise((r) => cv.toBlob(r, 'image/png'));
+    const sealed = await seal(new Uint8Array(await blob.arrayBuffer()));
+    await tryHard(async () => ntfy(TD(), { filename: 'd.bin', message: await sealText({ t: 'draw', eid, from: 'child', mime: 'image/png' }) }, sealed));
+    const actions = await replyActions(eid);
+    await tryHard(() => ntfy(TA(), { title: 'A drawing for you', tags: 'art', p: 3, click: `${APP}#e=${eid}&w=draw`, actions }, 'Tap to see it in Walkie.'));
+    logEvent({ id: eid, ts: now, type: 'draw' });
+    flyAway('🎨');
+    setTimeout(closeRoom, 600);
+  } catch { refund(2); btn.disabled = false; wiggleEl(btn); }
+}
+function wiggleEl(el) { if (!el) return; el.classList.remove('armed'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = 'wiggle .5s ease'; }
+function flyAway(e) {
+  const d = document.createElement('div'); d.className = 'fly'; d.textContent = e; d.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(d); chime(true);
+  setTimeout(() => d.remove(), 1500);
+}
+function celebrate(e) {
+  const el = $('#celebrate');
+  el.innerHTML = `<div class="bigstar">${e || '⭐'}</div>`;
+  el.hidden = false; chime(false);
+  clearTimeout(K.celT); K.celT = setTimeout(() => { el.hidden = true; }, 2700);
+}
+
+// Games: her own games from the same site, opened inside Walkie in the daytime, for as long as the grown-ups allow
+const GAMES_FALLBACK = { games: [
+  { id: 'solitaire', name: 'Solitaire', url: '../Solitaire/', icon: '../Solitaire/icon-192.png', ready: true },
+  { id: 'gamesmaster', name: 'Games Master', url: '../GamesMaster/', icon: '../GamesMaster/icon-192.png', ready: true },
+] };
+S.games = C.gameList ? C.gameList(get('games', GAMES_FALLBACK), APP) : [];
+async function loadGames() {
+  try {
+    const r = await fetch('games.json', { cache: 'no-cache' });
+    if (!r.ok) return;
+    const j = await r.json();
+    put('games', j); S.games = C.gameList(j, APP);
+    if (K.room === 'games') renderRoom();
+    renderKid();
+  } catch {}
+}
+const gmc = () => (C.gmCfg ? C.gmCfg(cfg()) : { on: false, m: 30 });
+const gamesOn = () => gmc().on && S.games.some((g) => g.ready);
+const gmDay = (now) => String(C.startOfDay(now));
+const gmUsed = (now) => (S.gplay && S.gplay.day === gmDay(now) ? S.gplay.ms : 0);
+function gmLeft(now) { const m = gmc().m; return m ? Math.max(0, m * MIN - gmUsed(now)) : Infinity; }
+function gameAccrue() {
+  if (K.room !== 'play' || !K.gStart) return;
+  const now = Date.now(), d = Math.min(Math.max(0, now - K.gStart), MIN);   // a sleeping phone or a jump in the clock counts a minute at most
+  S.gplay = { day: gmDay(now), ms: gmUsed(now) + d };
+  K.gStart = now;
+  put('gplay', S.gplay);
+}
+function armGameLimit() {
+  clearTimeout(K.gLimitT);
+  const left = gmLeft(Date.now());
+  if (isFinite(left)) K.gLimitT = setTimeout(gameTimeUp, Math.max(1000, left));
+}
+function recache() { try { if (navigator.onLine && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('recache'); } catch {} }
+function gameTimeUp() {
+  if (K.room !== 'play') return;
+  gameAccrue();
+  if (gmLeft(Date.now()) > 0) { armGameLimit(); return; }
+  closeRoom();
+  openRoom('games');      // her games, now saying "done for today, more tomorrow"
+  chime(true);
+}
+function openGame(id, btn) {
+  const g = S.games.find((x) => x.id === id && x.ready);
+  if (!g || S.sleep.on || !gamesOn() || gmLeft(Date.now()) <= 0) { wiggleEl(btn); return; }
+  if (!navigator.onLine && !get('gamesOk', {})[id]) { if (btn) btn.classList.add('offline'); wiggleEl(btn); return; }   // first time needs Wi-Fi
+  K.room = 'play'; K.game = id; K.gStart = K.gOpen = Date.now(); K.lastTouch = Date.now();
+  renderRoom();
+  $('#kRoom').hidden = false;
+  armGameLimit();
+  sendStateSoon();
+  renderKid();
+}
+// Touches inside the game keep Walkie awake, and keep the full screen and Back guard in place
+function watchGame() {
+  const fr = $('#gameFrame');
+  if (!fr) return;
+  fr.addEventListener('load', () => {
+    try {
+      const w = fr.contentWindow;
+      void w.document.title;                       // the browser's own error page can't be read: not a game
+      const ok = get('gamesOk', {}); ok[K.game] = 1; put('gamesOk', ok);
+      w.addEventListener('pointerdown', () => { K.lastTouch = Date.now(); }, { capture: true, passive: true });
+      w.addEventListener('pointerup', guardUp, { capture: true, passive: true });
+    } catch {}
+  });
+}
+function pieHtml() {
+  return gmc().m ? `<span class="gpie" id="gpie" role="img" aria-label="Game time left" style="--p:${piePct(Date.now())}"></span>` : '';
+}
+const piePct = (now) => { const m = gmc().m; return m ? Math.round(gmLeft(now) / (m * MIN) * 100) : 100; };
+function paintPie(now) { const p = $('#gpie'); if (p) p.style.setProperty('--p', piePct(now)); }
+function gamesHtml() {
+  const done = gmLeft(Date.now()) <= 0;
+  const cards = S.games.map((g) => (g.ready
+    ? `<button class="game-card${done ? ' done' : ''}" type="button" data-game="${esc(g.id)}" aria-label="${esc(g.name)}">${g.icon ? `<img src="${esc(g.icon)}" alt="">` : `<span class="emo" aria-hidden="true">${esc(g.emoji)}</span>`}<span class="nm">${esc(g.name)}</span></button>`
+    : `<div class="game-card soon" role="img" aria-label="${esc(g.name)}, coming soon"><span class="emo" aria-hidden="true">${esc(g.emoji)}</span><span class="nm">${esc(g.name)}</span><span class="glock" aria-hidden="true">🔒</span></div>`)).join('');
+  return `${done ? '<div class="gdone" role="img" aria-label="Games are done for today. More tomorrow."><span>🎮</span><span class="z">💤</span><span class="arrow">→</span><span>☀️</span></div>' : ''}<div class="games">${cards}</div>`;
+}
+
+// Stars, countdown, routine
+function lastNightStar(now) {
+  const n = C.nights(S.mine, now, 1)[0];
+  return n ? C.star(n, cfg(), now) : null;
+}
+const starList = (now) => C.stars(C.nights(S.mine, now, 8), cfg(), now).filter((x) => x.star !== null).slice(0, 7);
+// Her stars go to the grown-ups' Sleep page whenever they change (a new night, or the sun coming up)
+async function sendStars() {
+  K.starsT = 0;
+  const s = starList(Date.now()).map((x) => [x.day, x.star ? 1 : 0]), key = JSON.stringify(s);
+  if (key === get('starsSent', '[]')) return;
+  if (!spend(1)) { K.starsNext = Date.now() + 10 * MIN; return; }
+  try { await ntfy(TD(), {}, await sealText({ t: 'stars', at: Date.now(), s })); put('starsSent', key); }
+  catch { refund(1); K.starsNext = Date.now() + 5 * MIN; }
+}
+function starsSoon(now) {
+  if (K.starsT || now < (K.starsNext || 0)) return;
+  if (JSON.stringify(starList(now).map((x) => [x.day, x.star ? 1 : 0])) !== get('starsSent', '[]')) K.starsT = setTimeout(sendStars, 5000);
+}
+function infoHtml(now) {
+  const list = starList(now).reverse();
+  const slots = Array.from({ length: 7 }, (_, i) => list[i - (7 - list.length)]);
+  const got = list.filter((x) => x.star).length;
+  const stars = `<div class="k-stars" role="img" aria-label="${got} stars this week">${slots.map((x) => `<span class="${x && x.star ? 'on' : ''}">★</span>`).join('')}</div>`;
+  const cd = cfg().cd, n = cd ? C.sleepsUntil(now, cd.d) : null;
+  let count = '';
+  if (cd && n != null) {
+    const moons = n === 0 ? '🎉' : n <= 7 ? `<span class="moons">${'🌙'.repeat(n)}</span>` : `<span class="moons">🌙</span><span class="n num">${n}</span>`;
+    count = `<span class="k-count" role="img" aria-label="${n === 0 ? `${esc(cd.l || 'The big day')} is today` : `${n} sleep${n === 1 ? '' : 's'} until ${esc(cd.l || 'the big day')}`}">${esc(cd.e)}${moons}</span>`;
+  }
+  return stars + count;
+}
+const routineDay = (now) => String(C.minsOf(now) >= 720 ? C.startOfDay(now) : C.addDays(C.startOfDay(now), -1));
+function routineHtml(now) {
+  if (!C.routineOn(now, cfg()) || S.sleep.state === 'asleep') return '';
+  const r = S.routine && S.routine.day === routineDay(now) ? S.routine : { done: {} };
+  const items = C.routineItems(cfg().ri);
+  if (items.every((k) => r.done[k]) && now - (r.doneAt || 0) > 2 * MIN) return '';
+  return items.map((k) => `<button type="button" data-rt="${k}" class="${r.done[k] ? 'done' : ''}" aria-label="${C.ROUTINE[k].t}${r.done[k] ? ', done' : ''}">${C.ROUTINE[k].e}</button>`).join('');
+}
+function tickRoutine(k) {
+  const now = Date.now(), day = routineDay(now);
+  if (!S.routine || S.routine.day !== day) S.routine = { day, done: {} };
+  if (S.routine.done[k]) return;
+  S.routine.done[k] = now;
+  logEvent({ id: rid(10), ts: now, type: 'routine', detail: k });
+  const items = C.routineItems(cfg().ri);
+  if (items.every((x) => S.routine.done[x])) {
+    S.routine.doneAt = now;
+    const eid = rid(10);
+    logEvent({ id: eid, ts: now, type: 'routine', detail: 'done' });
+    celebrate('🌟');
+    if (spend(1)) tryHard(() => ntfy(TA(), { title: 'Bedtime routine done', tags: 'white_check_mark', p: 2, click: `${APP}#e=${eid}&w=routine` }, 'She ticked off all her bedtime pictures.')).catch(() => refund(1));
+  } else chime(true);
+  put('routine', S.routine);
+  renderKid();
+}
+function dockHtml() {
+  const day = !S.sleep.on;
+  const items = day ? [['stories', '📖', 'Stories'], ['sounds', '🎧', 'Sleepy sounds'], ['calm', '⭐', 'Calm star'], ['draw', '🎨', 'Draw']]
+    : [['stories', '📖', 'Stories'], ['sounds', '🎧', 'Sleepy sounds'], ['light', '🔦', 'Night light'], ['calm', '⭐', 'Calm star']];
+  if (day && gamesOn()) items.push(['games', '🎮', 'Games']);
+  const done = gmLeft(Date.now()) <= 0;
+  return items.map(([k, e, t]) => `<button type="button" data-room="${k}" aria-label="${t}" class="${(k === 'sounds' && NZ.on && !NZ.silent) || (k === 'stories' && K.story) ? 'on' : ''}">${e}${k === 'stories' && K.newStory ? '<span class="dot"></span>' : ''}${k === 'games' && done ? '<span class="zz" aria-hidden="true">💤</span>' : ''}</button>`).join('');
+}
+// Only touch the page when something actually changed, as this runs every second at night
+function setHtml(el, html) { if (el && el.dataset.h !== html) { el.innerHTML = html; el.dataset.h = html; } }
+function renderExtras(now) {
+  setHtml($('#kInfo'), infoHtml(now));
+  const rt = routineHtml(now), re = $('#routine');
+  setHtml(re, rt); re.hidden = !rt;
+  setHtml($('#dock'), dockHtml());
+}
+
+// Her colours, one tap away in the daytime
+function toggleSwatches(open) {
+  const el = $('#swatches'), show = open == null ? el.hidden : open;
+  if (show) el.innerHTML = THEMES.filter((t) => t.id !== 'red').map((t) => `<button type="button" data-kidtheme="${t.id}" aria-label="${t.name}" aria-pressed="${S.set.kidTheme === t.id}" style="--a:${t.bg};--b:${t.accent}"></button>`).join('');
+  el.hidden = !show;
+}
+$('#palette').addEventListener('click', () => toggleSwatches());
 
 /* ---------- Parents' phones ---------- */
 function renderSub() {
@@ -1329,10 +2212,10 @@ function renderSub() {
   if (!el || !S.fam) return;
   const q = S.quiet || {}, now = Date.now();
   let txt;
-  if (q.gone && now - q.gone < 12 * HOUR) txt = `went quiet at ${time(q.gone)}`;
+  if (q.gone && now - q.gone < 12 * HOUR) txt = q.away ? `Walkie closed at ${time(q.gone)}` : `went quiet at ${time(q.gone)}`;
   else if (q.next && q.next > now && q.at) txt = `checked in ${ago(q.at)}`;
   else {
-    const last = [...S.items].reverse().find((x) => x.from === 'child' || (x.from === 'sys' && x.kind !== 'quiet'));
+    const last = [...S.items].reverse().find((x) => x.from === 'child' || (x.from === 'sys' && x.kind !== 'quiet' && x.kind !== 'away'));
     txt = last ? `last heard from ${dayKey(last.ts) === dayKey(now) ? time(last.ts) : ago(last.ts)}` : 'nothing yet today';
   }
   const hint = `Hold the mic to talk to ${kidName() || 'her'}`;
@@ -1367,7 +2250,7 @@ function heardTxt(eid) {
 function expired(it) { return !CLIPS.has(it.eid) && it.att && it.att.expires && it.att.expires * 1000 < Date.now(); }
 function msgHtml(it) {
   const t = time(it.ts);
-  if (it.from === 'sys' || ['sleep', 'wake', 'early', 'quiet', 'back', 'rest'].includes(it.kind)) {
+  if (it.from === 'sys' || ['sleep', 'wake', 'early', 'quiet', 'back', 'rest', 'routine'].includes(it.kind)) {
     const L = LINES[it.kind] || { e: '', t: it.kind };
     return `<p class="line num${it.kind === 'quiet' ? ' warn' : ''}" data-eid="${esc(it.eid)}">${L.e} ${esc(L.t)} · ${t}</p>`;
   }
@@ -1377,6 +2260,13 @@ function msgHtml(it) {
   let st = '';
   if (it.st === 'sending') st = ' · Sending…';
   else if (it.st === 'failed') st = it.err === 'limit' ? ' · Not sent: daily limit reached' : ' · Not sent';
+  if (it.kind === 'draw') {
+    const exp = !CLIPS.has(it.eid) && it.att && it.att.expires && it.att.expires * 1000 < Date.now();
+    const u = CLIPS.get(it.eid);
+    const pic = exp || (!it.att && !u) ? `<span class="tap"><span class="e" aria-hidden="true">🎨</span>${exp ? 'Drawing expired after 3 hours' : 'A drawing is on its way'}</span>`
+      : `<button class="drawing${u ? '' : ' loading'}" type="button" data-draw="${esc(it.eid)}" aria-label="Her drawing. Tap to see it big"><img alt=""${u ? ` src="${u}"` : ''}></button>`;
+    return `<div class="msg" data-eid="${esc(it.eid)}">${pic}<span class="meta num">${t}</span></div>`;
+  }
   if (it.kind === 'voice') {
     const isNew = kid && !S.played[it.eid];
     const exp = expired(it);
@@ -1446,10 +2336,16 @@ function sleepHtml() {
   const list = C.nights(allEvents(), now, 30);
   const head = C.headline(list, now);
   const a7 = C.averages(list, 7), a30 = C.averages(list, 30);
+  // stars as her phone counts them (from her own Night night and I'm awake), so both screens agree
+  const ks = new Map(((S.kstars && S.kstars.s) || []).map(([d, v]) => [d, !!v])), wk = [...ks.values()].slice(0, 7);
+  const got = wk.filter(Boolean).length;
+  const starLine = !wk.length ? '' : `<p class="facts">${wk.length === 1 ? (got ? '⭐ Last night she stayed in bed until the sun.' : 'No star last night.')
+    : `⭐ ${got} of the last ${wk.length} nights in bed until the sun.`}</p>`;
   const rows = list.slice(0, 14).map((n) => {
     const len = n.asleep != null && n.status !== 'none' ? C.dur(n.asleep) : '–';
     const label = n.status === 'none' ? 'not logged' : C.sentence(n, time);
-    return `<button class="nrow" type="button" data-night="${n.day}" aria-label="${esc(nightLabel(n) + ': ' + label)}"><span class="nday">${esc(nightLabel(n))}</span>${barSvg(n)}<span class="nlen num">${esc(len)}</span></button>`;
+    const star = ks.get(n.day) ? '<span class="nstar" aria-hidden="true"> ⭐</span>' : '';
+    return `<button class="nrow" type="button" data-night="${n.day}" aria-label="${esc(nightLabel(n) + ': ' + label + (star ? ' Star earned.' : ''))}"><span class="nday">${esc(nightLabel(n))}${star}</span>${barSvg(n)}<span class="nlen num">${esc(len)}</span></button>`;
   }).join('');
   const ticks = [['18:00', 0], ['22:00', 25], ['02:00', 50], ['06:00', 75], ['10:00', 100]]
     .map(([l, p]) => `<span style="left:${p}%">${esc(minsTxt(C.hm(l)))}</span>`).join('');
@@ -1460,13 +2356,13 @@ function sleepHtml() {
   const sheetLink = S.sheet && S.sheet.url ? ` <a class="link-btn" href="${esc(outLink(S.sheet.url))}" target="_blank" rel="noopener">Open the Sheet</a>` : '';
   return `<section class="hero">
       <p class="story">${esc(C.sentence(head, time))}</p>
-      ${a7 ? `<p class="facts">${esc(C.avgSentence(a7, minsTxt))}</p>` : ''}
+      ${a7 ? `<p class="facts">${esc(C.avgSentence(a7, minsTxt))}</p>` : ''}${starLine}
       <div class="actions"><button class="btn primary" type="button" data-act="fix">Add or fix a time</button></div>
     </section>
     <h2 class="section-title">Last 14 nights</h2>
     <div class="axis" aria-hidden="true"><span></span><span class="ticks num">${ticks}</span><span></span></div>
     <div class="nights">${rows}</div>
-    <p class="small" style="margin:8px 0 0">Bars run from 18:00 to 10:00. Lines mark when she woke. Tap a night to see or fix it.</p>
+    <p class="small" style="margin:8px 0 0">Bars run from 18:00 to 10:00. Lines mark when she woke, and ⭐ means she stayed in bed until the sun. Tap a night to see or fix it.</p>
     <h2 class="section-title">Averages</h2>
     <table class="avg num"><thead><tr><th></th><th>7 nights</th><th>30 nights</th></tr></thead><tbody>
       <tr><td>Bedtime</td><td>${cell(a7, (a) => minsTxt(a.bed))}</td><td>${cell(a30, (a) => minsTxt(a.bed))}</td></tr>
@@ -1483,22 +2379,35 @@ function outLink(url) {
   return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
 }
 
+const VIEWS = ['talk', 'sleep', 'room'];
+function renderTabs() {
+  const i = Math.max(0, VIEWS.indexOf(S.view));
+  document.querySelectorAll('#tabs [data-view]').forEach((b) => { b.setAttribute('aria-selected', String(b.dataset.view === S.view)); b.tabIndex = b.dataset.view === S.view ? 0 : -1; });
+  $('#tabs').style.setProperty('--i', String(i));
+}
 function renderView() {
   if (isKid() || !S.me) return;
-  document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === S.view)));
+  renderTabs();
   const v = $('#view');
   if (S.view === 'talk') {
     const nearBottom = window.innerHeight + window.scrollY > document.body.scrollHeight - 160;
     v.className = 'thread';
-    v.innerHTML = threadHtml();
+    v.innerHTML = threadHtml(); delete v.dataset.h;
     $('#composer').hidden = false;
     if (nearBottom || renderView.first !== false) { renderView.first = false; window.scrollTo(0, document.body.scrollHeight); }
+    loadDrawings();
+  } else if (S.view === 'room') {
+    const h = roomHtml();                       // only redraw when something changed, so taps and focus aren't lost
+    if (v.className !== 'roomview' || v.dataset.h !== h) { v.className = 'roomview'; v.innerHTML = h; v.dataset.h = h; }
+    $('#composer').hidden = true;
   } else {
     v.className = '';
-    v.innerHTML = sleepHtml();
+    v.innerHTML = sleepHtml(); delete v.dataset.h;
     $('#composer').hidden = true;
   }
 }
+// The header gains a hairline and shadow once the page scrolls under it
+window.addEventListener('scroll', () => { const b = $('#appbar'); if (b) b.classList.toggle('scrolled', window.scrollY > 4); }, { passive: true });
 function renderParent() {
   renderSub();
   renderNotices();
@@ -1508,7 +2417,7 @@ let refreshQueued = false;
 function refresh() {
   if (refreshQueued) return;
   refreshQueued = true;
-  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); if (S.view === 'talk' && !REC.on) renderView(); } });
+  requestAnimationFrame(() => { refreshQueued = false; if (isKid()) renderKid(); else if (S.me) { renderSub(); if ((S.view === 'talk' && !REC.on) || (S.view === 'room' && !SR.on && !sheet.open)) renderView(); } });
 }
 
 // Parent hold-to-talk, Signal style: hold, slide left to cancel, slide up to keep recording hands-free
@@ -1571,6 +2480,221 @@ function renderQuickRow() {
   $('#quickRow').innerHTML = Object.entries(QUICK).map(([k, q]) => `<button class="chip" type="button" data-quick="${k}"><span aria-hidden="true">${quickEmoji(k, S.me.id)}</span>${esc(q.t)}</button>`).join('');
 }
 
+/* ---------- Her phone, from yours: sounds, stories, countdown, routine ---------- */
+const SOUNDS = [
+  { k: 'white', t: 'White', bg: '#F4F1EA', e: '' },
+  { k: 'grey', t: 'Grey', bg: '#9C9CA3', e: '' },
+  { k: 'brown', t: 'Brown', bg: '#7A4E2D', e: '' },
+  { k: 'rain', t: 'Rain', bg: '#3D6E9E', e: '🌧' },
+];
+const SOUND = Object.fromEntries(SOUNDS.map((x) => [x.k, x]));
+const LENGTHS = [{ m: 15, t: '15 min' }, { m: 30, t: '30 min' }, { m: 60, t: '1 hour' }, { m: 0, t: 'Until morning' }];
+const PICS = ['🐻', '🦁', '🐉', '🦄', '🚀', '🏰', '🐳', '🦊', '🐰', '🧚', '🌙', '🎵'];
+const CD_PICS = ['🎂', '🎄', '🎉', '✈️', '👵', '👴', '🏫', '🎃', '🦷', '🐣', '🏖️', '⭐'];
+const MAX_STORY = 8 * MIN, MAX_STORY_BYTES = 1950000;   // ntfy.sh takes files up to 2 MB
+const discHtml = (x, big) => `<span class="disc" style="background:${x.bg}">${x.e}</span>`;
+const soundName = (k) => (k === 'rain' ? 'Rain' : `${SOUND[k].t} noise`);
+function leftTxt(until) {
+  const m = Math.max(0, Math.round((until - Date.now()) / MIN));
+  return m >= 90 ? `until ${time(until)}` : m < 1 ? 'ending now' : `${m} min left`;
+}
+function soundSel() { return S.ui.sound in SOUND ? S.ui.sound : 'white'; }
+
+function nowHtml() {
+  const st = S.kstate, now = Date.now();
+  const noise = st && st.noise && st.noise.until > now ? st.noise : null;
+  const story = st && st.story && (!st.story.until || st.story.until > now) ? st.story : null;
+  const game = st && st.game && st.game.n && now - st.at < 2 * HOUR ? st.game : null;
+  if (game && !noise && !story) return `<div class="now"><span class="e" aria-hidden="true">🎮</span><p><strong>Playing ${esc(game.n)}</strong>Since ${esc(time(game.since || st.at))}${gmc().m ? `, ${gmc().m} minutes a day` : ''}.</p></div>`;
+  if (!noise && !story) return `<div class="now"><span class="e" aria-hidden="true">🌙</span><p><strong>Nothing playing</strong>${st ? `Checked ${ago(st.at)}.` : 'Her phone tells you here when a story or sound is playing.'}</p></div>`;
+  const what = [story && `📖 ${esc(story.title || 'A story')}`, noise && `🎧 ${esc(soundName(noise.kind))}, ${esc(leftTxt(noise.until))}`].filter(Boolean).join('<br>');
+  return `<div class="now"><span class="e" aria-hidden="true">${story ? esc(story.pic || '📖') : '🎧'}</span><p><strong>Playing on her phone</strong>${what}</p>
+    <button class="btn" type="button" data-act="remote-stop">Stop</button></div>`;
+}
+function shelfItems() {
+  const have = new Set(S.shelf.map((x) => x.sid));
+  const pend = Object.values(S.pending || {}).filter((x) => !have.has(x.sid) && Date.now() - x.at < 24 * HOUR)
+    .map((x) => Object.assign({ pending: true, failed: Date.now() - x.at > 3 * HOUR + 10 * MIN }, x));   // ntfy keeps uploads for 3 hours
+  return pend.concat(S.shelf);
+}
+function roomHtml() {
+  const sel = soundSel(), mins = S.ui.mins, items = shelfItems(), c = cfg();
+  const cd = c.cd, n = cd ? C.sleepsUntil(Date.now(), cd.d) : null;
+  const ri = S.ui.ri || C.routineItems(c.ri);
+  const list = items.length ? `<ul class="stories-list">${items.map((x) => `<li>
+      <span class="pic" aria-hidden="true">${esc(x.pic || '📖')}</span>
+      <span class="t"><b>${esc(x.title || `A story from ${labelOf(x.by) || 'a grown-up'}`)}</b><small class="num${x.failed ? ' warn-txt' : ''}">${x.failed ? 'Didn’t reach her phone in time. Send it again.' : x.pending ? 'Sending to her phone…' : `${esc(labelOf(x.by) || 'Grown-up')} · ${durTxt(x.dur || 0)}`}</small></span>
+      ${x.failed ? `<button class="round" type="button" data-unpend="${esc(x.sid)}" aria-label="Clear">${ICON.x}</button>` : x.pending ? '<span class="spinner"></span>' : `<button class="round go" type="button" data-rplay="${esc(x.sid)}" aria-label="Play ${esc(x.title || 'this story')} on her phone">${ICON.play}</button>
+      <button class="round" type="button" data-unstory="${esc(x.sid)}" aria-label="Remove ${esc(x.title || 'this story')} from her phone">${ICON.x}</button>`}</li>`).join('')}</ul>`
+    : `<p class="small" style="margin-top:12px">Nothing on her shelf yet.</p>`;
+  return `
+  <section class="card" aria-live="polite">${nowHtml()}</section>
+  <section class="card">
+    <h2><span class="e" aria-hidden="true">🎧</span>Sleepy sounds</h2>
+    <p>A steady sound on her phone that fades out gently at the end. She can start them herself too.</p>
+    <div class="seg4" role="group" aria-label="Sound">${SOUNDS.map((x) => `<button type="button" data-ssel="${x.k}" aria-pressed="${sel === x.k}">${discHtml(x)}${x.t}</button>`).join('')}</div>
+    <div class="chips" style="margin-top:12px" role="group" aria-label="How long">${LENGTHS.map((l) => `<button class="chip" type="button" data-smins="${l.m}" aria-pressed="${mins === l.m}">${l.t}</button>`).join('')}</div>
+    <div class="actions"><button class="btn primary" type="button" data-act="remote-noise">Play on her phone</button></div>
+  </section>
+  <section class="card">
+    <h2><span class="e" aria-hidden="true">📖</span>Stories and songs</h2>
+    <p>Record a story or a song, or send an audio file. It stays on her phone, behind the book button.</p>
+    <div class="actions"><button class="btn primary" type="button" data-act="story-new">${ICON.mic}Record</button><label class="btn" for="storyFile" style="cursor:pointer">Choose a file</label></div>
+    ${list}
+  </section>
+  ${gamesCardHtml()}
+  <section class="card">
+    <h2><span class="e" aria-hidden="true">🗓️</span>Countdown</h2>
+    ${cd && n != null ? `<p class="num"><span style="font-size:22px">${esc(cd.e)}</span> ${esc(cd.l || 'The big day')}: ${n === 0 ? 'today!' : `${n} sleep${n === 1 ? '' : 's'} to go`}, ${esc(new Date(cd.d + 'T12:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}.</p>
+      <div class="actions"><button class="btn" type="button" data-act="cd-set">Change</button><button class="btn" type="button" data-act="cd-clear">Clear</button></div>`
+    : `<p>Show her how many sleeps until something special, as moons on her screen.</p><div class="actions"><button class="btn primary" type="button" data-act="cd-set">Set a countdown</button></div>`}
+  </section>
+  <section class="card">
+    <h2><span class="e" aria-hidden="true">🛁</span>Bedtime routine</h2>
+    <p>Pictures she ticks off in the two hours before bedtime. You get a quiet note when they’re all done.</p>
+    <div class="chips" style="margin-top:12px" role="group" aria-label="Routine pictures">${Object.entries(C.ROUTINE).map(([k, r]) => `<button class="chip" type="button" data-rtpick="${k}" aria-pressed="${ri.includes(k)}"><span aria-hidden="true">${r.e}</span>${r.t}</button>`).join('')}</div>
+    <div class="actions"><button class="btn" type="button" data-act="rt-save">Save routine</button></div>
+  </section>
+  <p class="foot">${S.shelfAt ? `Her shelf as of ${ago(S.shelfAt)}.` : ''}</p>`;
+}
+
+function gamesCardHtml() {
+  const g = gmc(), st = S.kstate, today = st && st.gd === String(C.startOfDay(Date.now())) ? st.gu || 0 : null;
+  const lens = [[20, '20 min'], [30, '30 min'], [60, '1 hour'], [0, 'No limit']];
+  return `<section class="card">
+    <h2><span class="e" aria-hidden="true">🎮</span>Games</h2>
+    <p>Your games, inside Walkie in the daytime. They close at bedtime, and when her time is up.</p>
+    <div class="toggle-row"><p style="margin:0">Games on her phone</p><button class="switch" type="button" role="switch" data-act="gm-on" aria-checked="${g.on}" aria-label="Games on her phone"></button></div>
+    ${g.on ? `<div class="chips" style="margin-top:12px" role="group" aria-label="Game time a day">${lens.map(([m, t]) => `<button class="chip" type="button" data-gmmins="${m}" aria-pressed="${g.m === m}">${t}</button>`).join('')}</div>` : ''}
+    ${today != null ? `<p class="small" style="margin-top:12px">Played today: ${today} min${g.m ? ` of ${g.m}` : ''}.</p>` : ''}
+  </section>`;
+}
+async function remote(cmd, btn, okMsg) {
+  return withBusy(btn, async () => {
+    try {
+      const r = await ntfy(TD(), {}, await sealText(Object.assign({ by: S.me.id, at: Date.now() }, cmd)));
+      if (r && r.id) markSeen(r.id);
+      if (okMsg) toast(okMsg);
+      return true;
+    } catch (e) { toast(e.limit ? `ntfy’s daily limit is used up. It resets at ${resetAt()}.` : 'Couldn’t reach her phone. Check your connection.'); return false; }
+  });
+}
+
+// Recording or choosing a story
+function storySheetHtml() {
+  const rec = SR.file ? `<p class="num">${esc(SR.title || 'Audio file')} · ${durTxt(SR.dur)}</p>`
+    : `<div class="recbig"><button class="round${SR.on ? ' rec' : ''}" type="button" data-act="sr-toggle" aria-label="${SR.on ? 'Stop recording' : SR.blob ? 'Record again' : 'Start recording'}">${SR.on ? '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/></svg>' : ICON.mic}</button>
+       <span class="num" id="srTime">${SR.on ? durTxt((Date.now() - SR.t0) / 1000) : SR.blob ? durTxt(SR.dur) : '0:00'}</span>
+       <span class="small">${SR.on ? 'Recording. Tap to stop.' : SR.blob ? 'Tap to record again' : 'Tap to start. Up to 8 minutes.'}</span></div>`;
+  return head('New story') + `
+    <h3>Her picture for it</h3>
+    <div class="pics" role="group" aria-label="Picture">${PICS.map((e) => `<button type="button" data-spic="${e}" aria-pressed="${SR.pic === e}">${e}</button>`).join('')}</div>
+    <h3>Name <span class="small">(for you, optional)</span></h3>
+    <div class="field-row"><input class="field" id="srTitle" maxlength="30" placeholder="e.g. The Gruffalo" value="${esc(SR.title)}"></div>
+    <div id="srRec">${rec}</div>
+    ${SR.blob && !SR.on ? `<div class="actions" style="justify-content:center"><button class="btn" type="button" data-act="sr-preview">${ICON.play}Listen back</button></div>` : ''}
+    <div class="toggle-row"><p style="margin:0">Play it on her phone straight away</p><button class="switch" type="button" role="switch" data-act="sr-playnow" aria-checked="${SR.play}" aria-label="Play it on her phone straight away"></button></div>
+    <div class="actions"><button class="btn primary" type="button" data-act="sr-send" ${SR.blob && !SR.on ? '' : 'disabled'}>Send to her shelf</button></div>
+    <p class="result" id="srRes"></p>`;
+}
+function openStory(file) {
+  if (REC.on || PR.on) { toast('Finish recording first'); return; }
+  Object.assign(SR, { on: false, blob: null, dur: 0, mime: '', pic: SR.pic || '🐻', title: '', play: false, file: false });
+  if (file) {
+    if (file.size > MAX_STORY_BYTES) { toast('That file is over 2 MB, ntfy’s limit. Try a shorter one.'); return; }
+    const a = new Audio(), u = URL.createObjectURL(file);
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => { SR.dur = isFinite(a.duration) ? Math.round(a.duration) : 0; URL.revokeObjectURL(u); openSheet(storySheetHtml()); };
+    a.onerror = () => { URL.revokeObjectURL(u); toast('Walkie can’t play that file. Try an MP3 or M4A.'); };
+    Object.assign(SR, { blob: file, mime: file.type || 'audio/mpeg', file: true, title: file.name.replace(/\.[a-z0-9]+$/i, '').slice(0, 30) });
+    a.src = u;
+    return;
+  }
+  openSheet(storySheetHtml());
+}
+async function srLock(on) {
+  try { if (on && !SR.wl && navigator.wakeLock) SR.wl = await navigator.wakeLock.request('screen'); else if (!on && SR.wl) { const w = SR.wl; SR.wl = null; await w.release(); } } catch { SR.wl = null; }
+}
+async function srToggle() {
+  if (SR.on) {
+    clearInterval(SR.timer);
+    SR.on = false; srLock(false);
+    const rec = await recStop();
+    if (rec && rec.blob.size) Object.assign(SR, { blob: rec.blob, dur: Math.round(rec.dur), mime: rec.mime });
+    SR.title = ($('#srTitle') || {}).value || SR.title;
+    openSheet(storySheetHtml());
+    return;
+  }
+  SR.title = ($('#srTitle') || {}).value || SR.title;
+  stopPlayback();
+  if (!(await micReady())) { toast('Walkie needs the microphone. Allow it when Chrome asks.'); return; }
+  if (!recStart(24000)) { toast('This phone can’t record here.'); return; }
+  SR.on = true; SR.t0 = REC.t0; SR.blob = null;
+  srLock(true);
+  openSheet(storySheetHtml());
+  SR.timer = setInterval(() => {
+    const el = Date.now() - SR.t0, t = $('#srTime');
+    if (t) t.textContent = durTxt(el / 1000);
+    if (el >= MAX_STORY) srToggle();
+  }, 250);
+}
+async function srSend(btn) {
+  const title = cleanLabel((($('#srTitle') || {}).value || SR.title || '')).slice(0, 30);
+  await withBusy(btn, async () => {
+    try {
+      const bytes = new Uint8Array(await SR.blob.arrayBuffer());
+      const sealed = await seal(bytes);
+      if (sealed.length > MAX_STORY_BYTES) { setResult('srRes', 'That’s over ntfy’s 2 MB limit. Keep stories under about 8 minutes.', true); return; }
+      const sid = rid(12);
+      const meta = await sealText({ t: 'story', sid, title, pic: SR.pic, by: S.me.id, dur: SR.dur, mime: SR.mime });
+      const res = await ntfy(TD(), { filename: 's.bin', message: meta }, sealed);
+      if (res && res.id) markSeen(res.id);
+      S.pending = S.pending || {};
+      S.pending[sid] = { sid, title, pic: SR.pic, by: S.me.id, dur: SR.dur, at: Date.now() };
+      put('pending', S.pending);
+      if (SR.play) await remote({ t: 'play', sid });
+      closeSheet();
+      toast(SR.play ? 'Sent. It plays on her phone as soon as it arrives.' : 'Sent. It appears on her shelf in a moment.');
+      renderView();
+    } catch (e) { setResult('srRes', e.limit ? `ntfy’s daily limit is used up. It resets at ${resetAt()}.` : 'Couldn’t send it. Check your connection and try again.', true); }
+  });
+}
+function openCountdown() {
+  const cd = cfg().cd || {}, today = new Date();
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  S.ui.cdPic = cd.e || S.ui.cdPic || '🎂';
+  openSheet(head('Countdown') + `<p>She sees a moon for each sleep left, next to your picture.</p>
+    <h3>Picture</h3><div class="pics" role="group" aria-label="Picture">${CD_PICS.map((e) => `<button type="button" data-cdpic="${e}" aria-pressed="${S.ui.cdPic === e}">${e}</button>`).join('')}</div>
+    <div class="times" style="grid-template-columns:1fr 1fr"><label>What it is<input class="field" id="cdLabel" maxlength="24" placeholder="e.g. Birthday" value="${esc(cd.l || '')}"></label>
+      <label>Date<input class="field num" type="date" id="cdDate" min="${iso(today)}" value="${esc(cd.d || '')}"></label></div>
+    <div class="actions"><button class="btn primary" type="button" data-act="cd-save">Save</button></div><p class="result" id="cdRes"></p>`);
+}
+async function saveCfgPart(part, btn, msg) {
+  S.fam.cfg = Object.assign({}, cfg(), part);
+  S.fam.cfgAt = Date.now(); saveFam();
+  let ok = false;
+  await withBusy(btn, async () => { ok = await sendCfg(); });
+  if (ok) toast(msg); else { toast('Saved here. Her phone gets it once your connection is back.'); retryCfg(); }
+  renderView();
+}
+
+// Her drawings in the thread: fetched once, shown as pictures
+function loadDrawings() {
+  document.querySelectorAll('[data-draw].loading').forEach(async (b) => {
+    const it = itemById(b.dataset.draw);
+    if (!it || !it.att) return;
+    try { const u = await clipUrl(it); const img = b.querySelector('img'); if (img) { img.src = u; b.classList.remove('loading'); } }
+    catch (e) { b.classList.remove('loading'); b.outerHTML = `<span class="tap"><span class="e" aria-hidden="true">🎨</span>${e.message === 'expired' ? 'Drawing expired after 3 hours' : 'Couldn’t load the drawing'}</span>`; }
+  });
+}
+function openDrawing(eid) {
+  const u = CLIPS.get(eid);
+  if (!u) return;
+  const it = itemById(eid);
+  openSheet(head('Her drawing') + `<img src="${u}" alt="Her drawing" style="display:block;width:100%;border-radius:18px;margin-top:12px;background:#fff">
+    <div class="actions"><a class="btn primary" href="${u}" download="walkie-drawing-${new Date(it ? it.ts : Date.now()).toISOString().slice(0, 10)}.png">Save picture</a></div>`);
+}
+
 /* ---------- Themes ---------- */
 function applyTheme(id) {
   const t = THEMES.find((x) => x.id === id) || THEMES[0];
@@ -1582,6 +2706,11 @@ function themeGridHtml(key) {
   return `<div class="theme-grid">${THEMES.map((t) => `<button class="theme-opt" type="button" data-theme="${t.id}" data-key="${key}" aria-pressed="${cur === t.id}">
     <span class="sw" style="--a:${t.bg};--c:${t.dome};--b:${t.accent}"></span>${t.name}</button>`).join('')}</div>`;
 }
+document.addEventListener('click', (e) => {
+  const sw = $('#swatches');
+  if (sw.hidden || e.target.closest('#swatches, #palette')) return;
+  e.preventDefault(); e.stopPropagation(); toggleSwatches(false);
+}, true);
 const POPS = { themes: '#themeBtn' };
 function togglePop(id, open) {
   const pop = $('#' + id), show = open == null ? pop.hidden : open;
@@ -1604,8 +2733,12 @@ function openSheet(html) {
   sheet.scrollTop = 0;
 }
 function closeSheet() { if (sheet.open) sheet.close(); }
-sheet.addEventListener('click', (e) => { if (e.target === sheet) closeSheet(); });
-sheet.addEventListener('close', () => { if (isKid()) { K.lastTouch = Date.now(); renderKid(); } });
+sheet.addEventListener('click', (e) => { if (e.target === sheet && !(Date.now() < (K.keepSheetUntil || 0))) closeSheet(); });
+sheet.addEventListener('close', () => {
+  if (isKid()) { K.lastTouch = Date.now(); renderKid(); }
+  if (SR.on) { clearInterval(SR.timer); SR.on = false; srLock(false); recCancel(); }
+  if (SR.url && !PLAYING.eid) { try { player.pause(); } catch {} }
+});
 const head = (title) => `<div class="grab-zone"><div class="grabber"></div><div class="sheet-head"><h2 id="sheetTitle">${title}</h2><button class="icon-btn" type="button" data-act="close" aria-label="Close">${ICON.x}</button></div></div>`;
 // Drag the handle or title down to close
 (function dragToClose() {
@@ -1698,7 +2831,7 @@ function sheetStatusTxt() {
 }
 function openSettings(focus) {
   const me = S.me;
-  openSheet(head('Settings') + `
+  openSheet(head('Settings') + `<p class="release num"><span id="release">Walkie release ${RELEASE}</span> · <button class="link-btn" type="button" data-act="reload">Check for update</button></p>
     <h3>You</h3>${nameChipsHtml(me.label)}
     <div class="actions"><button class="btn" type="button" data-act="save-name">Save name</button></div>
     <h3>Notifications</h3>
@@ -1729,7 +2862,7 @@ function openKidSettings() {
   K.lastTouch = Date.now();
   const parents = (S.fam.r || []);
   const left = C.budget(S.budget, Date.now(), 0, false).left;
-  openSheet(head('Her phone') + `
+  openSheet(head('Her phone') + `<p class="release num"><span id="release">Walkie release ${RELEASE}</span> · <button class="link-btn" type="button" data-act="reload">Check for update</button></p>
     <h3>Grown-ups’ photos</h3>
     <p class="small">She sees your face when you talk to her. Photos stay on this phone.</p>
     <ul class="list">${parents.length ? parents.map((p) => `<li><span style="display:flex;align-items:center;gap:12px">${avatarHtml(p.i)}${esc(p.l)}</span>
@@ -1744,7 +2877,8 @@ function openKidSettings() {
     <h3>Pair a phone</h3>
     <div class="actions"><button class="btn" type="button" data-act="pair">Show pairing code</button></div>
     <h3>This phone</h3>
-    <div class="actions"><button class="btn" type="button" data-act="leave">Leave this family</button></div>`);
+    <div class="toggle-row"><p style="margin:0">Full screen: hides the status bar and the Back, Home and Recents buttons</p><button class="switch" type="button" role="switch" data-act="fs" aria-checked="${S.set.fs !== false}" aria-label="Full screen"></button></div>
+    <div class="actions"><button class="btn" type="button" data-act="reload">Reload Walkie</button><button class="btn" type="button" data-act="leave">Leave this family</button></div>`);
 }
 function openKidSetup() {
   const micOk = !!(REC.stream && REC.stream.active);
@@ -1807,8 +2941,11 @@ async function joinFamily(f, role, label) {
 }
 function leave() {
   if (!confirm('Leave this family on this phone? Walkie forgets the pairing here. The other phones carry on.')) return;
+  K.reloading = true;
   stopBeat();
-  ['fam', 'me', 'beat', 'items', 'since', 'seen', 'heard', 'played', 'outbox', 'sleep', 'photos', 'log', 'sheetInfo', 'quiet', 'connected', 'budget'].forEach(drop);
+  ['fam', 'me', 'beat', 'items', 'since', 'seen', 'heard', 'played', 'outbox', 'sleep', 'photos', 'log', 'sheetInfo', 'quiet', 'connected', 'budget',
+    'shelf', 'shelfAt', 'pending', 'kstate', 'mine', 'routine', 'ui', 'kstars', 'starsSent', 'fetchQ', 'extras', 'games', 'gplay', 'gamesOk', 'away'].forEach(drop);
+  try { indexedDB.deleteDatabase('walkie'); } catch {}
   location.replace(APP);
 }
 
@@ -1817,6 +2954,39 @@ document.addEventListener('click', async (e) => {
   const t = e.target.closest('button, a');
   if (!t) return;
   const d = t.dataset;
+  // her phone
+  if (d.room) { openRoom(d.room); return; }
+  if (d.game) { openGame(d.game, t); return; }
+  if (d.gmmins != null) { saveCfgPart({ gm: { on: true, m: +d.gmmins } }, t, +d.gmmins ? `Games: ${+d.gmmins === 60 ? '1 hour' : d.gmmins + ' minutes'} a day` : 'Games: no daily limit'); return; }
+  if (d.rt) { tickRoutine(d.rt); return; }
+  if (d.kidtheme) { S.set.kidTheme = d.kidtheme; saveSet(); toggleSwatches(false); renderKid(); return; }
+  if (d.story) { if (K.story && K.story.sid === d.story) stopStory(); else playStory(d.story); return; }
+  if (d.ksound) { K.ksound = d.ksound; S.set.lastSound = d.ksound; saveSet(); if (NZ.on && !NZ.silent) startNoise(d.ksound, K.kmins != null ? K.kmins : S.set.lastMins != null ? S.set.lastMins : 30); else renderRoom(); return; }
+  if (d.kmins != null) { K.kmins = +d.kmins; S.set.lastMins = +d.kmins; saveSet(); if (NZ.on && !NZ.silent) startNoise(NZ.kind, +d.kmins); else renderRoom(); return; }
+  if (d.klevel != null) { setLevel(+d.klevel); renderRoom(); return; }
+  if (d.colour) { DRAW.colour = d.colour; t.parentElement.querySelectorAll('[data-colour]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
+  // her phone, from yours
+  if (d.ssel) { S.ui.sound = d.ssel; put('ui', { sound: S.ui.sound, mins: S.ui.mins }); t.parentElement.querySelectorAll('[data-ssel]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
+  if (d.smins != null) { S.ui.mins = +d.smins; put('ui', { sound: S.ui.sound, mins: S.ui.mins }); t.parentElement.querySelectorAll('[data-smins]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
+  if (d.rplay) { remote({ t: 'play', sid: d.rplay }, t, 'Playing on her phone'); return; }
+  if (d.unstory) {
+    const x = S.shelf.find((y) => y.sid === d.unstory);
+    if (!confirm(`Remove ${x && x.title ? `“${x.title}”` : 'this story'} from her phone?`)) return;
+    if (await remote({ t: 'unstory', sid: d.unstory }, t, 'Removed from her shelf')) { S.shelf = S.shelf.filter((y) => y.sid !== d.unstory); saveShelf(); renderView(); }
+    return;
+  }
+  if (d.unpend) { if (S.pending) { delete S.pending[d.unpend]; put('pending', S.pending); } renderView(); return; }
+  if (d.spic) { SR.pic = d.spic; t.parentElement.querySelectorAll('[data-spic]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
+  if (d.cdpic) { S.ui.cdPic = d.cdpic; t.parentElement.querySelectorAll('[data-cdpic]').forEach((b) => b.setAttribute('aria-pressed', String(b === t))); return; }
+  if (d.rtpick) {
+    const cur = S.ui.ri || C.routineItems(cfg().ri).slice();
+    const i = cur.indexOf(d.rtpick);
+    if (i >= 0) { if (cur.length > 1) cur.splice(i, 1); } else if (cur.length < 6) cur.push(d.rtpick); else { toast('Up to six pictures'); return; }
+    S.ui.ri = cur;
+    t.parentElement.querySelectorAll('[data-rtpick]').forEach((b) => b.setAttribute('aria-pressed', String(cur.includes(b.dataset.rtpick))));
+    return;
+  }
+  if (d.draw) { openDrawing(d.draw); return; }
   if (d.tile) {
     if (d.tile === 'sleep' || d.tile === 'wake') kidSleepTile(d.tile, t); else sendTile(d.tile, t);
     return;
@@ -1827,7 +2997,13 @@ document.addEventListener('click', async (e) => {
     if (isKid()) renderKid(); else applyTheme(S.set.theme);
     return;
   }
-  if (d.view) { S.view = d.view; renderView.first = true; renderView(); if (d.view === 'sleep' && S.fam.s) loadLog(); window.scrollTo(0, 0); return; }
+  if (d.view) {
+    if (REC.on || SR.on) { toast('Finish recording first'); return; }
+    S.view = d.view; renderView.first = true; renderView();
+    if (d.view === 'sleep' && S.fam.s) loadLog();
+    if (d.view !== 'talk') window.scrollTo(0, 0);
+    return;
+  }
   if (d.quick) { sendQuickParent(d.quick, t); return; }
   if (d.play) {
     const it = itemById(d.play);
@@ -1873,6 +3049,45 @@ document.addEventListener('click', async (e) => {
 
   switch (d.act) {
     case 'close': closeSheet(); break;
+    case 'room-home': closeRoom(); break;
+    case 'gm-on': { const g = gmc(); saveCfgPart({ gm: { on: !g.on, m: g.m } }, t, g.on ? 'Games off on her phone' : 'Games on'); break; }
+    case 'fs':
+      S.set.fs = S.set.fs === false; saveSet(); t.setAttribute('aria-checked', String(S.set.fs !== false));
+      if (S.set.fs === false && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      break;
+    case 'reload': K.reloading = true; location.reload(); break;
+    case 'k-story-stop': stopStory(); break;
+    case 'k-noise-go': startNoise(K.ksound || S.set.lastSound || 'rain', K.kmins != null ? K.kmins : S.set.lastMins != null ? S.set.lastMins : 30); break;
+    case 'k-noise-stop': stopNoise(3); break;
+    case 'k-bin':
+      if (K.binArmed && Date.now() - K.binArmed < 2500) { clearPad(); K.binArmed = 0; t.classList.remove('armed'); }
+      else { K.binArmed = Date.now(); t.classList.add('armed'); setTimeout(() => t.classList.remove('armed'), 2500); }
+      break;
+    case 'k-send': sendDrawing(t); break;
+    case 'remote-noise': remote({ t: 'noise', kind: soundSel(), mins: S.ui.mins }, t, `${soundName(soundSel())} playing on her phone`); break;
+    case 'remote-stop': remote({ t: 'stop' }, t, 'Stopped on her phone'); break;
+    case 'story-new': openStory(); break;
+    case 'sr-toggle': srToggle(); break;
+    case 'sr-preview': {
+      if (!SR.blob) return;
+      if (SR.url) URL.revokeObjectURL(SR.url);
+      SR.url = URL.createObjectURL(SR.blob);
+      player.src = SR.url; PLAYING.eid = null;
+      player.play().catch(() => toast('Couldn’t play it back here.'));
+      break;
+    }
+    case 'sr-playnow': SR.play = !SR.play; t.setAttribute('aria-checked', String(SR.play)); break;
+    case 'sr-send': SR.title = ($('#srTitle') || {}).value || ''; srSend(t); break;
+    case 'cd-set': openCountdown(); break;
+    case 'cd-clear': saveCfgPart({ cd: null }, t, 'Countdown cleared'); break;
+    case 'cd-save': {
+      const dv = $('#cdDate').value, l = cleanLabel($('#cdLabel').value).slice(0, 24);
+      if (C.sleepsUntil(Date.now(), dv) == null) { setResult('cdRes', 'Choose a date from today onwards.', true); return; }
+      closeSheet();
+      saveCfgPart({ cd: { e: S.ui.cdPic || '🎂', d: dv, l } }, null, `Countdown set: ${C.sleepsUntil(Date.now(), dv)} sleeps`);
+      break;
+    }
+    case 'rt-save': saveCfgPart({ ri: C.routineItems(S.ui.ri || cfg().ri) }, t, 'Routine saved'); S.ui.ri = null; break;
     case 'start': openStart(); break;
     case 'create': {
       const label = pickedName();
@@ -1925,7 +3140,7 @@ document.addEventListener('click', async (e) => {
       const bed = $('#tBed').value, wd = $('#tWd').value, we = $('#tWe').value;
       if ([bed, wd, we].some((v) => C.hm(v) == null)) { toast('Enter all three times'); return; }
       if (C.hm(bed) < 720) { toast('Bedtime needs to be in the afternoon or evening'); return; }
-      S.fam.cfg = { bed, wd, we }; S.fam.cfgAt = Date.now(); saveFam();
+      S.fam.cfg = Object.assign({}, cfg(), { bed, wd, we }); S.fam.cfgAt = Date.now(); saveFam();
       await withBusy(t, sendCfg);
       toast(`Saved. Night clock from ${time(C.at(Date.now(), C.hm(bed)))}`);
       if (isKid()) kidTick();
@@ -1984,6 +3199,7 @@ function refreshJoinBtn() {
 }
 document.addEventListener('input', (e) => { if (e.target.id === 'nameIn') { if (e.target.value) document.querySelectorAll('[data-name]').forEach((b) => b.setAttribute('aria-pressed', 'false')); refreshJoinBtn(); } });
 document.addEventListener('change', (e) => {
+  if (e.target.id === 'storyFile' && e.target.files && e.target.files[0]) { openStory(e.target.files[0]); e.target.value = ''; return; }
   const inp = e.target;
   if (!inp.dataset || !inp.dataset.photo || !inp.files || !inp.files[0]) return;
   const id = inp.dataset.photo, img = new Image(), url = URL.createObjectURL(inp.files[0]);
@@ -2049,7 +3265,9 @@ function renderSetup() {
 }
 async function boot() {
   await loadKey();
+  recache();
   if (isKid()) {
+    K.guarded = !!(history.state && history.state.walkie);
     show('kid');
     renderTiles();
     K.lastTouch = Date.now();

@@ -228,6 +228,79 @@
     return Math.max(0, Math.min(1, (days * 1440 + minsOf(ms) + (ms % MIN) / MIN - AX_FROM) / AX_SPAN));
   }
 
+  /* ---------- Stars: stayed in bed until the sun ---------- */
+  const GRACE = 2 * MIN;   // a press in the last two minutes before the sun still counts as waiting
+  // The sun for the night that starts on the evening of n.day
+  const sunFor = (n, cfg) => { const m = addDays(n.day, 1); return at(m, wakeMins(cfg, m)); };
+  // true: earned; false: not this time; null: the night isn't over yet
+  function star(n, cfg, now) {
+    const sun = sunFor(n, cfg);
+    if (n.start == null) return now >= sun ? false : null;   // night night wasn't pressed
+    const early = n.events.some((e) => e.type === 'wake' && e.role !== 'parent' && e.ts > n.start + SLIP && e.ts < sun - GRACE);
+    if (early) return false;
+    return now >= sun ? true : null;
+  }
+  // Newest first. Nights from before Walkie was first used don't count either way.
+  function stars(list, cfg, now) {
+    let first = -1;
+    list.forEach((n, i) => { if (n.start != null || n.events.length) first = i; });
+    return list.map((n, i) => ({ day: n.day, star: i > first ? null : star(n, cfg, now) }));
+  }
+
+  /* ---------- Countdown ---------- */
+  // "2026-10-31" → number of sleeps from today; 0 on the day itself, null once it has passed
+  function sleepsUntil(now, iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    if (!m) return null;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]).getTime();
+    const n = Math.round((d - startOfDay(now)) / DAY);
+    return n < 0 ? null : n;
+  }
+
+  /* ---------- Bedtime routine ---------- */
+  const ROUTINE = {
+    bath: { e: '🛁', t: 'Bath' }, teeth: { e: '🪥', t: 'Teeth' }, pyjamas: { e: '👕', t: 'Pyjamas' }, toilet: { e: '🚽', t: 'Toilet' },
+    story: { e: '📚', t: 'Story' }, tidy: { e: '🧸', t: 'Tidy up' }, milk: { e: '🥛', t: 'Milk' }, hair: { e: '💇', t: 'Hair' },
+  };
+  const ROUTINE_DEFAULT = ['bath', 'teeth', 'pyjamas', 'toilet'];
+  const routineItems = (list) => {
+    const out = (Array.isArray(list) ? list : ROUTINE_DEFAULT).filter((k, i, a) => ROUTINE[k] && a.indexOf(k) === i).slice(0, 6);
+    return out.length ? out : ROUTINE_DEFAULT.slice();
+  };
+  // Shown from two hours before bedtime until an hour after it
+  function routineOn(now, cfg) {
+    const m = minsOf(now), bed = bedMins(cfg);
+    return m >= bed - 120 && m < bed + 60;
+  }
+
+  /* ---------- Games ---------- */
+  // What the grown-ups allow: games on or off, and minutes a day (0 = no limit)
+  const GM_MINS = [0, 20, 30, 60];
+  function gmCfg(cfg) {
+    const g = (cfg && cfg.gm) || {};
+    return { on: g.on !== false, m: GM_MINS.includes(+g.m) && g.m !== null && g.m !== '' ? +g.m : 30 };
+  }
+  // The games list (games.json): only pages on the same site as Walkie, so nothing can lead her elsewhere
+  function gameList(json, base) {
+    const out = [], ids = new Set();
+    const list = json && Array.isArray(json.games) ? json.games : [];
+    let origin;
+    try { origin = new URL(base).origin; } catch { return out; }
+    const same = (u) => { try { const x = new URL(String(u), base); return x.origin === origin && /^https?:$/.test(x.protocol) ? x.href : null; } catch { return null; } };
+    for (const g of list) {
+      if (!g || typeof g !== 'object') continue;
+      const id = String(g.id || '').toLowerCase();
+      if (!/^[a-z0-9-]{1,30}$/.test(id) || ids.has(id)) continue;
+      const url = g.url ? same(g.url) : null;
+      const ready = g.ready === true && !!url;
+      out.push({ id, name: String(g.name || id).replace(/[<>]/g, '').slice(0, 30), url, icon: g.icon ? same(g.icon) : null,
+        emoji: String(g.emoji || '🎮').slice(0, 8), ready });
+      ids.add(id);
+      if (out.length >= 12) break;
+    }
+    return out;
+  }
+
   /* ---------- Waveform ---------- */
   // Squash a list of 0..1 levels to n bars of 0..9, as a digit string
   function peaks(levels, n) {
@@ -466,6 +539,8 @@
     phase, nextWake, bedAt, wakeMins, bedMins,
     clean, clusters, night, nights, headline, averages, sentence, avgSentence, dur, axisPos, AX_FROM, AX_SPAN, WORD, RANK,
     peaks, joinHash, parseJoin, clickInfo, budget, CAP_DAY, drift, QR, B64,
+    star, stars, sunFor, sleepsUntil, ROUTINE, ROUTINE_DEFAULT, routineItems, routineOn,
+    GM_MINS, gmCfg, gameList,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;
   else root.Core = Core;

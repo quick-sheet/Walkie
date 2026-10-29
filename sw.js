@@ -1,9 +1,14 @@
-const CACHE = 'walkie-v2';   // bump on every release, together with core.js?v= in index.html
+const CACHE = 'walkie-v3';   // bump on every release, together with core.js?v= in index.html
 const SHELL = ['./', 'index.html', 'core.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(CACHE)
   .then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting())));
 self.addEventListener('activate', (e) => e.waitUntil(caches.keys()
   .then((k) => Promise.all(k.filter((x) => x.startsWith('walkie-') && x !== CACHE).map((x) => caches.delete(x)))).then(() => self.clients.claim())));
+// Other apps on this site share the cache store, and one clearing it shouldn't leave Walkie without its offline copy
+self.addEventListener('message', (e) => {
+  if (e.data !== 'recache') return;
+  e.waitUntil(caches.open(CACHE).then(async (c) => { if (!(await c.match('index.html'))) await c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' }))); }).catch(() => {}));
+});
 const FONTS = /^https:\/\/fonts\.(googleapis|gstatic)\.com\//;
 self.addEventListener('fetch', (e) => {
   const req = e.request;

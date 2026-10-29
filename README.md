@@ -4,8 +4,8 @@ A child's bedside walkie-talkie and sleep log, linked to her parents' phones.
 
 Live at **https://quick-sheet.github.io/Walkie/**
 
-- **Her phone:** one big hold-to-talk button and picture buttons (Water, Toilet, Bad dream, Cuddle, Love you, Night night / I'm awake). At bedtime the screen turns black with a dim red clock and a moon, which turns into a sun at wake-up time.
-- **Your phones:** her messages arrive as ntfy notifications, with reply buttons. In the app you can listen, hold to talk back (slide left to cancel, slide up to keep recording), see who has heard what, and see her nights on the Sleep page.
+- **Her phone:** one big hold-to-talk button and picture buttons (Water, Toilet, Bad dream, Cuddle, Love you, Night night / I'm awake). At bedtime the screen turns black with a dim red clock and a moon, which turns into a sun at wake-up time. Along the bottom: 📖 stories and songs you've sent, 🎧 sleepy sounds (white, grey, brown noise or rain, for 15, 30 or 60 minutes or until morning) and ⭐ a calm breathing star; in the daytime also 🎨 drawing to send to you and 🎮 your games; at night also 🔦 a night light. She earns a ⭐ for each night she stays in bed until the sun, sees moons counting the sleeps to something special, ticks off bedtime routine pictures, and in the daytime can change her colours with the round colour button.
+- **Your phones:** her messages arrive as ntfy notifications, with reply buttons. With Walkie open in front of you, her voice messages play out loud as they arrive. The header stays at the top with three tabs: **Talk** (listen, hold to talk back, slide left to cancel, slide up to keep recording, see who has heard what, her drawings), **Sleep** (her nights, with stars) and **Her phone** (start or stop sounds and stories on her phone, record or send stories, games on or off and her daily game time, the countdown and her routine pictures). When you reply On my way, she sees a woman running for Mummy or Mum and a man running for Daddy or Dad.
 - **Sleep log:** every tap and message is saved to a Google Sheet of your own, through a small Apps Script.
 
 ## Host
@@ -25,29 +25,53 @@ Live at **https://quick-sheet.github.io/Walkie/**
 
 Anyone with the pairing link can join, so only use it on your own phones.
 
+## Keep her in Walkie
+
+1. **Pin Walkie** (Android's own lock, there since Android 5): set a screen lock PIN on her phone, then in **Settings** search for **pinning** (it's under **Security**, or **Security & location**, **→ Advanced**) and turn it on, with **Ask for PIN before unpinning** if your version lists it. Open Walkie, tap the square Overview button (or swipe up and hold), tap the Walkie icon at the top of its card, then **Pin**. Unpinning takes Back and Overview held together, then your PIN.
+2. **Tidy the phone:** disable every app she doesn't need (**Settings → Apps → the app → Disable**: YouTube, Play Store, Gmail and so on) and leave Walkie as the only icon on the home screen. Keep Chrome: Walkie runs on it.
+3. **Walkie helps too:** on her phone it goes full screen at her first touch (hiding the status bar and the Back, Home and Recents buttons; switch this off in her settings if it ever gets in the way), Back stays inside Walkie, and if Walkie is closed or hidden for 2 minutes you get "Walkie isn't on her screen".
+4. **After a restart** (power cut, Android update) the pin is gone and the phone waits on your PIN: unlock, open Walkie and pin it again. You'll have had a "Walkie has gone quiet" alert meanwhile.
+
+## Games
+
+Her games open inside Walkie, full screen, in the daytime only. They're listed in `games.json` in this repo:
+
+```json
+{ "id": "wolfsheep", "name": "Wolf & Sheep", "emoji": "🐺", "url": "../WolfSheep/", "icon": "../WolfSheep/icon-192.png", "ready": true }
+```
+
+- `url` and `icon` must be on quick-sheet.github.io (the same site as Walkie); anything else is ignored. `../Name/` means `https://quick-sheet.github.io/Name/`.
+- `"ready": false` shows the game greyed out with a lock; change it to `true` (and set the right `url` and `icon`) when the game is live. Editing `games.json` needs no new Walkie release: her phone picks it up within a few hours, or straight away with **Check for update** in her settings.
+- Each game needs Wi-Fi the first time she opens it, then works offline (if the game itself does).
+- Game time: set on your **Her phone** tab (20 min, 30 min, 1 hour or no limit, 30 min to start). When it runs out the game closes and her games show 🎮💤→☀️ until tomorrow. A game also closes at bedtime, if you switch games off, or after 5 minutes without a touch.
+
 ## Update
 
 1. In the repo: **Add file → Upload files**, choose the changed files, **Commit changes**.
 2. Wait about a minute (**Actions** shows a green tick when it's live).
-3. Fully close Walkie and reopen it. If it looks the same, close and reopen once more. On her pinned phone, unpin first (hold Back and Overview), close it, reopen and pin again.
+3. On each phone, open **Settings** and tap **Check for update** next to the release number at the top (on her phone: press and hold the slider icon). No need to unpin her phone. If the release number hasn't changed, wait a minute and tap it again.
 
-Every release bumps `core.js?v=N` in `index.html` and `walkie-vN` in `sw.js` together. When `Code.gs` changes, also go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** (same URL).
+Every release bumps `core.js?v=N` in `index.html` and `walkie-vN` in `sw.js` together. **Settings** shows the release at the top ("Walkie release 3"), so you can see when a phone has the update. When `Code.gs` changes, also paste it into Apps Script and go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** (same URL). **Settings → Sleep log → Check** then shows the Apps Script release.
 
 ## Files
 
 | File | What it does |
 | --- | --- |
-| `index.html` | The whole app: setup and pairing, her screen, your Talk and Sleep pages |
-| `core.js` | Pure logic: OK-to-wake clock, nights and averages, pairing link, QR code, daily allowance |
+| `index.html` | The whole app: setup and pairing, her screen and its extras, your Talk, Sleep and Her phone pages |
+| `games.json` | Her games: name, address, icon, and whether each is ready |
+| `core.js` | Pure logic: OK-to-wake clock, nights and averages, stars, countdown, routine, games list and game time, pairing link, QR code, daily allowance |
 | `sw.js` | Offline support and instant updates |
 | `manifest.webmanifest`, `icon*.png`, `icon.svg`, `apple-touch-icon.png` | Install to the home screen |
 | `apps-script/Code.gs`, `apps-script/appsscript.json` | The sleep log, deployed in Apps Script |
 
 ## Good to know
 
-- **Privacy:** voice clips and the messages between the phones are sealed with your family's key before they leave the phone, so ntfy only stores noise. Notification texts never include her name. ntfy deletes voice clips after 3 hours; the Sheet stores what happened and when, never audio.
+- **Privacy:** voice clips, stories, drawings and the messages between the phones are sealed with your family's key before they leave the phone, so ntfy only stores noise. Notification texts never include her name. ntfy deletes uploads after 3 hours; the Sheet stores what happened and when, never audio or pictures.
+- **Stories** are kept on her phone once they arrive (up to 24; the oldest goes when a new one arrives). If her phone can't download one straight away it keeps trying, but ntfy only keeps uploads for 3 hours; after that your Her phone page says it didn't arrive. ntfy takes files up to 2 MB, which is about 8 minutes of recording; for a longer song, send an MP3 under 2 MB. Leaving the family on her phone deletes them.
+- **Stars** are counted on her phone from her own buttons, starting from the first night after this update, and shown on your Sleep page too: Night night at bedtime, then no I'm awake until the sun is up. A bad dream or a cuddle in the night doesn't cost the star; pressing I'm awake while the moon is still up does.
+- **Sounds and stories play on her phone only while Walkie is open on it** (as it always is by her bed). They pause while she holds the talk button. Commands from your phone that arrive more than 10 minutes late are ignored, so nothing starts out of the blue. Her phone reports what's playing within seconds while you're controlling it, otherwise at most once a minute, to save ntfy's daily messages.
 - **ntfy's free limit** is 250 messages a day for your whole home Wi-Fi (all phones together, Overhead included), reset at midnight UTC. Her phone keeps to 70 by day, so the evening and night always have room, and holds nothing back at night. If she uses up the daytime share, her buttons rest until bedtime and you get one notification saying so. Bad dream and Cuddle always go.
-- **Gone quiet:** her phone keeps a "Walkie has gone quiet" message waiting on ntfy and keeps pushing it back. If it stops (off, flat, off the Wi-Fi, or Walkie closed), the message arrives: at night within 50 minutes, by day at 20 minutes after bedtime, so you know before she goes to bed. "Walkie's back" follows when it returns.
+- **Gone quiet:** her phone keeps a "Walkie has gone quiet" message waiting on ntfy and keeps pushing it back. If it stops (off, flat or off the Wi-Fi), the message arrives: at night within 50 minutes, by day at 20 minutes after bedtime, so you know before she goes to bed. If Walkie is closed, hidden or its screen switched off, you hear sooner: "Walkie isn't on her screen" after 2 minutes. "Walkie's back" follows when it returns.
 - **If the Sheet can't be opened** (for example, it was deleted), the log shows an error rather than quietly starting a new one. To start a fresh Sheet, delete `SHEET_ID` under Project Settings, Script Properties.
 - **Your phone won't speak by itself.** A web app can't play sound on a locked phone, so you get the notification and tap to listen, or use the reply buttons right in the notification.
 - **Her screen stays on** while Walkie is open. Keep her phone plugged in, on a hard surface.
